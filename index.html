@@ -57,10 +57,10 @@
     .stihl-btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
     .stihl-card{border:1px solid var(--stihl-border);border-radius:12px;padding:14px;margin:10px 0;background:#fff}
     .stihl-card.featured{border:2px solid var(--stihl-orange)}
-    .stihl-line{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid #eee;padding:7px 0}
-    .stihl-line:last-child{border-bottom:0}
-    .stihl-line span{color:#555}
-    .stihl-line strong{text-align:right}
+    .{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid #eee;padding:7px 0}
+    .:last-child{border-bottom:0}
+    . span{color:#555}
+    . strong{text-align:right}
     .stihl-badge{display:inline-block;background:#111;color:#fff;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:800;margin:2px 5px 2px 0}
     .stihl-badge.orange{background:var(--stihl-orange);color:#111}
     .stihl-badge.green{background:var(--stihl-green);color:#fff}
@@ -72,7 +72,30 @@
     .stihl-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
     .stihl-table th,.stihl-table td{border:1px solid #ddd;padding:8px;text-align:left;vertical-align:top}
     .stihl-table th{background:#111;color:#fff}
-    .stihl-table tr:nth-child(even) td{background:#fafafa}
+  .stihl-weight-wrap{
+  margin-top:12px;
+}
+
+.stihl-weight-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:8px;
+  font-size:14px;
+}
+
+.stihl-weight-table th,
+.stihl-weight-table td{
+  border:1px solid #ddd;
+  padding:8px;
+  text-align:center;
+  vertical-align:middle;
+}
+
+.stihl-weight-table th{
+  background:#f5f5f5;
+  font-weight:700;
+}  
+  .stihl-table tr:nth-child(even) td{background:#fafafa}
     .stihl-option-row{display:grid;grid-template-columns:1fr 95px 110px;gap:10px;align-items:end;margin-bottom:10px}
     .stihl-qty{max-width:95px}
     .stihl-summary{position:sticky;top:10px}
@@ -233,15 +256,15 @@
 
           <div id="stihl-cart-lines" style="margin-top:12px"></div>
 
-          <div class="stihl-line">
+          <div class="">
             <span>Subtotal</span>
             <strong id="stihl-subtotal">$0.00</strong>
           </div>
-          <div class="stihl-line">
+          <div class="">
             <span>Estimated CT Sales Tax</span>
             <strong id="stihl-tax">$0.00</strong>
           </div>
-          <div class="stihl-line">
+          <div class="">
             <span>Total</span>
             <strong class="stihl-total" id="stihl-total">$0.00</strong>
           </div>
@@ -528,10 +551,42 @@ function renderKitIncludes(tool){
           <div class="stihl-small">Model: <strong>${escapeHtml(clean(t.Model))}</strong> | SKU: <strong>${escapeHtml(skuOf(t))}</strong></div>
           <div style="margin:8px 0">${badges}</div>
           <div>${displayPrice(t)}</div>
-          <div class="stihl-line"><span>Category</span><strong>${escapeHtml(clean(t.Category))} / ${escapeHtml(clean(t.SubCategory))}</strong></div>
-          <div class="stihl-line"><span>Recommended Battery</span><strong>${escapeHtml(rec || 'See options')}</strong></div>
+          <div class=""><span>Category</span><strong>${escapeHtml(clean(t.Category))} / ${escapeHtml(clean(t.SubCategory))}</strong></div>
+          <div class=""><span>Recommended Battery</span><strong>${escapeHtml(rec || 'See options')}</strong></div>
           ${renderKitIncludes(t)}
-          <div class="stihl-line"><span>Tool Weight</span><strong>${escapeHtml(clean(t.ToolWeight) || 'N/A')}</strong></div>
+          <div class="stihl-line">
+  <span>Tool Weight</span>
+  <strong>${escapeHtml(clean(t.ToolWeight) || 'N/A')}</strong>
+</div>
+
+<div class="stihl-weight-wrap">
+  <h3>Operating Weight Options</h3>
+
+  <table class="stihl-weight-table">
+    <thead>
+      <tr>
+        <th>Tool Only</th>
+        <th>w/AK10</th>
+        <th>w/AK20</th>
+        <th>w/AK30</th>
+        <th>w/AK30S</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>${escapeHtml(clean(t.ToolWeight) || 'N/A')}</td>
+        <td>${escapeHtml(clean(t.WeightAK10) || '—')}</td>
+        <td>${escapeHtml(clean(t.WeightAK20) || '—')}</td>
+        <td>${escapeHtml(clean(t.WeightAK30) || '—')}</td>
+        <td>${escapeHtml(clean(t.WeightAK30S) || '—')}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="stihl-small">
+    Weights shown are combined tool and battery operating weights.
+  </div>
+</div>
           ${clean(t.SpecialText) ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}${clean(t.SaleEndDate) ? ' Ends ' + escapeHtml(clean(t.SaleEndDate)) + '.' : ''}</div>` : ''}
         </div>
       `;
