@@ -482,7 +482,24 @@
     function renderAccessoryOptions(){
       $('stihl-accessory-select').innerHTML = '<option value="">Choose accessory</option>' + state.accessories.map(a => `<option value="${escapeHtml(skuOf(a))}">${escapeHtml(nameOf(a))} — ${fmtMoney(priceOf(a))}</option>`).join('');
     }
+function renderKitIncludes(tool){
+  const kitBattery = clean(tool.KitBattery);
+  const kitBatteryQty = clean(tool.KitBatteryQty);
+  const kitCharger = clean(tool.KitCharger);
+  const kitChargerQty = clean(tool.KitChargerQty);
 
+  if(!kitBattery && !kitCharger){
+    return `<div class="gw-kit-line"><strong>Tool Only</strong></div>`;
+  }
+
+  return `
+    <div class="gw-kit-line">
+      <strong>Kit Includes:</strong>
+      ${kitBattery ? `<span><strong>Battery:</strong> ${kitBatteryQty && kitBatteryQty !== '1' ? kitBatteryQty + 'x ' : ''}${kitBattery}</span>` : ''}
+      ${kitCharger ? `<span><strong>Charger:</strong> ${kitChargerQty && kitChargerQty !== '1' ? kitChargerQty + 'x ' : ''}${kitCharger}</span>` : ''}
+    </div>
+  `;
+}
     function renderToolDetails(){
       const box = $('stihl-tool-details');
       const t = state.selectedTool;
