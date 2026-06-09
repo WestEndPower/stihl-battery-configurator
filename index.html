@@ -1,5 +1,4 @@
-const incBattery = clean(state.selectedTool.KitBattery);
-const incCharger = clean(state.selectedTool.KitCharger);<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- =========================================================
@@ -408,15 +407,15 @@ const incCharger = clean(state.selectedTool.KitCharger);<!DOCTYPE html>
       state.cart = [];
       if(state.selectedTool){
         addItem('tool', state.selectedTool, 1, 'Selected tool');
-        const incBattery = clean(state.selectedTool.IncludedBattery);
-        const incCharger = clean(state.selectedTool.IncludedCharger);
+        const incBattery = clean(state.selectedTool.KitBattery);
+const incCharger = clean(state.selectedTool.KitCharger);
         if(incBattery){
           const b = findBattery(incBattery);
-          if(b) addItem('battery', b, Number(state.selectedTool.RecommendedBatteryCount)||1, 'Included in kit', true);
+          if(b) addItem('battery', b, Number(state.selectedTool.KitBatteryQty)||1, 'Included in kit', true);
         }
         if(incCharger){
           const c = findCharger(incCharger);
-          if(c) addItem('charger', c, 1, 'Included in kit', true);
+          if(c) addItem('charger', c, Number(state.selectedTool.KitChargerQty)||1, 'Included in kit', true);
         }
       }
       renderToolDetails();
@@ -490,11 +489,11 @@ function renderKitIncludes(tool){
   const kitChargerQty = clean(tool.KitChargerQty);
 
   if(!kitBattery && !kitCharger){
-    return `<div class="gw-kit-line"><strong>Tool Only</strong></div>`;
+    return `<div class="stihl-kit-line"><strong>Tool Only</strong></div>`;
   }
 
   return `
-    <div class="gw-kit-line">
+    <div class="stihl-kit-line">
       <strong>Kit Includes:</strong>
       ${kitBattery ? `<span><strong>Battery:</strong> ${kitBatteryQty && kitBatteryQty !== '1' ? kitBatteryQty + 'x ' : ''}${kitBattery}</span>` : ''}
       ${kitCharger ? `<span><strong>Charger:</strong> ${kitChargerQty && kitChargerQty !== '1' ? kitChargerQty + 'x ' : ''}${kitCharger}</span>` : ''}
@@ -508,8 +507,7 @@ function renderKitIncludes(tool){
 
       const badges = [clean(t.ComponentType), clean(t.Series), clean(t.System), clean(t.Badge)].filter(Boolean).map(b => `<span class="stihl-badge orange">${escapeHtml(b)}</span>`).join('');
       const rec = clean(t.RecommendedBattery);
-      const included = [clean(t.IncludedBattery), clean(t.IncludedCharger)].filter(Boolean).join(' + ');
-      box.innerHTML = `
+           box.innerHTML = `
         <div class="stihl-card featured">
           <div class="stihl-product-title">${escapeHtml(nameOf(t))}</div>
           <div class="stihl-small">Model: <strong>${escapeHtml(clean(t.Model))}</strong> | SKU: <strong>${escapeHtml(skuOf(t))}</strong></div>
@@ -517,8 +515,7 @@ function renderKitIncludes(tool){
           <div>${displayPrice(t)}</div>
           <div class="stihl-line"><span>Category</span><strong>${escapeHtml(clean(t.Category))} / ${escapeHtml(clean(t.SubCategory))}</strong></div>
           <div class="stihl-line"><span>Recommended Battery</span><strong>${escapeHtml(rec || 'See options')}</strong></div>
-          <div class="stihl-line"><span>Included Kit Items</span><strong>${escapeHtml(included || 'Tool only')}</strong></div>
-          <div class="stihl-line"><span>Default Package</span><strong>${escapeHtml(clean(t.DefaultPackage) || 'None listed')}</strong></div>
+          ${renderKitIncludes(t)}
           <div class="stihl-line"><span>Tool Weight</span><strong>${escapeHtml(clean(t.ToolWeight) || 'N/A')}</strong></div>
           ${clean(t.SpecialText) ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}${clean(t.SaleEndDate) ? ' Ends ' + escapeHtml(clean(t.SaleEndDate)) + '.' : ''}</div>` : ''}
         </div>
