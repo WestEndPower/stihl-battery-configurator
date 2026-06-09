@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- =========================================================
+       SECTION START: STIHL BATTERY CONFIGURATOR HEAD
+       Search ID: stihl-configurator-head
+  ========================================================== -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STIHL Battery Configurator | West End Power</title>
+  <style>
+    :root{
+      --stihl-orange:#f37021;
+      --stihl-dark:#111111;
+      --stihl-gray:#f5f5f5;
+      --stihl-border:#dddddd;
+      --stihl-green:#1f7a3a;
+      --stihl-red:#b00020;
+      --max-width:1180px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#111;line-height:1.45}
+    a{color:inherit}
+    .stihl-wrap{max-width:var(--max-width);margin:0 auto;padding:20px}
+    .stihl-hero{background:linear-gradient(135deg,#111,#333);color:#fff;padding:28px 20px;border-bottom:7px solid var(--stihl-orange)}
+    .stihl-hero-inner{max-width:var(--max-width);margin:0 auto}
+    .stihl-eyebrow{color:var(--stihl-orange);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+    .stihl-hero h1{font-size:clamp(30px,4vw,48px);margin:6px 0 8px}
+    .stihl-hero p{font-size:18px;margin:0;max-width:850px}
+    .stihl-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:start}
+    .stihl-panel{background:#fff;border:1px solid var(--stihl-border);border-radius:14px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.05);margin-bottom:18px}
+    .stihl-panel h2{margin:0 0 12px;font-size:22px}
+    .stihl-panel h3{margin:14px 0 8px;font-size:17px}
+    .stihl-controls{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+    label{font-weight:700;font-size:13px;display:block;margin-bottom:5px}
+    input,select,textarea{width:100%;padding:11px 12px;border:1px solid #cfcfcf;border-radius:9px;font-size:15px;background:#fff}
+    textarea{min-height:70px}
+    .stihl-btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:9px;padding:11px 14px;font-weight:800;cursor:pointer;text-decoration:none;background:var(--stihl-orange);color:#111}
+    .stihl-btn.secondary{background:#111;color:#fff}
+    .stihl-btn.light{background:#eee;color:#111}
+    .stihl-btn.danger{background:#b00020;color:#fff}
+    .stihl-btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    .stihl-card{border:1px solid var(--stihl-border);border-radius:12px;padding:14px;margin:10px 0;background:#fff}
+    .stihl-card.featured{border:2px solid var(--stihl-orange)}
+    .stihl-line{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid #eee;padding:7px 0}
+    .stihl-line:last-child{border-bottom:0}
+    .stihl-line span{color:#555}
+    .stihl-line strong{text-align:right}
+    .stihl-badge{display:inline-block;background:#111;color:#fff;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:800;margin:2px 5px 2px 0}
+    .stihl-badge.orange{background:var(--stihl-orange);color:#111}
+    .stihl-badge.green{background:var(--stihl-green);color:#fff}
+    .stihl-badge.red{background:var(--stihl-red);color:#fff}
+    .stihl-small{font-size:13px;color:#666}
+    .stihl-product-title{font-size:20px;font-weight:900;margin-bottom:5px}
+    .stihl-price{font-size:22px;font-weight:900}
+    .stihl-old{text-decoration:line-through;color:#777;margin-right:8px;font-size:15px}
+    .stihl-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+    .stihl-table th,.stihl-table td{border:1px solid #ddd;padding:8px;text-align:left;vertical-align:top}
+    .stihl-table th{background:#111;color:#fff}
+    .stihl-table tr:nth-child(even) td{background:#fafafa}
+    .stihl-option-row{display:grid;grid-template-columns:1fr 95px 110px;gap:10px;align-items:end;margin-bottom:10px}
+    .stihl-qty{max-width:95px}
+    .stihl-summary{position:sticky;top:10px}
+    .stihl-total{font-size:28px;font-weight:900;color:#111}
+    .stihl-note{background:#fff8ef;border-left:5px solid var(--stihl-orange);padding:12px;margin:12px 0;border-radius:8px}
+    .stihl-error{background:#fff0f0;border-left:5px solid var(--stihl-red);padding:12px;margin:12px 0;border-radius:8px}
+    .stihl-success{background:#effaf2;border-left:5px solid var(--stihl-green);padding:12px;margin:12px 0;border-radius:8px}
+    .stihl-hide{display:none!important}
+    @media(max-width:850px){
+      .stihl-grid,.stihl-controls,.stihl-option-row{grid-template-columns:1fr}
+      .stihl-summary{position:static}
+    }
+    @media print{
+      .stihl-hero,.stihl-controls,.stihl-btn-row,#stihl-tool-picker-panel,#stihl-options-panel{display:none!important}
+      .stihl-grid{display:block}
+      .stihl-panel{box-shadow:none;border:1px solid #999}
+      body{font-size:12px}
+    }
+  </style>
+  <!-- =========================================================
+       SECTION END: STIHL BATTERY CONFIGURATOR HEAD
+  ========================================================== -->
+</head>
+<body>
+  <!-- =========================================================
+       SECTION START: STIHL BATTERY CONFIGURATOR HERO
+       Search ID: stihl-configurator-hero
+  ========================================================== -->
+  <section class="stihl-hero" id="stihl-configurator-hero">
+    <div class="stihl-hero-inner">
+      <div class="stihl-eyebrow">West End Power Equipment</div>
+      <h1>STIHL Battery Configurator</h1>
+      <p>Choose a STIHL battery tool or kit, then match compatible batteries, chargers, attachments, accessories, estimated run times, and quote totals.</p>
+    </div>
+  </section>
+  <!-- =========================================================
+       SECTION END: STIHL BATTERY CONFIGURATOR HERO
+  ========================================================== -->
+
+  <main class="stihl-wrap" id="stihl-configurator-app">
+    <div id="stihl-load-status" class="stihl-note">Loading configurator data...</div>
+
+    <div class="stihl-grid">
+      <div>
+        <!-- =========================================================
+             SECTION START: TOOL PICKER
+             Search ID: stihl-tool-picker-panel
+        ========================================================== -->
+        <section class="stihl-panel" id="stihl-tool-picker-panel">
+          <h2>1. Select Tool or Kit</h2>
+
+          <div class="stihl-controls">
+            <div>
+              <label for="stihl-search">Search model, SKU, name, category</label>
+              <input id="stihl-search" type="search" placeholder="Example: FSA57, KMA, hedge, blower" />
+            </div>
+            <div>
+              <label for="stihl-category">Filter by category</label>
+              <select id="stihl-category">
+                <option value="">All categories</option>
+              </select>
+            </div>
+          </div>
+
+          <label for="stihl-tool-select">Tool / Kit</label>
+          <select id="stihl-tool-select">
+            <option value="">Choose a STIHL tool or kit</option>
+          </select>
+
+          <div id="stihl-tool-details"></div>
+        </section>
+        <!-- =========================================================
+             SECTION END: TOOL PICKER
+        ========================================================== -->
+
+        <!-- =========================================================
+             SECTION START: OPTIONS PANEL
+             Search ID: stihl-options-panel
+        ========================================================== -->
+        <section class="stihl-panel" id="stihl-options-panel">
+          <h2>2. Build Package</h2>
+
+          <div class="stihl-option-row">
+            <div>
+              <label for="stihl-battery-select">Battery</label>
+              <select id="stihl-battery-select"><option value="">Choose battery</option></select>
+            </div>
+            <div>
+              <label for="stihl-battery-qty">Qty</label>
+              <input id="stihl-battery-qty" class="stihl-qty" type="number" min="0" value="1" />
+            </div>
+            <button class="stihl-btn" id="stihl-add-battery" type="button">Add</button>
+          </div>
+
+          <div class="stihl-option-row">
+            <div>
+              <label for="stihl-charger-select">Charger</label>
+              <select id="stihl-charger-select"><option value="">Choose charger</option></select>
+            </div>
+            <div>
+              <label for="stihl-charger-qty">Qty</label>
+              <input id="stihl-charger-qty" class="stihl-qty" type="number" min="0" value="1" />
+            </div>
+            <button class="stihl-btn" id="stihl-add-charger" type="button">Add</button>
+          </div>
+
+          <div class="stihl-option-row">
+            <div>
+              <label for="stihl-attachment-select">Kombi Attachment</label>
+              <select id="stihl-attachment-select"><option value="">Choose attachment</option></select>
+            </div>
+            <div>
+              <label for="stihl-attachment-qty">Qty</label>
+              <input id="stihl-attachment-qty" class="stihl-qty" type="number" min="0" value="1" />
+            </div>
+            <button class="stihl-btn" id="stihl-add-attachment" type="button">Add</button>
+          </div>
+
+          <div class="stihl-option-row">
+            <div>
+              <label for="stihl-accessory-select">Accessory</label>
+              <select id="stihl-accessory-select"><option value="">Choose accessory</option></select>
+            </div>
+            <div>
+              <label for="stihl-accessory-qty">Qty</label>
+              <input id="stihl-accessory-qty" class="stihl-qty" type="number" min="0" value="1" />
+            </div>
+            <button class="stihl-btn" id="stihl-add-accessory" type="button">Add</button>
+          </div>
+
+          <div id="stihl-runtime-panel"></div>
+        </section>
+        <!-- =========================================================
+             SECTION END: OPTIONS PANEL
+        ========================================================== -->
+      </div>
+
+      <aside>
+        <!-- =========================================================
+             SECTION START: QUOTE SUMMARY
+             Search ID: stihl-quote-summary-panel
+        ========================================================== -->
+        <section class="stihl-panel stihl-summary" id="stihl-quote-summary-panel">
+          <h2>Quote Summary</h2>
+
+          <div>
+            <label for="stihl-customer-name">Customer Name</label>
+            <input id="stihl-customer-name" placeholder="Customer name" />
+          </div>
+          <div style="margin-top:10px">
+            <label for="stihl-customer-contact">Phone / Email</label>
+            <input id="stihl-customer-contact" placeholder="Phone or email" />
+          </div>
+          <div style="margin-top:10px">
+            <label for="stihl-quote-notes">Notes</label>
+            <textarea id="stihl-quote-notes" placeholder="Optional quote notes"></textarea>
+          </div>
+
+          <div id="stihl-cart-lines" style="margin-top:12px"></div>
+
+          <div class="stihl-line">
+            <span>Subtotal</span>
+            <strong id="stihl-subtotal">$0.00</strong>
+          </div>
+          <div class="stihl-line">
+            <span>Estimated CT Sales Tax</span>
+            <strong id="stihl-tax">$0.00</strong>
+          </div>
+          <div class="stihl-line">
+            <span>Total</span>
+            <strong class="stihl-total" id="stihl-total">$0.00</strong>
+          </div>
+
+          <div class="stihl-btn-row">
+            <button class="stihl-btn secondary" id="stihl-print" type="button">Print / Save PDF</button>
+            <button class="stihl-btn light" id="stihl-copy" type="button">Copy Quote</button>
+            <button class="stihl-btn danger" id="stihl-clear" type="button">Clear</button>
+          </div>
+
+          <p class="stihl-small">Prices, compatibility, availability, promotions, and estimated run times should be verified before final sale.</p>
+        </section>
+        <!-- =========================================================
+             SECTION END: QUOTE SUMMARY
+        ========================================================== -->
+      </aside>
+    </div>
+  </main>
+
+  <!-- =========================================================
+       SECTION START: STIHL CONFIGURATOR SCRIPT
+       Search ID: stihl-configurator-script
+  ========================================================== -->
+  <script>
+  (function(){
+    const TAX_RATE = 0.0635;
+
+    const DATA_FILES = {
+      tools: 'data/tools.csv',
+      batteries: 'data/batteries.csv',
+      chargers: 'data/chargers.csv',
+      attachments: 'data/attachments.csv',
+      accessories: 'data/accessories.csv',
+      kmaRuntimes: 'data/kma-runtimes.csv'
+    };
+
+    const batteryCodes = ['AS2','AK10','AK20','AK30','AK30S','AP200S','AP300S','AP500S','AR2000L','AR3000L'];
+    const chargerCodes = ['AL1','AL5','AL5-2','AL101','AL301','AL301-4','AL501'];
+
+    const state = {
+      tools: [],
+      batteries: [],
+      chargers: [],
+      attachments: [],
+      accessories: [],
+      kmaRuntimes: [],
+      selectedTool: null,
+      cart: []
+    };
+
+    const $ = id => document.getElementById(id);
+
+    function clean(v){ return (v === null || v === undefined || String(v).toLowerCase() === 'nan') ? '' : String(v).trim(); }
+    function money(v){
+      const n = Number(clean(v).replace(/[$,]/g,''));
+      return isFinite(n) ? n : 0;
+    }
+    function fmtMoney(n){ return '$' + (Number(n)||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+    function isTrue(v){
+      const s = clean(v).toLowerCase();
+      return ['true','yes','y','1','x'].includes(s);
+    }
+    function skuOf(item){ return clean(item.SKU || item.sku); }
+    function modelOf(item){ return clean(item.Model || item.BatteryName || item.ChargerName || item.Name || skuOf(item)); }
+    function nameOf(item){ return clean(item.Name || item.BatteryName || item.ChargerName || item.Model || skuOf(item)); }
+    function priceOf(item){
+      const sale = money(item.SalePrice);
+      const msrp = money(item.MSRP);
+      return sale || msrp || 0;
+    }
+    function displayPrice(item){
+      const sale = money(item.SalePrice);
+      const msrp = money(item.MSRP);
+      if(sale && msrp && sale < msrp) return `<span class="stihl-old">${fmtMoney(msrp)}</span><span class="stihl-price">${fmtMoney(sale)}</span>`;
+      return `<span class="stihl-price">${fmtMoney(sale || msrp)}</span>`;
+    }
+    function sortByOrder(a,b){ return (Number(a.SortOrder)||9999) - (Number(b.SortOrder)||9999); }
+
+    function parseCSV(text){
+      const rows = [];
+      let row = [], cell = '', quote = false;
+      for(let i=0;i<text.length;i++){
+        const c = text[i], n = text[i+1];
+        if(c === '"' && quote && n === '"'){ cell += '"'; i++; }
+        else if(c === '"'){ quote = !quote; }
+        else if(c === ',' && !quote){ row.push(cell); cell = ''; }
+        else if((c === '\n' || c === '\r') && !quote){
+          if(c === '\r' && n === '\n') i++;
+          row.push(cell); rows.push(row); row = []; cell = '';
+        } else cell += c;
+      }
+      if(cell.length || row.length){ row.push(cell); rows.push(row); }
+      if(!rows.length) return [];
+      const headers = rows.shift().map(h => clean(h));
+      return rows.map(r => {
+        const obj = {};
+        headers.forEach((h,i)=> obj[h] = clean(r[i]));
+        return obj;
+      }).filter(obj => Object.values(obj).some(v => clean(v)));
+    }
+
+    async function loadCSV(url){
+      const res = await fetch(url, {cache:'no-store'});
+      if(!res.ok) throw new Error(url + ' not found');
+      return parseCSV(await res.text());
+    }
+
+    async function init(){
+      try{
+        const [tools,batteries,chargers,attachments,accessories,kmaRuntimes] = await Promise.all([
+          loadCSV(DATA_FILES.tools),
+          loadCSV(DATA_FILES.batteries),
+          loadCSV(DATA_FILES.chargers),
+          loadCSV(DATA_FILES.attachers || DATA_FILES.attachments),
+          loadCSV(DATA_FILES.accessories),
+          loadCSV(DATA_FILES.kmaRuntimes)
+        ]);
+
+        state.tools = tools.filter(t => clean(t.Active)==='' || isTrue(t.Active)).sort(sortByOrder);
+        state.batteries = batteries.sort(sortByOrder);
+        state.chargers = chargers.sort(sortByOrder);
+        state.attachments = attachments.filter(a => clean(a.Active)==='' || isTrue(a.Active)).sort(sortByOrder);
+        state.accessories = accessories.filter(a => clean(a.Active)==='' || isTrue(a.Active)).sort(sortByOrder);
+        state.kmaRuntimes = kmaRuntimes;
+
+        $('stihl-load-status').className = 'stihl-success';
+        $('stihl-load-status').textContent = 'Configurator data loaded.';
+        renderCategories();
+        renderTools();
+        renderAllOptions();
+        bindEvents();
+      }catch(err){
+        $('stihl-load-status').className = 'stihl-error';
+        $('stihl-load-status').innerHTML = '<strong>Data file problem:</strong> ' + err.message + '<br>Check that the files are uploaded as data/tools.csv, data/batteries.csv, data/chargers.csv, data/attachments.csv, data/accessories.csv, and data/kma-runtimes.csv.';
+      }
+    }
+
+    function bindEvents(){
+      $('stihl-search').addEventListener('input', renderTools);
+      $('stihl-category').addEventListener('change', renderTools);
+      $('stihl-tool-select').addEventListener('change', selectTool);
+      $('stihl-add-battery').addEventListener('click', ()=> addSelected('battery'));
+      $('stihl-add-charger').addEventListener('click', ()=> addSelected('charger'));
+      $('stihl-add-attachment').addEventListener('click', ()=> addSelected('attachment'));
+      $('stihl-add-accessory').addEventListener('click', ()=> addSelected('accessory'));
+      $('stihl-print').addEventListener('click', ()=> window.print());
+      $('stihl-copy').addEventListener('click', copyQuote);
+      $('stihl-clear').addEventListener('click', clearAll);
+      ['stihl-customer-name','stihl-customer-contact','stihl-quote-notes'].forEach(id => $(id).addEventListener('input', renderCart));
+    }
+
+    function renderCategories(){
+      const cats = [...new Set(state.tools.map(t => clean(t.Category)).filter(Boolean))].sort();
+      $('stihl-category').innerHTML = '<option value="">All categories</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    }
+
+    function toolSearchText(t){
+      return [skuOf(t), clean(t.StihlID), clean(t.Model), nameOf(t), clean(t.Category), clean(t.SubCategory), clean(t.Series), clean(t.System), clean(t.Type), clean(t.Tags)].join(' ').toLowerCase();
+    }
+
+    function renderTools(){
+      const q = clean($('stihl-search').value).toLowerCase();
+      const cat = clean($('stihl-category').value);
+      const list = state.tools.filter(t => {
+        if(cat && clean(t.Category) !== cat) return false;
+        if(q && !toolSearchText(t).includes(q)) return false;
+        return true;
+      });
+      $('stihl-tool-select').innerHTML = '<option value="">Choose a STIHL tool or kit</option>' + list.map(t => {
+        const label = `${clean(t.Model) || skuOf(t)} — ${nameOf(t)}${clean(t.ComponentType) ? ' ('+clean(t.ComponentType)+')' : ''}`;
+        return `<option value="${escapeHtml(skuOf(t))}">${escapeHtml(label)}</option>`;
+      }).join('');
+    }
+
+    function selectTool(){
+      const sku = clean($('stihl-tool-select').value);
+      state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
+      state.cart = [];
+      if(state.selectedTool){
+        addItem('tool', state.selectedTool, 1, 'Selected tool');
+        const incBattery = clean(state.selectedTool.IncludedBattery);
+        const incCharger = clean(state.selectedTool.IncludedCharger);
+        if(incBattery){
+          const b = findBattery(incBattery);
+          if(b) addItem('battery', b, Number(state.selectedTool.RecommendedBatteryCount)||1, 'Included in kit', true);
+        }
+        if(incCharger){
+          const c = findCharger(incCharger);
+          if(c) addItem('charger', c, 1, 'Included in kit', true);
+        }
+      }
+      renderToolDetails();
+      renderAllOptions();
+      renderCart();
+    }
+
+    function compatibleBatteryCodes(tool){
+      if(!tool) return batteryCodes;
+      return batteryCodes.filter(code => isTrue(tool[code]) || hasRuntime(tool, code) || clean(tool.RecommendedBattery) === code || clean(tool.IncludedBattery) === code);
+    }
+
+    function hasRuntime(tool, code){
+      return clean(tool[code+'RunTimeLow']) || clean(tool[code+'RunTimeHigh']) || clean(tool[code+'CutsPerCharge']);
+    }
+
+    function runtimeText(tool, code){
+      if(!tool) return '';
+      const low = clean(tool[code+'RunTimeLow']);
+      const high = clean(tool[code+'RunTimeHigh']);
+      const cuts = clean(tool[code+'CutsPerCharge']);
+      const material = clean(tool[code+'CutMaterial']);
+      if(low && high) return `${low} - ${high} min`;
+      if(low) return `${low} min`;
+      if(high) return `${high} min`;
+      if(cuts) return `${cuts} cuts${material ? ' in ' + material : ''}`;
+      return 'See product notes';
+    }
+
+    function compatibleChargers(tool){
+      if(!tool) return state.chargers;
+      const codes = chargerCodes.filter(code => isTrue(tool[code]) || [tool.StandardCharger,tool.RapidCharger,tool.HighSpeedCharger,tool.MultiCharger,tool.IncludedCharger].map(clean).includes(code));
+      return state.chargers.filter(c => codes.includes(skuOf(c)));
+    }
+
+    function renderAllOptions(){
+      renderBatteryOptions();
+      renderChargerOptions();
+      renderAttachmentOptions();
+      renderAccessoryOptions();
+      renderRuntimePanel();
+    }
+
+    function renderBatteryOptions(){
+      const codes = compatibleBatteryCodes(state.selectedTool);
+      const batteries = state.batteries.filter(b => codes.includes(skuOf(b)));
+      $('stihl-battery-select').innerHTML = '<option value="">Choose additional battery</option>' + batteries.map(b => {
+        const rt = state.selectedTool ? ' — Runtime: ' + runtimeText(state.selectedTool, skuOf(b)) : '';
+        return `<option value="${escapeHtml(skuOf(b))}">${escapeHtml(nameOf(b))} — ${fmtMoney(priceOf(b))}${escapeHtml(rt)}</option>`;
+      }).join('');
+    }
+
+    function renderChargerOptions(){
+      const chargers = compatibleChargers(state.selectedTool);
+      $('stihl-charger-select').innerHTML = '<option value="">Choose charger</option>' + chargers.map(c => `<option value="${escapeHtml(skuOf(c))}">${escapeHtml(nameOf(c))} — ${fmtMoney(priceOf(c))}</option>`).join('');
+    }
+
+    function renderAttachmentOptions(){
+      const isKombi = state.selectedTool && (clean(state.selectedTool.Model).toUpperCase().includes('KMA') || clean(state.selectedTool.SubCategory).toLowerCase().includes('kombi') || clean(state.selectedTool.Type).toLowerCase().includes('kombi'));
+      const list = isKombi ? state.attachments : [];
+      $('stihl-attachment-select').innerHTML = '<option value="">' + (isKombi ? 'Choose Kombi attachment' : 'Select a KMA powerhead first') + '</option>' + list.map(a => `<option value="${escapeHtml(skuOf(a))}">${escapeHtml(modelOf(a))} — ${escapeHtml(nameOf(a))} — ${fmtMoney(priceOf(a))}</option>`).join('');
+    }
+
+    function renderAccessoryOptions(){
+      $('stihl-accessory-select').innerHTML = '<option value="">Choose accessory</option>' + state.accessories.map(a => `<option value="${escapeHtml(skuOf(a))}">${escapeHtml(nameOf(a))} — ${fmtMoney(priceOf(a))}</option>`).join('');
+    }
+
+    function renderToolDetails(){
+      const box = $('stihl-tool-details');
+      const t = state.selectedTool;
+      if(!t){ box.innerHTML = '<div class="stihl-note">Choose a tool or kit to see battery compatibility and package details.</div>'; return; }
+
+      const badges = [clean(t.ComponentType), clean(t.Series), clean(t.System), clean(t.Badge)].filter(Boolean).map(b => `<span class="stihl-badge orange">${escapeHtml(b)}</span>`).join('');
+      const rec = clean(t.RecommendedBattery);
+      const included = [clean(t.IncludedBattery), clean(t.IncludedCharger)].filter(Boolean).join(' + ');
+      box.innerHTML = `
+        <div class="stihl-card featured">
+          <div class="stihl-product-title">${escapeHtml(nameOf(t))}</div>
+          <div class="stihl-small">Model: <strong>${escapeHtml(clean(t.Model))}</strong> | SKU: <strong>${escapeHtml(skuOf(t))}</strong></div>
+          <div style="margin:8px 0">${badges}</div>
+          <div>${displayPrice(t)}</div>
+          <div class="stihl-line"><span>Category</span><strong>${escapeHtml(clean(t.Category))} / ${escapeHtml(clean(t.SubCategory))}</strong></div>
+          <div class="stihl-line"><span>Recommended Battery</span><strong>${escapeHtml(rec || 'See options')}</strong></div>
+          <div class="stihl-line"><span>Included Kit Items</span><strong>${escapeHtml(included || 'Tool only')}</strong></div>
+          <div class="stihl-line"><span>Default Package</span><strong>${escapeHtml(clean(t.DefaultPackage) || 'None listed')}</strong></div>
+          <div class="stihl-line"><span>Tool Weight</span><strong>${escapeHtml(clean(t.ToolWeight) || 'N/A')}</strong></div>
+          ${clean(t.SpecialText) ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}${clean(t.SaleEndDate) ? ' Ends ' + escapeHtml(clean(t.SaleEndDate)) + '.' : ''}</div>` : ''}
+        </div>
+      `;
+    }
+
+    function renderRuntimePanel(){
+      const t = state.selectedTool;
+      if(!t){ $('stihl-runtime-panel').innerHTML = ''; return; }
+      const codes = compatibleBatteryCodes(t);
+      const rows = codes.map(code => {
+        const b = findBattery(code);
+        const charge = b ? chargerCodes.map(ch => clean(b[ch]) ? `${ch}: ${clean(b[ch])} min` : '').filter(Boolean).join('<br>') : '';
+        return `<tr><td><strong>${escapeHtml(code)}</strong><br>${escapeHtml(b ? nameOf(b) : '')}</td><td>${escapeHtml(runtimeText(t,code))}</td><td>${charge || 'N/A'}</td></tr>`;
+      }).join('');
+      $('stihl-runtime-panel').innerHTML = `
+        <h3>Estimated Runtime & Charge Time</h3>
+        <table class="stihl-table">
+          <thead><tr><th>Battery</th><th>Estimated Runtime</th><th>Charge Time by Charger</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function addSelected(type){
+      let item, qty = 1;
+      if(type === 'battery'){ item = findBattery($('stihl-battery-select').value); qty = Number($('stihl-battery-qty').value)||1; }
+      if(type === 'charger'){ item = findCharger($('stihl-charger-select').value); qty = Number($('stihl-charger-qty').value)||1; }
+      if(type === 'attachment'){ item = state.attachments.find(a => skuOf(a) === clean($('stihl-attachment-select').value)); qty = Number($('stihl-attachment-qty').value)||1; }
+      if(type === 'accessory'){ item = state.accessories.find(a => skuOf(a) === clean($('stihl-accessory-select').value)); qty = Number($('stihl-accessory-qty').value)||1; }
+      if(!item) return;
+      addItem(type, item, qty, '');
+      renderCart();
+    }
+
+    function addItem(type,item,qty,note,included){
+      const key = type + '|' + skuOf(item) + '|' + (included ? 'included' : '');
+      const existing = state.cart.find(x => x.key === key);
+      if(existing) existing.qty += qty;
+      else state.cart.push({key,type,item,qty,note:note||'',included:!!included});
+    }
+
+    function removeCart(key){
+      state.cart = state.cart.filter(x => x.key !== key);
+      renderCart();
+    }
+
+    function renderCart(){
+      const lines = $('stihl-cart-lines');
+      if(!state.cart.length){
+        lines.innerHTML = '<div class="stihl-note">No package selected yet.</div>';
+      } else {
+        lines.innerHTML = state.cart.map(line => {
+          const unit = line.included ? 0 : priceOf(line.item);
+          const ext = unit * line.qty;
+          return `
+            <div class="stihl-card">
+              <div><strong>${escapeHtml(nameOf(line.item))}</strong></div>
+              <div class="stihl-small">${escapeHtml(line.type.toUpperCase())} | SKU: ${escapeHtml(skuOf(line.item))}${line.note ? ' | ' + escapeHtml(line.note) : ''}</div>
+              <div class="stihl-line"><span>Qty</span><strong>${line.qty}</strong></div>
+              <div class="stihl-line"><span>Unit</span><strong>${line.included ? 'Included' : fmtMoney(unit)}</strong></div>
+              <div class="stihl-line"><span>Line Total</span><strong>${fmtMoney(ext)}</strong></div>
+              ${line.type !== 'tool' && !line.included ? `<button class="stihl-btn light" type="button" data-remove="${escapeHtml(line.key)}">Remove</button>` : ''}
+            </div>
+          `;
+        }).join('');
+        lines.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', () => removeCart(btn.getAttribute('data-remove'))));
+      }
+
+      const subtotal = state.cart.reduce((sum,line)=> sum + (line.included ? 0 : priceOf(line.item) * line.qty), 0);
+      const tax = subtotal * TAX_RATE;
+      $('stihl-subtotal').textContent = fmtMoney(subtotal);
+      $('stihl-tax').textContent = fmtMoney(tax);
+      $('stihl-total').textContent = fmtMoney(subtotal + tax);
+    }
+
+    function copyQuote(){
+      const customer = clean($('stihl-customer-name').value) || 'Not entered';
+      const contact = clean($('stihl-customer-contact').value) || 'Not entered';
+      const notes = clean($('stihl-quote-notes').value);
+      const subtotal = $('stihl-subtotal').textContent;
+      const tax = $('stihl-tax').textContent;
+      const total = $('stihl-total').textContent;
+      const items = state.cart.map(line => {
+        const unit = line.included ? 'Included' : fmtMoney(priceOf(line.item));
+        return `${line.qty} x ${nameOf(line.item)} (${skuOf(line.item)}) - ${unit}${line.note ? ' - ' + line.note : ''}`;
+      }).join('\n');
+
+      const text = `STIHL Battery Configurator Quote\nWest End Power Equipment\n\nCustomer: ${customer}\nContact: ${contact}\n\nItems:\n${items}\n\nSubtotal: ${subtotal}\nEstimated CT Sales Tax: ${tax}\nTotal: ${total}\n\nNotes: ${notes}\n\nPrices, compatibility, availability, promotions, and estimated run times should be verified before final sale.`;
+      navigator.clipboard.writeText(text).then(()=> alert('Quote copied.'));
+    }
+
+    function clearAll(){
+      state.selectedTool = null;
+      state.cart = [];
+      $('stihl-tool-select').value = '';
+      $('stihl-customer-name').value = '';
+      $('stihl-customer-contact').value = '';
+      $('stihl-quote-notes').value = '';
+      renderToolDetails();
+      renderAllOptions();
+      renderCart();
+    }
+
+    function findBattery(code){ return state.batteries.find(b => skuOf(b).toUpperCase() === clean(code).toUpperCase()); }
+    function findCharger(code){ return state.chargers.find(c => skuOf(c).toUpperCase() === clean(code).toUpperCase()); }
+
+    function escapeHtml(str){
+      return clean(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  })();
+  </script>
+  <!-- =========================================================
+       SECTION END: STIHL CONFIGURATOR SCRIPT
+  ========================================================== -->
+</body>
+</html>
