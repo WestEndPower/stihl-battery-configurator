@@ -8,7 +8,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>STIHL Battery Configurator | West End Power</title>
-  <style>
+ 
+.stihl-kit-line{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  align-items:center;
+  background:#fff8ef;
+  border:1px solid var(--stihl-border);
+  border-left:5px solid var(--stihl-orange);
+  border-radius:8px;
+  padding:10px 12px;
+  margin:10px 0;
+}  <style>
     :root{
       --stihl-orange:#f37021;
       --stihl-dark:#111111;
@@ -425,7 +437,7 @@ const incCharger = clean(state.selectedTool.KitCharger);
 
     function compatibleBatteryCodes(tool){
       if(!tool) return batteryCodes;
-      return batteryCodes.filter(code => isTrue(tool[code]) || hasRuntime(tool, code) || clean(tool.RecommendedBattery) === code || clean(tool.IncludedBattery) === code);
+      return batteryCodes.filter(code => isTrue(tool[code]) || hasRuntime(tool, code) || clean(tool.RecommendedBattery) === code || clean(tool.KitBattery) === code);
     }
 
     function hasRuntime(tool, code){
@@ -447,7 +459,7 @@ const incCharger = clean(state.selectedTool.KitCharger);
 
     function compatibleChargers(tool){
       if(!tool) return state.chargers;
-      const codes = chargerCodes.filter(code => isTrue(tool[code]) || [tool.StandardCharger,tool.RapidCharger,tool.HighSpeedCharger,tool.MultiCharger,tool.IncludedCharger].map(clean).includes(code));
+      const codes = chargerCodes.filter(code => isTrue(tool[code]) || [tool.StandardCharger,tool.RapidCharger,tool.HighSpeedCharger,tool.MultiCharger,tool.KitCharger].map(clean).includes(code));
       return state.chargers.filter(c => codes.includes(skuOf(c)));
     }
 
