@@ -654,16 +654,7 @@ function renderWeightOptions(tool){
     </div>
   `;
 }
-    function renderToolDetails(){
-      const box = $('stihl-tool-details');
-      const t = state.selectedTool;
-      if(!t){ box.innerHTML = '<div class="stihl-note">Choose a tool or kit to see battery compatibility and package details.</div>'; return; }
-
-      const badges = [clean(t.ComponentType), clean(t.Series), clean(t.System), clean(t.Badge)].filter(Boolean).map(b => `<span class="stihl-badge orange">${escapeHtml(b)}</span>`).join('');
-      const rec = clean(t.RecommendedBattery);
-           box.innerHTML = `
-        .stihl-tool-info{
-  border:2px solid var(--stihl-orange);
+    
   border-radius:12px;
   padding:12px;
   margin-top:10px;
