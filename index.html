@@ -215,10 +215,29 @@
             </div>
           </div>
 <div class="stihl-series-buttons" id="stihl-category-buttons"></div>
-          <label for="stihl-tool-select">Tool / Kit</label>
-          <select id="stihl-tool-select">
-            <option value="">Choose a STIHL tool or kit</option>
-          </select>
+         <label for="stihl-tool-select">Tool / Kit</label>
+
+<div class="stihl-option-row">
+  <div>
+    <select id="stihl-tool-select">
+      <option value="">Choose a STIHL tool or kit</option>
+    </select>
+  </div>
+
+  <div>
+    <input id="stihl-tool-qty"
+           class="stihl-qty"
+           type="number"
+           min="1"
+           value="1" />
+  </div>
+
+  <button class="stihl-btn"
+          id="stihl-add-tool"
+          type="button">
+    Add Tool
+  </button>
+</div>
 
           <div id="stihl-tool-details"></div>
         </section>
@@ -477,6 +496,7 @@ document.querySelectorAll('.stihl-series-btn').forEach(btn => {
 });
 
 $('stihl-tool-select').addEventListener('change', selectTool);
+      $('stihl-add-tool').addEventListener('click', addToolToQuote);
       $('stihl-add-battery').addEventListener('click', ()=> addSelected('battery'));
       $('stihl-add-charger').addEventListener('click', ()=> addSelected('charger'));
       $('stihl-add-attachment').addEventListener('click', ()=> addSelected('attachment'));
@@ -580,7 +600,16 @@ function renderTools(){
       state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
       state.cart = [];
       if(state.selectedTool){
-        addItem('tool', state.selectedTool, 1, 'Selected tool');
+        if(state.selectedTool){
+
+  const incBattery =
+    clean(state.selectedTool.KitBattery);
+
+  const incCharger =
+    clean(state.selectedTool.KitCharger);
+
+  ...
+}
         const incBattery = clean(state.selectedTool.KitBattery);
 const incCharger = clean(state.selectedTool.KitCharger);
         if(incBattery){
@@ -596,7 +625,28 @@ const incCharger = clean(state.selectedTool.KitCharger);
       renderAllOptions();
       renderCart();
     }
+function addToolToQuote(){
 
+  const sku = clean($('stihl-tool-select').value);
+
+  if(!sku){
+    alert('Select a tool first.');
+    return;
+  }
+
+  const tool = state.tools.find(
+    t => skuOf(t) === sku
+  );
+
+  if(!tool) return;
+
+  const qty =
+    Number($('stihl-tool-qty').value) || 1;
+
+  addItem('tool', tool, qty, '');
+
+  renderCart();
+}
     function compatibleBatteryCodes(tool){
       if(!tool) return batteryCodes;
       return batteryCodes.filter(code => isTrue(tool[code]) || hasRuntime(tool, code) || clean(tool.RecommendedBattery) === code || clean(tool.KitBattery) === code);
