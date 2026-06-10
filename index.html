@@ -805,35 +805,34 @@ function renderWeightOptions(tool){
 
   const codes = compatibleBatteryCodes(t);
 
-  let rows = '';
-
-  codes.forEach(code => {
-
+  const rows = codes.map(code => {
     const b = findBattery(code);
-
     const runtime = runtimeText(t, code);
 
-    const chargeRows = chargerCodes
-      .filter(ch => b && clean(b[ch]))
-      .map(ch => `
-        <tr>
-          <td><strong>${escapeHtml(code)}</strong><br>${escapeHtml(b ? nameOf(b) : '')}</td>
-          <td>${escapeHtml(runtime)}</td>
-          <td>${escapeHtml(ch)}</td>
-          <td>${escapeHtml(clean(b[ch]))} min</td>
-        </tr>
-      `)
-      .join('');
+    const validChargers = chargerCodes.filter(ch =>
+      b && clean(b[ch])
+    );
 
-    rows += chargeRows || `
+    const chargers = validChargers
+      .map(ch => escapeHtml(ch))
+      .join('<br>');
+
+    const chargeTimes = validChargers
+      .map(ch => `${escapeHtml(clean(b[ch]))} min`)
+      .join('<br>');
+
+    return `
       <tr>
-        <td><strong>${escapeHtml(code)}</strong><br>${escapeHtml(b ? nameOf(b) : '')}</td>
+        <td>
+          <strong>${escapeHtml(code)}</strong><br>
+          ${escapeHtml(b ? nameOf(b) : '')}
+        </td>
         <td>${escapeHtml(runtime)}</td>
-        <td>N/A</td>
-        <td>N/A</td>
+        <td>${chargers || 'N/A'}</td>
+        <td>${chargeTimes || 'N/A'}</td>
       </tr>
     `;
-  });
+  }).join('');
 
   $('stihl-runtime-panel').innerHTML = `
     <h3>Estimated Runtime & Charge Time</h3>
