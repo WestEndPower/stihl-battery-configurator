@@ -686,13 +686,16 @@ return `${line.qty} x ${nameOf(line.item)} (${itemId}) - ${unit}${line.note ? ' 
     }
 
     function clearAll(){
-      state.selectedTool = null;
-      state.cart = [];
-      $('stihl-tool-select').value = '';
-      $('stihl-customer-name').value = '';
-      $('stihl-customer-contact').value = '';
-      $('stihl-quote-notes').value = '';
-      ${renderWeightOptions(t)}
+  state.selectedTool = null;
+  state.cart = [];
+  $('stihl-tool-select').value = '';
+  $('stihl-customer-name').value = '';
+  $('stihl-customer-contact').value = '';
+  $('stihl-quote-notes').value = '';
+  renderToolDetails();
+  renderAllOptions();
+  renderCart();
+}
     function findBattery(code){ return state.batteries.find(b => skuOf(b).toUpperCase() === clean(code).toUpperCase()); }
     function findCharger(code){ return state.chargers.find(c => skuOf(c).toUpperCase() === clean(code).toUpperCase()); }
 
