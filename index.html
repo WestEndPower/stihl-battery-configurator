@@ -800,13 +800,24 @@ function renderWeightOptions(tool){
 
   const ampHours = clean(battery.AmpHours || battery.Ah);
   const wattHours = clean(battery.WattHours || battery.Wh);
-  const chargeCost = clean(battery.CostToCharge || battery.ChargeCost);
+
+  const wh = Number(wattHours) || 0;
+
+  // Connecticut residential electricity estimate
+  const electricRate = 0.25;
+
+  const chargeCost = wh
+    ? ((wh / 1000) * electricRate)
+    : 0;
 
   const parts = [];
 
   if(ampHours) parts.push(`${escapeHtml(ampHours)} Ah`);
   if(wattHours) parts.push(`${escapeHtml(wattHours)} Wh`);
-  if(chargeCost) parts.push(`${escapeHtml(chargeCost)} to charge`);
+
+  if(chargeCost){
+    parts.push(`${fmtMoney(chargeCost)} est. charge cost`);
+  }
 
   return parts.join(' | ');
 }
