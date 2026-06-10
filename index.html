@@ -579,8 +579,7 @@ function renderWeightOptions(tool){
           <div class="stihl-small">Model: <strong>${escapeHtml(clean(t.Model))}</strong> | STIHL ID: <strong>${escapeHtml(clean(t.StihlID) || skuOf(t))}</strong></div>
           <div style="margin:8px 0">${badges}</div>
           <div>${displayPrice(t)}</div>
-          <div class="stihl-line"><span>Category</span><strong>${escapeHtml(clean(t.Category))} / ${escapeHtml(clean(t.SubCategory))}</strong></div>
-          <div class="stihl-line"><span>Recommended Battery</span><strong>${escapeHtml(rec || 'See options')}</strong></div>
+                    <div class="stihl-line"><span>Recommended Battery</span><strong>${escapeHtml(rec || 'See options')}</strong></div>
           ${renderKitIncludes(t)}
           <div class="stihl-line">
   <span>Tool Weight</span>
