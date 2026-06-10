@@ -452,7 +452,23 @@
     function toolSearchText(t){
       return [skuOf(t), clean(t.StihlID), clean(t.Model), nameOf(t), clean(t.Category), clean(t.SubCategory), clean(t.Series), clean(t.System), clean(t.Type), clean(t.Tags)].join(' ').toLowerCase();
     }
+function renderTools(){
+  const q = clean($('stihl-search').value).toLowerCase();
+  const cat = clean($('stihl-category').value);
 
+  const list = state.tools.filter(t => {
+    if(cat && clean(t.Category) !== cat) return false;
+    if(q && !toolSearchText(t).includes(q)) return false;
+    return true;
+  });
+
+  $('stihl-tool-select').innerHTML =
+    '<option value="">Choose a STIHL tool or kit</option>' +
+    list.map(t => {
+      const label = `${clean(t.Model) || skuOf(t)} — ${nameOf(t)}${clean(t.ComponentType) ? ' (' + clean(t.ComponentType) + ')' : ''}`;
+      return `<option value="${escapeHtml(skuOf(t))}">${escapeHtml(label)}</option>`;
+    }).join('');
+}
     function renderToolDetails(){
   const box = $('stihl-tool-details');
   const t = state.selectedTool;
