@@ -673,7 +673,11 @@ function renderKitIncludes(tool){
       const total = $('stihl-total').textContent;
       const items = state.cart.map(line => {
         const unit = line.included ? 'Included' : fmtMoney(priceOf(line.item));
-        return `${line.qty} x ${nameOf(line.item)} (${skuOf(line.item)}) - ${unit}${line.note ? ' - ' + line.note : ''}`;
+        const itemId = line.type === 'tool'
+  ? clean(line.item.StihlID) || skuOf(line.item)
+  : skuOf(line.item);
+
+return `${line.qty} x ${nameOf(line.item)} (${itemId}) - ${unit}${line.note ? ' - ' + line.note : ''}`;
       }).join('\n');
 
       const text = `STIHL Battery Configurator Quote\nWest End Power Equipment\n\nCustomer: ${customer}\nContact: ${contact}\n\nItems:\n${items}\n\nSubtotal: ${subtotal}\nEstimated CT Sales Tax: ${tax}\nTotal: ${total}\n\nNotes: ${notes}\n\nPrices, compatibility, availability, promotions, and estimated run times should be verified before final sale.`;
