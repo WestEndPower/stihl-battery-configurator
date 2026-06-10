@@ -423,7 +423,7 @@ cart: []
   if(sale && msrp && sale < msrp){
     return `
       <span class="stihl-old">${fmtMoney(msrp)}</span>
-      <span class="stihl-badge orange">SALE</span>
+      <span class="stihl-badge orange">ON SALE</span>
       <span class="stihl-sale-price">${fmtMoney(sale)}</span>
     `;
   }
@@ -835,7 +835,7 @@ function renderWeightOptions(tool){
               <div class="stihl-line"><span>Qty</span><strong>${line.qty}</strong></div>
               <div class="stihl-line"><span>Unit</span><strong>${line.included ? 'Included' : fmtMoney(unit)}</strong></div>
               <div class="stihl-line"><span>Line Total</span><strong>${fmtMoney(ext)}</strong></div>
-              ${line.type !== 'tool' && !line.included ? `<button class="stihl-btn light" type="button" data-remove="${escapeHtml(line.key)}">Remove</button>` : ''}
+             ${!line.included ? `<button class="stihl-btn light" type="button" data-remove="${escapeHtml(line.key)}">Remove</button>` : ''}
             </div>
           `;
         }).join('');
