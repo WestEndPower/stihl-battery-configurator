@@ -598,18 +598,7 @@ function renderTools(){
     function selectTool(){
       const sku = clean($('stihl-tool-select').value);
       state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
-      state.cart = [];
-      if(state.selectedTool){
-        if(state.selectedTool){
-
-  const incBattery =
-    clean(state.selectedTool.KitBattery);
-
-  const incCharger =
-    clean(state.selectedTool.KitCharger);
-
-  ...
-}
+            
         const incBattery = clean(state.selectedTool.KitBattery);
 const incCharger = clean(state.selectedTool.KitCharger);
         if(incBattery){
