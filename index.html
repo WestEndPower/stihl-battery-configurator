@@ -68,8 +68,29 @@
     .stihl-small{font-size:13px;color:#666}
     .stihl-product-title{font-size:20px;font-weight:900;margin-bottom:5px}
     .stihl-price{font-size:22px;font-weight:900}
-    .stihl-old{text-decoration:line-through;color:#777;margin-right:8px;font-size:15px}
-    .stihl-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+.stihl-old{text-decoration:line-through;color:#777;margin-right:8px;font-size:15px}
+
+/* Sale End Date */
+.stihl-price-row{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:8px 0 10px;
+}
+
+.stihl-sale-date{
+  background:#fff8ef;
+  border:1px solid var(--stihl-border);
+  border-left:4px solid var(--stihl-orange);
+  border-radius:8px;
+  padding:7px 10px;
+  font-size:13px;
+  font-weight:700;
+}
+
+.stihl-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
     .stihl-table th,.stihl-table td{border:1px solid #ddd;padding:8px;text-align:left;vertical-align:top}
     .stihl-table th{background:#111;color:#fff}
   .stihl-weight-wrap{
@@ -592,7 +613,21 @@ function renderWeightOptions(tool){
           <div class="stihl-product-title">${escapeHtml(nameOf(t))}</div>
           <div class="stihl-small">Model: <strong>${escapeHtml(clean(t.Model))}</strong> | STIHL ID: <strong>${escapeHtml(clean(t.StihlID) || skuOf(t))}</strong></div>
           <div style="margin:8px 0">${badges}</div>
-          <div>${displayPrice(t)}</div>
+          <div class="stihl-price-row">
+  <div class="stihl-price-row">
+  <div>${displayPrice(t)}</div>
+  ${clean(t.SaleEndDate) ? `
+    <div class="stihl-sale-date">
+      Sale Ends: <strong>${escapeHtml(clean(t.SaleEndDate))}</strong>
+    </div>
+  ` : ''}
+</div>
+  ${clean(t.SaleEndDate) ? `
+    <div class="stihl-sale-date">
+      Sale Expires: <strong>${escapeHtml(clean(t.SaleEndDate))}</strong>
+    </div>
+  ` : ''}
+</div>
                     <div class="stihl-line"><span>Recommended Battery</span><strong>${escapeHtml(rec || 'See options')}</strong></div>
           ${renderKitIncludes(t)}
           <div class="stihl-line">
