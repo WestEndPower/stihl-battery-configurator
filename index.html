@@ -718,7 +718,9 @@ function addToolToQuote(){
     function renderAttachmentOptions(){
       const isKombi = state.selectedTool && (clean(state.selectedTool.Model).toUpperCase().includes('KMA') || clean(state.selectedTool.SubCategory).toLowerCase().includes('kombi') || clean(state.selectedTool.Type).toLowerCase().includes('kombi'));
       const list = isKombi ? state.attachments : [];
-      $('stihl-attachment-select').innerHTML = '<option value="">' + (isKombi ? 'Choose Kombi attachment' : 'Select a KMA powerhead first') + '</option>' + list.map(a => `<option value="${escapeHtml(skuOf(a))}">${escapeHtml(modelOf(a))} — ${escapeHtml(nameOf(a))} — ${fmtMoney(priceOf(a))}</option>`).join('');
+      $('stihl-attachment-select').innerHTML = '<option value="">' + (isKombi ? 'Choose Kombi attachment' : 'Select a KMA powerhead first') + '</option>' + list.map(a => `<option value="${escapeHtml(skuOf(a))}">
+  ${escapeHtml(nameOf(a))} — ${fmtMoney(priceOf(a))}
+</option>`).join('');
     }
 
     function renderAccessoryOptions(){
