@@ -624,8 +624,8 @@ function renderWeightOptions(tool){
           <div class="stihl-small">Model: <strong>${escapeHtml(clean(t.Model))}</strong> | STIHL ID: <strong>${escapeHtml(clean(t.StihlID) || skuOf(t))}</strong></div>
           <div style="margin:8px 0">${badges}</div>
           <div class="stihl-price-row">
-  <div class="stihl-price-row">
   <div>${displayPrice(t)}</div>
+
   ${clean(t.SaleEndDate) ? `
     <div class="stihl-sale-date">
       Sale Ends: <strong>${escapeHtml(clean(t.SaleEndDate))}</strong>
