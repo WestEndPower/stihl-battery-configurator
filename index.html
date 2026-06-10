@@ -795,22 +795,63 @@ function renderWeightOptions(tool){
 }
     
     function renderRuntimePanel(){
-      const t = state.selectedTool;
-      if(!t){ $('stihl-runtime-panel').innerHTML = ''; return; }
-      const codes = compatibleBatteryCodes(t);
-      const rows = codes.map(code => {
-        const b = findBattery(code);
-        const charge = b ? chargerCodes.map(ch => clean(b[ch]) ? `${ch}: ${clean(b[ch])} min` : '').filter(Boolean).join('<br>') : '';
-        return `<tr><td><strong>${escapeHtml(code)}</strong><br>${escapeHtml(b ? nameOf(b) : '')}</td><td>${escapeHtml(runtimeText(t,code))}</td><td>${charge || 'N/A'}</td></tr>`;
-      }).join('');
-      $('stihl-runtime-panel').innerHTML = `
-        <h3>Estimated Runtime & Charge Time</h3>
-        <table class="stihl-table">
-          <thead><tr><th>Battery</th><th>Estimated Runtime</th><th>Charge Time by Charger</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
-    }
+  const t = state.selectedTool;
+  if(!t){
+    $('stihl-runtime-panel').innerHTML = '';
+    return;
+  }
+
+  const codes = compatibleBatteryCodes(t);
+
+  let rows = '';
+
+  codes.forEach(code => {
+
+    const b = findBattery(code);
+
+    const runtime = runtimeText(t, code);
+
+    const chargeRows = chargerCodes
+      .filter(ch => b && clean(b[ch]))
+      .map(ch => `
+        <tr>
+          <td><strong>${escapeHtml(code)}</strong><br>${escapeHtml(b ? nameOf(b) : '')}</td>
+          <td>${escapeHtml(runtime)}</td>
+          <td>${escapeHtml(ch)}</td>
+          <td>${escapeHtml(clean(b[ch]))} min</td>
+        </tr>
+      `)
+      .join('');
+
+    rows += chargeRows || `
+      <tr>
+        <td><strong>${escapeHtml(code)}</strong><br>${escapeHtml(b ? nameOf(b) : '')}</td>
+        <td>${escapeHtml(runtime)}</td>
+        <td>N/A</td>
+        <td>N/A</td>
+      </tr>
+    `;
+  });
+
+  $('stihl-runtime-panel').innerHTML = `
+    <h3>Estimated Runtime & Charge Time</h3>
+
+    <table class="stihl-table">
+      <thead>
+        <tr>
+          <th>Battery</th>
+          <th>Estimated Runtime</th>
+          <th>Charger</th>
+          <th>Charge Time</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
+  `;
+}
 
     function addSelected(type){
       let item, qty = 1;
