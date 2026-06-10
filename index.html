@@ -446,17 +446,6 @@ cart: []
         $('stihl-load-status').textContent = 'Configurator data loaded.';
         renderCategories();
         renderCategoryButtons();
-        function renderCategoryButtons(){
-  const cats = [...new Set(state.tools.map(t => clean(t.Category)).filter(Boolean))].sort();
-
-  $('stihl-category-buttons').innerHTML =
-    `<button type="button" class="stihl-series-btn active" data-category="">All</button>` +
-    cats.map(c => `
-      <button type="button" class="stihl-series-btn" data-category="${escapeHtml(c)}">
-        ${escapeHtml(c)}
-      </button>
-    `).join('');
-}
         renderTools();
         renderAllOptions();
         bindEvents();
@@ -498,7 +487,17 @@ $('stihl-tool-select').addEventListener('change', selectTool);
       const cats = [...new Set(state.tools.map(t => clean(t.Category)).filter(Boolean))].sort();
       $('stihl-category').innerHTML = '<option value="">All categories</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
     }
+function renderCategoryButtons(){
+  const cats = [...new Set(state.tools.map(t => clean(t.Category)).filter(Boolean))].sort();
 
+  $('stihl-category-buttons').innerHTML =
+    `<button type="button" class="stihl-series-btn active" data-category="">All</button>` +
+    cats.map(c => `
+      <button type="button" class="stihl-series-btn" data-category="${escapeHtml(c)}">
+        ${escapeHtml(c)}
+      </button>
+    `).join('');
+}
     function toolSearchText(t){
       return [skuOf(t), clean(t.StihlID), clean(t.Model), nameOf(t), clean(t.Category), clean(t.SubCategory), clean(t.Series), clean(t.System), clean(t.Type), clean(t.Tags)].join(' ').toLowerCase();
     }
