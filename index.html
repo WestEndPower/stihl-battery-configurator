@@ -620,7 +620,6 @@ const incCharger = clean(state.selectedTool.KitCharger);
       renderCart();
     }
 function addToolToQuote(){
-
   const sku = clean($('stihl-tool-select').value);
 
   if(!sku){
@@ -628,16 +627,25 @@ function addToolToQuote(){
     return;
   }
 
-  const tool = state.tools.find(
-    t => skuOf(t) === sku
-  );
-
+  const tool = state.tools.find(t => skuOf(t) === sku);
   if(!tool) return;
 
-  const qty =
-    Number($('stihl-tool-qty').value) || 1;
+  const qty = Number($('stihl-tool-qty').value) || 1;
 
   addItem('tool', tool, qty, '');
+
+  const incBattery = clean(tool.KitBattery);
+  const incCharger = clean(tool.KitCharger);
+
+  if(incBattery){
+    const b = findBattery(incBattery);
+    if(b) addItem('battery', b, (Number(tool.KitBatteryQty) || 1) * qty, 'Included in kit', true);
+  }
+
+  if(incCharger){
+    const c = findCharger(incCharger);
+    if(c) addItem('charger', c, (Number(tool.KitChargerQty) || 1) * qty, 'Included in kit', true);
+  }
 
   renderCart();
 }
