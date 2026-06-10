@@ -583,21 +583,27 @@ function renderTools(){
     return;
   }
 
-  const systemLabel = {
-  'AS':'Entry Level',
-  'AK':'Homeowner',
-  'AP':'Professional',
-  'AR':'Backpack'
-}[clean(t.System)] || clean(t.System);
+ const system = clean(t.System).toUpperCase();
+
+let systemLabel = '';
+
+if(system.includes('AS')){
+  systemLabel = 'Entry Level';
+}else if(system.includes('AK')){
+  systemLabel = 'Homeowner';
+}else if(system.includes('AP')){
+  systemLabel = 'Professional';
+}else if(system.includes('AR')){
+  systemLabel = 'Extended Runtime';
+}
 
 const badges = [
   clean(t.ComponentType),
   systemLabel,
   clean(t.Badge)
 ].filter(Boolean)
-    .filter(Boolean)
-    .map(b => `<span class="stihl-badge orange">${escapeHtml(b)}</span>`)
-    .join('');
+.map(b => `<span class="stihl-badge orange">${escapeHtml(b)}</span>`)
+.join('');
 
   const rec = clean(t.RecommendedBattery);
 
