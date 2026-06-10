@@ -456,15 +456,6 @@ cart: []
         ${escapeHtml(c)}
       </button>
     `).join('');
-
-  document.querySelectorAll('.stihl-series-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.stihl-series-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.selectedCategoryButton = clean(btn.dataset.category);
-      renderTools();
-    });
-  });
 }
         renderTools();
         renderAllOptions();
@@ -520,18 +511,6 @@ function renderTools(){
     if(cat && clean(t.Category) !== cat) return false;
     if(buttonCat && clean(t.Category) !== buttonCat) return false;
     if(q && !toolSearchText(t).includes(q)) return false;
-    return true;
-  });
-
-  const list = state.tools.filter(t => {
-    if(cat && clean(t.Category) !== cat) return false;
-
-    if(series && !clean(t.Model).toUpperCase().startsWith(series))
-      return false;
-
-    if(q && !toolSearchText(t).includes(q))
-      return false;
-
     return true;
   });
 
