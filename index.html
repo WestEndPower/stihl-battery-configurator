@@ -604,21 +604,7 @@ function renderTools(){
   renderAllOptions();
   renderCart();
 }
-        const incBattery = clean(state.selectedTool.KitBattery);
-const incCharger = clean(state.selectedTool.KitCharger);
-        if(incBattery){
-          const b = findBattery(incBattery);
-          if(b) addItem('battery', b, Number(state.selectedTool.KitBatteryQty)||1, 'Included in kit', true);
-        }
-        if(incCharger){
-          const c = findCharger(incCharger);
-          if(c) addItem('charger', c, Number(state.selectedTool.KitChargerQty)||1, 'Included in kit', true);
-        }
-      }
-      renderToolDetails();
-      renderAllOptions();
-      renderCart();
-    }
+        
 function addToolToQuote(){
   const sku = clean($('stihl-tool-select').value);
 
