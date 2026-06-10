@@ -593,7 +593,12 @@ function renderWeightOptions(tool){
         <tbody>
           <tr>
             <td>${escapeHtml(clean(tool.ToolWeight) || '—')}</td>
-            ${weightCodes.map(code => `<td>${escapeHtml(clean(tool['Weight' + code]) || '—')}</td>`).join('')}
+            ${weightCodes.map(code => {
+  const toolWeight = parseFloat(clean(tool.ToolWeight)) || 0;
+  const batteryWeight = parseFloat(clean(tool['Weight' + code])) || 0;
+  const totalWeight = toolWeight + batteryWeight;
+  return `<td>${totalWeight.toFixed(1)} lbs</td>`;
+}).join('')}
           </tr>
         </tbody>
       </table>
