@@ -57,10 +57,10 @@
     .stihl-btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
     .stihl-card{border:1px solid var(--stihl-border);border-radius:12px;padding:14px;margin:10px 0;background:#fff}
     .stihl-card.featured{border:2px solid var(--stihl-orange)}
-    .{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid #eee;padding:7px 0}
-    .:last-child{border-bottom:0}
-    . span{color:#555}
-    . strong{text-align:right}
+    .stihl-line{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid #eee;padding:7px 0}
+.stihl-line:last-child{border-bottom:0}
+.stihl-line span{color:#555}
+.stihl-line strong{text-align:right}
     .stihl-badge{display:inline-block;background:#111;color:#fff;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:800;margin:2px 5px 2px 0}
     .stihl-badge.orange{background:var(--stihl-orange);color:#111}
     .stihl-badge.green{background:var(--stihl-green);color:#fff}
@@ -256,7 +256,7 @@
 
           <div id="stihl-cart-lines" style="margin-top:12px"></div>
 
-          <div class="">
+          <div class="stihl-line">
             <span>Subtotal</span>
             <strong id="stihl-subtotal">$0.00</strong>
           </div>
@@ -551,8 +551,8 @@ function renderKitIncludes(tool){
           <div class="stihl-small">Model: <strong>${escapeHtml(clean(t.Model))}</strong> | STIHL ID: <strong>${escapeHtml(clean(t.StihlID) || skuOf(t))}</strong></div>
           <div style="margin:8px 0">${badges}</div>
           <div>${displayPrice(t)}</div>
-          <div class=""><span>Category</span><strong>${escapeHtml(clean(t.Category))} / ${escapeHtml(clean(t.SubCategory))}</strong></div>
-          <div class=""><span>Recommended Battery</span><strong>${escapeHtml(rec || 'See options')}</strong></div>
+          <div class="stihl-line"><span>Category</span><strong>${escapeHtml(clean(t.Category))} / ${escapeHtml(clean(t.SubCategory))}</strong></div>
+          <div class="stihl-line"><span>Recommended Battery</span><strong>${escapeHtml(rec || 'See options')}</strong></div>
           ${renderKitIncludes(t)}
           <div class="stihl-line">
   <span>Tool Weight</span>
