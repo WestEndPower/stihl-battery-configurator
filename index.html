@@ -209,10 +209,11 @@
               <label for="stihl-search">Filter Available Tools</label>
               <input id="stihl-search" type="search" placeholder="Enter model, STIHL ID, or keyword to narrow the tool list..." />
             </div>
-            <div>
-              <option value="">All categories</option>
-              </select>
-            </div>
+            <div style="display:none">
+  <select id="stihl-category">
+    <option value="">All categories</option>
+  </select>
+</div>
           </div>
 <div class="stihl-series-buttons" id="stihl-category-buttons"></div>
          <label for="stihl-tool-select">Tool / Kit</label>
@@ -596,9 +597,13 @@ function renderTools(){
   `;
 }
     function selectTool(){
-      const sku = clean($('stihl-tool-select').value);
-      state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
-            
+  const sku = clean($('stihl-tool-select').value);
+  state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
+
+  renderToolDetails();
+  renderAllOptions();
+  renderCart();
+}
         const incBattery = clean(state.selectedTool.KitBattery);
 const incCharger = clean(state.selectedTool.KitCharger);
         if(incBattery){
