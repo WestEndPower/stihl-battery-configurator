@@ -548,7 +548,7 @@ function renderKitIncludes(tool){
            box.innerHTML = `
         <div class="stihl-card featured">
           <div class="stihl-product-title">${escapeHtml(nameOf(t))}</div>
-          <div class="stihl-small">Model: <strong>${escapeHtml(clean(t.Model))}</strong> | SKU: <strong>${escapeHtml(skuOf(t))}</strong></div>
+          <div class="stihl-small">Model: <strong>${escapeHtml(clean(t.Model))}</strong> | STIHL ID: <strong>${escapeHtml(clean(t.StihlID) || skuOf(t))}</strong></div>
           <div style="margin:8px 0">${badges}</div>
           <div>${displayPrice(t)}</div>
           <div class=""><span>Category</span><strong>${escapeHtml(clean(t.Category))} / ${escapeHtml(clean(t.SubCategory))}</strong></div>
