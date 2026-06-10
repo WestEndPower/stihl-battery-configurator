@@ -530,13 +530,27 @@ function renderKitIncludes(tool){
     return `<div class="stihl-kit-line"><strong>Tool Only</strong></div>`;
   }
 
-  return `
-    <div class="stihl-kit-line">
-      <strong>Kit Includes:</strong>
-      ${kitBattery ? `<span><strong>Battery:</strong> ${kitBatteryQty && kitBatteryQty !== '1' ? kitBatteryQty + 'x ' : ''}${kitBattery}</span>` : ''}
-      ${kitCharger ? `<span><strong>Charger:</strong> ${kitChargerQty && kitChargerQty !== '1' ? kitChargerQty + 'x ' : ''}${kitCharger}</span>` : ''}
-    </div>
-  `;
+return `
+  <div class="stihl-kit-line">
+    <strong>Kit Includes:</strong>
+
+    ${kitBattery ? `
+      <span>
+        ${(kitBatteryQty || '1')}
+        ${kitBattery}
+        ${(Number(kitBatteryQty || 1) > 1 ? 'Batteries' : 'Battery')}
+      </span>
+    ` : ''}
+
+    ${kitCharger ? `
+      <span>
+        ${(kitChargerQty || '1')}
+        ${kitCharger}
+        ${(Number(kitChargerQty || 1) > 1 ? 'Chargers' : 'Charger')}
+      </span>
+    ` : ''}
+  </div>
+`;
 }
 
 function renderWeightOptions(tool){
