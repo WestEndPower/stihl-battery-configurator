@@ -465,8 +465,22 @@ cart: []
 
     function bindEvents(){
       $('stihl-search').addEventListener('input', renderTools);
-      $('stihl-category').addEventListener('change', renderTools);
-      $('stihl-tool-select').addEventListener('change', selectTool);
+$('stihl-category').addEventListener('change', renderTools);
+
+document.querySelectorAll('.stihl-series-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.stihl-series-btn')
+      .forEach(b => b.classList.remove('active'));
+
+    btn.classList.add('active');
+
+    state.selectedSeries = clean(btn.dataset.series);
+
+    renderTools();
+  });
+});
+
+$('stihl-tool-select').addEventListener('change', selectTool);
       $('stihl-add-battery').addEventListener('click', ()=> addSelected('battery'));
       $('stihl-add-charger').addEventListener('click', ()=> addSelected('charger'));
       $('stihl-add-attachment').addEventListener('click', ()=> addSelected('attachment'));
@@ -488,10 +502,17 @@ cart: []
 function renderTools(){
   const q = clean($('stihl-search').value).toLowerCase();
   const cat = clean($('stihl-category').value);
+  const series = clean(state.selectedSeries);
 
   const list = state.tools.filter(t => {
     if(cat && clean(t.Category) !== cat) return false;
-    if(q && !toolSearchText(t).includes(q)) return false;
+
+    if(series && !clean(t.Model).toUpperCase().startsWith(series))
+      return false;
+
+    if(q && !toolSearchText(t).includes(q))
+      return false;
+
     return true;
   });
 
