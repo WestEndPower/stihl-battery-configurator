@@ -210,16 +210,7 @@
               </select>
             </div>
           </div>
-<div class="stihl-series-buttons" id="stihl-series-buttons">
-  <button type="button" class="stihl-series-btn active" data-series="">All</button>
-  <button type="button" class="stihl-series-btn" data-series="BGA">BGA</button>
-  <button type="button" class="stihl-series-btn" data-series="FSA">FSA</button>
-  <button type="button" class="stihl-series-btn" data-series="HSA">HSA</button>
-  <button type="button" class="stihl-series-btn" data-series="HLA">HLA</button>
-  <button type="button" class="stihl-series-btn" data-series="KMA">KMA</button>
-  <button type="button" class="stihl-series-btn" data-series="MSA">MSA</button>
-  <button type="button" class="stihl-series-btn" data-series="RMA">RMA</button>
-</div>
+<div class="stihl-series-buttons" id="stihl-category-buttons"></div>
           <label for="stihl-tool-select">Tool / Kit</label>
           <select id="stihl-tool-select">
             <option value="">Choose a STIHL tool or kit</option>
@@ -372,7 +363,7 @@
   accessories: [],
   kmaRuntimes: [],
   selectedTool: null,
-selectedSeries: '',
+selectedCategoryButton: '',
 cart: []
 };
 
@@ -454,6 +445,27 @@ cart: []
         $('stihl-load-status').className = 'stihl-success';
         $('stihl-load-status').textContent = 'Configurator data loaded.';
         renderCategories();
+        renderCategoryButtons();
+        function renderCategoryButtons(){
+  const cats = [...new Set(state.tools.map(t => clean(t.Category)).filter(Boolean))].sort();
+
+  $('stihl-category-buttons').innerHTML =
+    `<button type="button" class="stihl-series-btn active" data-category="">All</button>` +
+    cats.map(c => `
+      <button type="button" class="stihl-series-btn" data-category="${escapeHtml(c)}">
+        ${escapeHtml(c)}
+      </button>
+    `).join('');
+
+  document.querySelectorAll('.stihl-series-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.stihl-series-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.selectedCategoryButton = clean(btn.dataset.category);
+      renderTools();
+    });
+  });
+}
         renderTools();
         renderAllOptions();
         bindEvents();
@@ -502,7 +514,14 @@ $('stihl-tool-select').addEventListener('change', selectTool);
 function renderTools(){
   const q = clean($('stihl-search').value).toLowerCase();
   const cat = clean($('stihl-category').value);
-  const series = clean(state.selectedSeries);
+  const buttonCat = clean(state.selectedCategoryButton);
+
+  const list = state.tools.filter(t => {
+    if(cat && clean(t.Category) !== cat) return false;
+    if(buttonCat && clean(t.Category) !== buttonCat) return false;
+    if(q && !toolSearchText(t).includes(q)) return false;
+    return true;
+  });
 
   const list = state.tools.filter(t => {
     if(cat && clean(t.Category) !== cat) return false;
