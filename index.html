@@ -641,7 +641,7 @@ function renderWeightOptions(tool){
           ${renderKitIncludes(t)}
           
 ${renderWeightOptions(t)}
-          ${clean(t.SpecialText) ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}${clean(t.SaleEndDate) ? ' Ends ' + escapeHtml(clean(t.SaleEndDate)) + '.' : ''}</div>` : ''}
+          ${clean(t.SpecialText) ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}</div>` : ''}
         </div>
       `;
     }
