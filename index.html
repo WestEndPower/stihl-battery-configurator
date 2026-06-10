@@ -591,28 +591,28 @@ function renderTools(){
     return;
   }
 
- const system = clean(t.System).toUpperCase();
+ const series = clean(t.Series).toUpperCase();
 
-let systemLabel = '';
+let seriesLabel = '';
 
-if(system.includes('AS')){
-  systemLabel = 'Entry Level';
-}else if(system.includes('AK')){
-  systemLabel = 'Homeowner';
-}else if(system.includes('AP')){
-  systemLabel = 'Professional';
-}else if(system.includes('AR')){
-  systemLabel = 'Extended Runtime';
+if(series.includes('AS')){
+  seriesLabel = 'Light Duty';
+}else if(series.includes('AK')){
+  seriesLabel = 'Residential';
+}else if(series.includes('AP')){
+  seriesLabel = 'Commercial Grade';
+}else if(series.includes('AR')){
+  seriesLabel = 'Extended Runtime';
 }
 
 const badges = [
   clean(t.ComponentType),
-  systemLabel,
+  seriesLabel,
   clean(t.Badge)
-].filter(Boolean)
+]
+.filter(Boolean)
 .map(b => `<span class="stihl-badge orange">${escapeHtml(b)}</span>`)
 .join('');
-
   const rec = clean(t.RecommendedBattery);
 
   box.innerHTML = `
