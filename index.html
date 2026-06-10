@@ -538,7 +538,34 @@ function renderKitIncludes(tool){
     </div>
   `;
 }
-${renderWeightOptions(t)}
+
+function renderWeightOptions(tool){
+  const codes = compatibleBatteryCodes(tool);
+  const weightCodes = codes.filter(code => clean(tool['Weight' + code]));
+
+  if(!clean(tool.ToolWeight) && !weightCodes.length) return '';
+
+  return `
+    <div class="stihl-weight-wrap">
+      <h3>Operating Weight Options</h3>
+      <table class="stihl-weight-table">
+        <thead>
+          <tr>
+            <th>Tool Only</th>
+            ${weightCodes.map(code => `<th>w/${escapeHtml(code)}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>${escapeHtml(clean(tool.ToolWeight) || '—')}</td>
+            ${weightCodes.map(code => `<td>${escapeHtml(clean(tool['Weight' + code]) || '—')}</td>`).join('')}
+          </tr>
+        </tbody>
+      </table>
+      <div class="stihl-small">Weights shown are combined tool and battery operating weights.</div>
+    </div>
+  `;
+}
     function renderToolDetails(){
       const box = $('stihl-tool-details');
       const t = state.selectedTool;
@@ -560,31 +587,7 @@ ${renderWeightOptions(t)}
   <strong>${escapeHtml(clean(t.ToolWeight) || 'N/A')}</strong>
 </div>
 
-<div class="stihl-weight-wrap">
-  <h3>Operating Weight Options</h3>
-
-  <table class="stihl-weight-table">
-    <thead>
-      <tr>
-        <th>Tool Only</th>
-        
-        ${renderWeightOptions(t)}
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>${escapeHtml(clean(t.ToolWeight) || 'N/A')}</td>
-        <td>${escapeHtml(clean(t.WeightAK10) || '—')}</td>
-        <td>${escapeHtml(clean(t.WeightAK20) || '—')}</td>
-        <td>${escapeHtml(clean(t.WeightAK30) || '—')}</td>
-        <td>${escapeHtml(clean(t.WeightAK30S) || '—')}</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="stihl-small">
-    Weights shown are combined tool and battery operating weights.
-  </div>
+${renderWeightOptions(t)}
 </div>
           ${clean(t.SpecialText) ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}${clean(t.SaleEndDate) ? ' Ends ' + escapeHtml(clean(t.SaleEndDate)) + '.' : ''}</div>` : ''}
         </div>
