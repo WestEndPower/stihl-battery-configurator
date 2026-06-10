@@ -417,11 +417,19 @@ cart: []
       return sale || msrp || 0;
     }
     function displayPrice(item){
-      const sale = money(item.SalePrice);
-      const msrp = money(item.MSRP);
-      if(sale && msrp && sale < msrp) return `<span class="stihl-old">${fmtMoney(msrp)}</span><span class="stihl-price">${fmtMoney(sale)}</span>`;
-      return `<span class="stihl-price">${fmtMoney(sale || msrp)}</span>`;
-    }
+  const sale = money(item.SalePrice);
+  const msrp = money(item.MSRP);
+
+  if(sale && msrp && sale < msrp){
+    return `
+      <span class="stihl-old">${fmtMoney(msrp)}</span>
+      <span class="stihl-badge orange">SALE</span>
+      <span class="stihl-sale-price">${fmtMoney(sale)}</span>
+    `;
+  }
+
+  return `<span class="stihl-price">${fmtMoney(sale || msrp)}</span>`;
+}
     function sortByOrder(a,b){ return (Number(a.SortOrder)||9999) - (Number(b.SortOrder)||9999); }
 
     function parseCSV(text){
