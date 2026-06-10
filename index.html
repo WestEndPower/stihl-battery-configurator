@@ -582,7 +582,7 @@ function renderWeightOptions(tool){
 
   return `
     <div class="stihl-weight-wrap">
-      <h3>Operating Weight Options</h3>
+      <h3>Tool / Kit Weights</h3>
       <table class="stihl-weight-table">
         <thead>
           <tr>
@@ -630,11 +630,7 @@ function renderWeightOptions(tool){
 </div>
                     <div class="stihl-line"><span>Recommended Battery</span><strong>${escapeHtml(rec || 'See options')}</strong></div>
           ${renderKitIncludes(t)}
-          <div class="stihl-line">
-  <span>Tool Weight</span>
-  <strong>${escapeHtml(clean(t.ToolWeight) || 'N/A')}</strong>
-</div>
-
+          
 ${renderWeightOptions(t)}
           ${clean(t.SpecialText) ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}${clean(t.SaleEndDate) ? ' Ends ' + escapeHtml(clean(t.SaleEndDate)) + '.' : ''}</div>` : ''}
         </div>
