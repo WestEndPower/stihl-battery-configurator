@@ -160,7 +160,15 @@
 }  
   .stihl-table tr:nth-child(even) td{background:#fafafa}
     .stihl-option-row{display:grid;grid-template-columns:1fr 95px 110px;gap:10px;align-items:end;margin-bottom:10px}
-    .stihl-qty{max-width:95px}
+    .stihl-qty{
+  width:55px;
+  max-width:55px;
+  text-align:center;
+}
+  .stihl-qty-label{
+  text-align:center;
+  margin-bottom:5px;
+}
     .stihl-summary{position:sticky;top:10px}
     .stihl-total{font-size:28px;font-weight:900;color:#111}
     .stihl-note{background:#fff8ef;border-left:5px solid var(--stihl-orange);padding:12px;margin:12px 0;border-radius:8px}
@@ -232,7 +240,7 @@
   </div>
 
   <div>
-    <label for="stihl-tool-qty">Qty</label>
+    <label for="stihl-tool-qty" class="stihl-qty-label">Qty</label>
     <input id="stihl-tool-qty"
            class="stihl-qty"
            type="number"
