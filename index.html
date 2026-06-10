@@ -564,7 +564,7 @@ function renderTools(){
   $('stihl-tool-select').innerHTML =
     '<option value="">Choose a STIHL tool or kit</option>' +
     list.map(t => {
-      const label = `${clean(t.Model) || skuOf(t)} — ${nameOf(t)}${clean(t.ComponentType) ? ' (' + clean(t.ComponentType) + ')' : ''}`;
+      const label = nameOf(t);
       return `<option value="${escapeHtml(skuOf(t))}">${escapeHtml(label)}</option>`;
     }).join('');
 }
