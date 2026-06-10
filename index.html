@@ -795,7 +795,21 @@ function renderWeightOptions(tool){
     </div>
   `;
 }
-    
+    function batterySpecText(battery){
+  if(!battery) return '';
+
+  const ampHours = clean(battery.AmpHours || battery.Ah);
+  const wattHours = clean(battery.WattHours || battery.Wh);
+  const chargeCost = clean(battery.CostToCharge || battery.ChargeCost);
+
+  const parts = [];
+
+  if(ampHours) parts.push(`${escapeHtml(ampHours)} Ah`);
+  if(wattHours) parts.push(`${escapeHtml(wattHours)} Wh`);
+  if(chargeCost) parts.push(`${escapeHtml(chargeCost)} to charge`);
+
+  return parts.join(' | ');
+}
     function renderRuntimePanel(){
   const t = state.selectedTool;
   if(!t){
@@ -824,9 +838,9 @@ function renderWeightOptions(tool){
     return `
       <tr>
         <td>
-          <strong>${escapeHtml(code)}</strong><br>
-          ${escapeHtml(b ? nameOf(b) : '')}
-        </td>
+  <strong>${escapeHtml(code)}</strong><br>
+  <span class="stihl-small">${batterySpecText(b)}</span>
+</td>
         <td>${escapeHtml(runtime)}</td>
         <td>${chargers || 'N/A'}</td>
         <td>${chargeTimes || 'N/A'}</td>
