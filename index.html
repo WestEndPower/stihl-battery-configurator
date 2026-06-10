@@ -538,24 +538,7 @@ function renderKitIncludes(tool){
     </div>
   `;
 }
-function renderWeightOptions(tool){
-  const codes = compatibleBatteryCodes(tool);
-  const weightCodes = codes.filter(code => clean(tool['Weight' + code]));
-
-  if(!clean(tool.ToolWeight) && !weightCodes.length) return '';
-
-  return `
-  <div class="stihl-line">
-  <span>Tool Weight</span>
-  <strong>${escapeHtml(clean(t.ToolWeight) || 'N/A')}</strong>
-</div>
-
 ${renderWeightOptions(t)}
-
-${clean(t.SpecialText) ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}${clean(t.SaleEndDate) ? ' Ends ' + escapeHtml(clean(t.SaleEndDate)) + '.' : ''}</div>` : ''}
-    </div>
-  `;
-}
     function renderToolDetails(){
       const box = $('stihl-tool-details');
       const t = state.selectedTool;
@@ -707,11 +690,7 @@ return `${line.qty} x ${nameOf(line.item)} (${itemId}) - ${unit}${line.note ? ' 
       $('stihl-customer-name').value = '';
       $('stihl-customer-contact').value = '';
       $('stihl-quote-notes').value = '';
-      renderToolDetails();
-      renderAllOptions();
-      renderCart();
-    }
-
+      ${renderWeightOptions(t)}
     function findBattery(code){ return state.batteries.find(b => skuOf(b).toUpperCase() === clean(code).toUpperCase()); }
     function findCharger(code){ return state.chargers.find(c => skuOf(c).toUpperCase() === clean(code).toUpperCase()); }
 
