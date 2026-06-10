@@ -801,25 +801,22 @@ function renderWeightOptions(tool){
   const ampHours = clean(battery.AmpHours || battery.Ah);
   const wattHours = clean(battery.WattHours || battery.Wh);
 
-  const wh = Number(wattHours) || 0;
-
-  // Connecticut residential electricity estimate
-  const electricRate = 0.25;
-
-  const chargeCost = wh
-    ? ((wh / 1000) * electricRate)
-    : 0;
-
   const parts = [];
 
   if(ampHours) parts.push(`${escapeHtml(ampHours)} Ah`);
   if(wattHours) parts.push(`${escapeHtml(wattHours)} Wh`);
 
-  if(chargeCost){
-    parts.push(`${fmtMoney(chargeCost)} est. charge cost`);
-  }
-
   return parts.join(' | ');
+}
+    function batteryChargeCost(battery){
+  if(!battery) return 'N/A';
+
+  const wattHours = Number(clean(battery.WattHours || battery.Wh)) || 0;
+  const electricRate = 0.25; // cost per kWh
+
+  if(!wattHours) return 'N/A';
+
+  return fmtMoney((wattHours / 1000) * electricRate);
 }
     function renderRuntimePanel(){
   const t = state.selectedTool;
@@ -852,9 +849,10 @@ function renderWeightOptions(tool){
   <strong>${escapeHtml(code)}</strong><br>
   <span class="stihl-small">${batterySpecText(b)}</span>
 </td>
-        <td>${escapeHtml(runtime)}</td>
-        <td>${chargers || 'N/A'}</td>
-        <td>${chargeTimes || 'N/A'}</td>
+<td>${escapeHtml(runtime)}</td>
+<td>${chargers || 'N/A'}</td>
+<td>${chargeTimes || 'N/A'}</td>
+<td>${batteryChargeCost(b)}</td>
       </tr>
     `;
   }).join('');
@@ -865,10 +863,11 @@ function renderWeightOptions(tool){
     <table class="stihl-table">
       <thead>
         <tr>
-          <th>Battery</th>
-          <th>Estimated Runtime</th>
-          <th>Charger</th>
-          <th>Charge Time</th>
+         <th>Battery</th>
+<th>Estimated Runtime</th>
+<th>Charger</th>
+<th>Charge Time</th>
+<th>Est. Cost to Charge</th>
         </tr>
       </thead>
 
