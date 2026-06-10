@@ -171,6 +171,8 @@
   text-align:center;
 }
   .stihl-qty-label{
+  display:block;
+  width:100%;
   text-align:center;
   margin-bottom:5px;
 }
@@ -275,11 +277,11 @@
 
           <div class="stihl-option-row">
             <div>
-              <label for="stihl-battery-select">Battery</label>
+              <label for="stihl-battery-select">Battery Options</label>
               <select id="stihl-battery-select"><option value="">Choose battery</option></select>
             </div>
             <div>
-              <label for="stihl-battery-qty">Qty</label>
+              <label for="stihl-battery-qty" class="stihl-qty-label">Qty</label>
               <input id="stihl-battery-qty" class="stihl-qty" type="number" min="0" value="1" />
             </div>
             <button class="stihl-btn" id="stihl-add-battery" type="button">Add</button>
@@ -287,11 +289,11 @@
 
           <div class="stihl-option-row">
             <div>
-              <label for="stihl-charger-select">Charger</label>
+              <label for="stihl-charger-select">Charger Options</label>
               <select id="stihl-charger-select"><option value="">Choose charger</option></select>
             </div>
             <div>
-              <label for="stihl-charger-qty">Qty</label>
+              <label for="stihl-charger-qty" class="stihl-qty-label">Qty</label>
               <input id="stihl-charger-qty" class="stihl-qty" type="number" min="0" value="1" />
             </div>
             <button class="stihl-btn" id="stihl-add-charger" type="button">Add</button>
@@ -299,11 +301,11 @@
 
           <div class="stihl-option-row">
             <div>
-              <label for="stihl-attachment-select">Kombi Attachment</label>
+              <label for="stihl-attachment-select">Attachments</label>
               <select id="stihl-attachment-select"><option value="">Choose attachment</option></select>
             </div>
             <div>
-              <label for="stihl-attachment-qty">Qty</label>
+              <label for="stihl-attachment-qty" class="stihl-qty-label">Qty</label>
               <input id="stihl-attachment-qty" class="stihl-qty" type="number" min="0" value="1" />
             </div>
             <button class="stihl-btn" id="stihl-add-attachment" type="button">Add</button>
@@ -311,11 +313,11 @@
 
           <div class="stihl-option-row">
             <div>
-              <label for="stihl-accessory-select">Accessory</label>
+              <label for="stihl-accessory-select">Accessories</label>
               <select id="stihl-accessory-select"><option value="">Choose accessory</option></select>
             </div>
             <div>
-              <label for="stihl-accessory-qty">Qty</label>
+              <label for="stihl-accessory-qty" class="stihl-qty-label">Qty</label>
               <input id="stihl-accessory-qty" class="stihl-qty" type="number" min="0" value="1" />
             </div>
             <button class="stihl-btn" id="stihl-add-accessory" type="button">Add</button>
