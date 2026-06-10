@@ -629,29 +629,17 @@ const badges = [
   box.innerHTML = `
     <div class="stihl-card featured">
 
-  <div class="stihl-product-title">
-    ${escapeHtml(nameOf(t))}
-  </div>
+ <div class="stihl-product-title">${escapeHtml(nameOf(t))}</div>
 
-  ${imageOf(t) ? `
-    <div class="stihl-tool-image-wrap">
-      <img src="${escapeHtml(imageOf(t))}"
-           alt="${escapeHtml(nameOf(t))}"
-           class="stihl-tool-image">
-    </div>
-  ` : ''}
-function nameOf(item){
-  return clean(item.Name || item.BatteryName || item.ChargerName || item.Model || skuOf(item));
-}
-function imageOf(item){
-  return clean(
-    item.ImageURL ||
-    item.ImageUrl ||
-    item.imageurl ||
-    item.Image
-  );
-}
-  <div class="stihl-tool-info">
+${imageOf(t) ? `
+  <div class="stihl-tool-image-wrap">
+    <img src="${escapeHtml(imageOf(t))}"
+         alt="${escapeHtml(nameOf(t))}"
+         class="stihl-tool-image">
+  </div>
+` : ''}
+
+<div class="stihl-tool-info">
         <div class="stihl-small">
           Model: <strong>${escapeHtml(clean(t.Model))}</strong> |
           STIHL ID: <strong>${escapeHtml(clean(t.StihlID) || skuOf(t))}</strong>
