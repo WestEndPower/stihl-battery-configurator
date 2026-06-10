@@ -453,20 +453,57 @@
       return [skuOf(t), clean(t.StihlID), clean(t.Model), nameOf(t), clean(t.Category), clean(t.SubCategory), clean(t.Series), clean(t.System), clean(t.Type), clean(t.Tags)].join(' ').toLowerCase();
     }
 
-    function renderTools(){
-      const q = clean($('stihl-search').value).toLowerCase();
-      const cat = clean($('stihl-category').value);
-      const list = state.tools.filter(t => {
-        if(cat && clean(t.Category) !== cat) return false;
-        if(q && !toolSearchText(t).includes(q)) return false;
-        return true;
-      });
-      $('stihl-tool-select').innerHTML = '<option value="">Choose a STIHL tool or kit</option>' + list.map(t => {
-        const label = `${clean(t.Model) || skuOf(t)} — ${nameOf(t)}${clean(t.ComponentType) ? ' ('+clean(t.ComponentType)+')' : ''}`;
-        return `<option value="${escapeHtml(skuOf(t))}">${escapeHtml(label)}</option>`;
-      }).join('');
-    }
+    function renderToolDetails(){
+  const box = $('stihl-tool-details');
+  const t = state.selectedTool;
+  if(!t){
+    box.innerHTML = '<div class="stihl-note">Choose a tool or kit to see battery compatibility and package details.</div>';
+    return;
+  }
 
+  const badges = [clean(t.ComponentType), clean(t.Series), clean(t.System), clean(t.Badge)]
+    .filter(Boolean)
+    .map(b => `<span class="stihl-badge orange">${escapeHtml(b)}</span>`)
+    .join('');
+
+  const rec = clean(t.RecommendedBattery);
+
+  box.innerHTML = `
+    <div class="stihl-card featured">
+      <div class="stihl-product-title">${escapeHtml(nameOf(t))}</div>
+
+      <div class="stihl-tool-info">
+        <div class="stihl-small">
+          Model: <strong>${escapeHtml(clean(t.Model))}</strong> |
+          STIHL ID: <strong>${escapeHtml(clean(t.StihlID) || skuOf(t))}</strong>
+        </div>
+
+        <div style="margin:8px 0">${badges}</div>
+
+        <div class="stihl-price-row">
+          <div>${displayPrice(t)}</div>
+
+          ${clean(t.SaleEndDate) ? `
+            <div class="stihl-sale-date">
+              Sale Ends: <strong>${escapeHtml(clean(t.SaleEndDate))}</strong>
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="stihl-line">
+          <span>Recommended Battery</span>
+          <strong>${escapeHtml(rec || 'See options')}</strong>
+        </div>
+
+        ${renderKitIncludes(t)}
+
+        ${renderWeightOptions(t)}
+
+        ${clean(t.SpecialText) ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}</div>` : ''}
+      </div>
+    </div>
+  `;
+}
     function selectTool(){
       const sku = clean($('stihl-tool-select').value);
       state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
