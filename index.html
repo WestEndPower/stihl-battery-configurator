@@ -447,6 +447,14 @@ cart: []
     function skuOf(item){ return clean(item.SKU || item.sku); }
     function modelOf(item){ return clean(item.Model || item.BatteryName || item.ChargerName || item.Name || skuOf(item)); }
     function nameOf(item){ return clean(item.Name || item.BatteryName || item.ChargerName || item.Model || skuOf(item)); }
+    function imageOf(item){
+  return clean(
+    item.ImageURL ||
+    item.ImageUrl ||
+    item.imageurl ||
+    item.Image
+  );
+}
     function priceOf(item){
       const sale = money(item.SalePrice);
       const msrp = money(item.MSRP);
