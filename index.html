@@ -260,11 +260,11 @@
             <span>Subtotal</span>
             <strong id="stihl-subtotal">$0.00</strong>
           </div>
-          <div class="">
+          <div class="stihl-line">
             <span>Estimated CT Sales Tax</span>
             <strong id="stihl-tax">$0.00</strong>
           </div>
-          <div class="">
+          <div class="stihl-line">
             <span>Total</span>
             <strong class="stihl-total" id="stihl-total">$0.00</strong>
           </div>
@@ -644,7 +644,9 @@ function renderKitIncludes(tool){
           return `
             <div class="stihl-card">
               <div><strong>${escapeHtml(nameOf(line.item))}</strong></div>
-              <div class="stihl-small">${escapeHtml(line.type.toUpperCase())} | SKU: ${escapeHtml(skuOf(line.item))}${line.note ? ' | ' + escapeHtml(line.note) : ''}</div>
+              <div class="stihl-small">${escapeHtml(line.type.toUpperCase())} | ${line.type === 'tool'
+  ? 'STIHL ID: ' + escapeHtml(clean(line.item.StihlID) || skuOf(line.item))
+  : 'SKU: ' + escapeHtml(skuOf(line.item))}${line.note ? ' | ' + escapeHtml(line.note) : ''}</div>
               <div class="stihl-line"><span>Qty</span><strong>${line.qty}</strong></div>
               <div class="stihl-line"><span>Unit</span><strong>${line.included ? 'Included' : fmtMoney(unit)}</strong></div>
               <div class="stihl-line"><span>Line Total</span><strong>${fmtMoney(ext)}</strong></div>
