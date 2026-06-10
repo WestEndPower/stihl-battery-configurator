@@ -55,7 +55,30 @@
     .stihl-btn.light{background:#eee;color:#111}
     .stihl-btn.danger{background:#b00020;color:#fff}
     .stihl-btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
-    .stihl-card{border:1px solid var(--stihl-border);border-radius:12px;padding:14px;margin:10px 0;background:#fff}
+  .stihl-series-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:0 0 14px;
+}
+
+.stihl-series-btn{
+  border:1px solid var(--stihl-border);
+  background:#fff;
+  color:#111;
+  border-radius:999px;
+  padding:8px 12px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.stihl-series-btn.active,
+.stihl-series-btn:hover{
+  background:var(--stihl-orange);
+  border-color:var(--stihl-orange);
+  color:#111;
+}  
+  .stihl-card{border:1px solid var(--stihl-border);border-radius:12px;padding:14px;margin:10px 0;background:#fff}
     .stihl-card.featured{border:2px solid var(--stihl-orange)}
     .stihl-line{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid #eee;padding:7px 0}
 .stihl-line:last-child{border-bottom:0}
@@ -187,7 +210,16 @@
               </select>
             </div>
           </div>
-
+<div class="stihl-series-buttons" id="stihl-series-buttons">
+  <button type="button" class="stihl-series-btn active" data-series="">All</button>
+  <button type="button" class="stihl-series-btn" data-series="BGA">BGA</button>
+  <button type="button" class="stihl-series-btn" data-series="FSA">FSA</button>
+  <button type="button" class="stihl-series-btn" data-series="HSA">HSA</button>
+  <button type="button" class="stihl-series-btn" data-series="HLA">HLA</button>
+  <button type="button" class="stihl-series-btn" data-series="KMA">KMA</button>
+  <button type="button" class="stihl-series-btn" data-series="MSA">MSA</button>
+  <button type="button" class="stihl-series-btn" data-series="RMA">RMA</button>
+</div>
           <label for="stihl-tool-select">Tool / Kit</label>
           <select id="stihl-tool-select">
             <option value="">Choose a STIHL tool or kit</option>
