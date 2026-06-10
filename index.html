@@ -132,6 +132,17 @@
   margin-top:10px;
   background:#fff;
 }
+  .stihl-tool-image-wrap{
+  text-align:center;
+  margin:10px 0;
+}
+
+.stihl-tool-image{
+  max-width:260px;
+  width:100%;
+  height:auto;
+  object-fit:contain;
+}
 .stihl-table{
   width:100%;
   border-collapse:collapse;
@@ -617,9 +628,30 @@ const badges = [
 
   box.innerHTML = `
     <div class="stihl-card featured">
-      <div class="stihl-product-title">${escapeHtml(nameOf(t))}</div>
 
-      <div class="stihl-tool-info">
+  <div class="stihl-product-title">
+    ${escapeHtml(nameOf(t))}
+  </div>
+
+  ${imageOf(t) ? `
+    <div class="stihl-tool-image-wrap">
+      <img src="${escapeHtml(imageOf(t))}"
+           alt="${escapeHtml(nameOf(t))}"
+           class="stihl-tool-image">
+    </div>
+  ` : ''}
+function nameOf(item){
+  return clean(item.Name || item.BatteryName || item.ChargerName || item.Model || skuOf(item));
+}
+function imageOf(item){
+  return clean(
+    item.ImageURL ||
+    item.ImageUrl ||
+    item.imageurl ||
+    item.Image
+  );
+}
+  <div class="stihl-tool-info">
         <div class="stihl-small">
           Model: <strong>${escapeHtml(clean(t.Model))}</strong> |
           STIHL ID: <strong>${escapeHtml(clean(t.StihlID) || skuOf(t))}</strong>
