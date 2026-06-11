@@ -740,20 +740,6 @@ box.innerHTML = '<div class="stihl-note">Choose a tool or kit to see battery com
 return;
 }
 
-const series = clean(t.Series).toUpperCase();
-
-let seriesLabel = '';
-
-if(series.includes('AS')){
-seriesLabel = 'Light Duty';
-}else if(series.includes('AK')){
-seriesLabel = 'Residential';
-}else if(series.includes('AP')){
-seriesLabel = 'Commercial Grade';
-}else if(series.includes('AR')){
-seriesLabel = 'Extended Runtime';
-}
-
 const badges = [
 clean(t.ComponentType),
 seriesLabel,
