@@ -99,7 +99,7 @@
     .stihl-product-title{font-size:20px;font-weight:900;margin-bottom:5px}
     .stihl-price{font-size:22px;font-weight:900}
   .stihl-sale-price{
-  font-size:24px;
+  font-size:34px;
   font-weight:900;
   color:#c00000;
 }
@@ -909,10 +909,34 @@ const customerBlock =
       ${escapeHtml(nameOf(t))}
     </h2>
 
-    <div style="margin-bottom:12px;">
-      ${displayPrice(t)}
-    </div>
+    <div style="
+  display:inline-block;
+  background:#f37021;
+  color:#111;
+  padding:14px 20px;
+  border-radius:10px;
+  margin-bottom:12px;
+  border:2px solid #d85f12;
+">
 
+  <div style="
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  ">
+    Starting Price
+  </div>
+
+  <div style="
+    font-size:30px;
+    font-weight:900;
+    line-height:1.1;
+  ">
+    ${displayPrice(t)}
+  </div>
+
+</div>
     ${renderKitIncludes(t)}
 
     <div style="margin-top:10px;">
