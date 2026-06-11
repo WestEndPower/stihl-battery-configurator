@@ -939,20 +939,41 @@ const customerBlock =
 </div>
     ${renderKitIncludes(t)}
 
-    <div style="margin-top:10px;">
+    <div style="
+  border:1px solid #ddd;
+  border-radius:8px;
+  overflow:hidden;
+  margin-top:12px;
+">
+
+  <div style="
+    background:#f5f5f5;
+    padding:8px 12px;
+    font-weight:900;
+  ">
+    Product Specifications
+  </div>
+
+  <div style="padding:10px 12px;">
+
+    <div style="padding:6px 0;border-bottom:1px solid #eee;">
       <strong>Category:</strong>
       ${escapeHtml(clean(t.Category))}
     </div>
 
-    <div>
+    <div style="padding:6px 0;border-bottom:1px solid #eee;">
       <strong>Series:</strong>
-      ${escapeHtml(clean(t.Series))}
+      ${escapeHtml(seriesLabel || clean(t.Series))}
     </div>
 
-    <div>
+    <div style="padding:6px 0;">
       <strong>Recommended Battery:</strong>
       ${escapeHtml(clean(t.RecommendedBattery) || 'See runtime table')}
     </div>
+
+  </div>
+
+</div>
 
   </div>
 
