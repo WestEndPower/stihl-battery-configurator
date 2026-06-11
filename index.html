@@ -815,14 +815,30 @@ function printSalesSheet(){
 
   $('stihl-sales-sheet-output').innerHTML = `
     <div class="stihl-sales-sheet">
-      <div class="stihl-sales-header">
+     <div class="stihl-sales-header">
   <img src="https://published-assets.ari-build.com/Content/Published/Site/21168/images/West-End-Logo.png"
        style="max-height:70px;margin-bottom:10px;">
 
   <h1>West End Power Equipment</h1>
   <div>STIHL Battery Sales Sheet</div>
-</div>
 
+  <p style="margin:12px 0;font-size:14px;line-height:1.6;">
+    <strong>Customer:</strong>
+    ${escapeHtml(clean($('stihl-customer-name').value) || 'Walk-In Customer')}
+    <br>
+
+    <strong>Phone:</strong>
+    ${escapeHtml(clean($('stihl-customer-contact').value) || 'Not Provided')}
+    <br>
+
+    <strong>Email:</strong>
+    ${escapeHtml(clean($('stihl-customer-email').value) || 'Not Provided')}
+    <br>
+
+    <strong>Date:</strong>
+    ${new Date().toLocaleDateString()}
+  </p>
+</div>
       <div class="stihl-sales-grid">
         <div>
           ${imageOf(t) ? `
