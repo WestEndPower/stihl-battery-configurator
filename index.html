@@ -292,10 +292,10 @@
   }
 
   .stihl-sales-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:8px;
-  }
+  width:100%;
+  border-collapse:collapse;
+  margin-top:0;
+}
 
   .stihl-sales-table th,
   .stihl-sales-table td{
@@ -960,7 +960,31 @@ const customerBlock =
 
 ${renderWeightOptions(t)}
 
-<h2>Battery Runtime & Charge Time Options</h2>
+<div style="
+  background:#f37021;
+  color:#111;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 14px;
+  margin:20px 0 0 0;
+  border-radius:8px 8px 0 0;
+  border:2px solid #d85f12;
+">
+  <span style="
+    font-size:18px;
+    font-weight:900;
+  ">
+    Battery Runtime & Charge Time Options
+  </span>
+
+  <span style="
+    font-size:12px;
+    font-weight:700;
+  ">
+    Estimated Values
+  </span>
+</div>
 
       <table class="stihl-sales-table">
         <thead>
