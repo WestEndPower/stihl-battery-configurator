@@ -636,10 +636,8 @@ clean(t.Badge)
 .join('');
 
 const rec = clean(t.RecommendedBattery);
-
 box.innerHTML = ` <div class="stihl-card featured">
 
-```
   <div class="stihl-product-title">${escapeHtml(nameOf(t))}</div>
 
   ${imageOf(t) ? `
