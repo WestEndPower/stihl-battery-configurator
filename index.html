@@ -816,6 +816,11 @@ salesBtn.addEventListener('click', printSalesSheet);
 function printSalesSheet(){
   const t = state.selectedTool;
 
+  if(!t){
+    alert('Select a tool first.');
+    return;
+  }
+
   const series = clean(t.Series).toUpperCase();
 
   let seriesLabel = '';
