@@ -1229,7 +1229,8 @@ function renderWeightOptions(tool){
 
     function copyQuote(){
       const customer = clean($('stihl-customer-name').value) || 'Not entered';
-      const contact = clean($('stihl-customer-contact').value) || 'Not entered';
+const phone = clean($('stihl-customer-contact').value) || 'Not entered';
+const email = clean($('stihl-customer-email').value) || 'Not entered';
       const notes = clean($('stihl-quote-notes').value);
       const subtotal = $('stihl-subtotal').textContent;
       const tax = $('stihl-tax').textContent;
@@ -1243,7 +1244,11 @@ function renderWeightOptions(tool){
 return `${line.qty} x ${nameOf(line.item)} (${itemId}) - ${unit}${line.note ? ' - ' + line.note : ''}`;
       }).join('\n');
 
-      const text = `STIHL Battery Configurator Quote\nWest End Power Equipment\n\nCustomer: ${customer}\nContact: ${contact}\n\nItems:\n${items}\n\nSubtotal: ${subtotal}\nEstimated CT Sales Tax: ${tax}\nTotal: ${total}\n\nNotes: ${notes}\n\nPrices, compatibility, availability, promotions, and estimated run times should be verified before final sale.`;
+      const text = `STIHL Battery Configurator Quote\nWest End Power Equipment\n\nCustomer: ${customer}
+\nPhone: ${phone}
+\nEmail: ${email}
+\n\nItems:
+\n${items}\n\nSubtotal: ${subtotal}\nEstimated CT Sales Tax: ${tax}\nTotal: ${total}\n\nNotes: ${notes}\n\nPrices, compatibility, availability, promotions, and estimated run times should be verified before final sale.`;
       navigator.clipboard.writeText(text).then(()=> alert('Quote copied.'));
     }
 
@@ -1252,8 +1257,9 @@ return `${line.qty} x ${nameOf(line.item)} (${itemId}) - ${unit}${line.note ? ' 
   state.cart = [];
   $('stihl-tool-select').value = '';
   $('stihl-customer-name').value = '';
-  $('stihl-customer-contact').value = '';
-  $('stihl-quote-notes').value = '';
+$('stihl-customer-contact').value = '';
+$('stihl-customer-email').value = '';
+$('stihl-quote-notes').value = '';
   renderToolDetails();
   renderAllOptions();
   renderCart();
