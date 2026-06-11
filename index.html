@@ -428,12 +428,22 @@
 
           <div>
             <label for="stihl-customer-name">Customer Name</label>
-            <input id="stihl-customer-name" placeholder="Customer name" />
-          </div>
-          <div style="margin-top:10px">
-            <label for="stihl-customer-contact">Phone / Email</label>
-            <input id="stihl-customer-contact" placeholder="Phone or email" />
-          </div>
+<input id="stihl-customer-name"
+       placeholder="Customer name" />
+</div>
+
+<div style="margin-top:10px">
+  <label for="stihl-customer-contact">Phone</label>
+  <input id="stihl-customer-contact"
+         placeholder="Phone number" />
+</div>
+
+<div style="margin-top:10px">
+  <label for="stihl-customer-email">Email</label>
+  <input id="stihl-customer-email"
+         type="email"
+         placeholder="Email address" />
+</div>
           <div style="margin-top:10px">
             <label for="stihl-quote-notes">Notes</label>
             <textarea id="stihl-quote-notes" placeholder="Optional quote notes"></textarea>
@@ -632,7 +642,10 @@ $('stihl-tool-select').addEventListener('change', selectTool);
       $('stihl-print').addEventListener('click', printSalesSheet);
       $('stihl-copy').addEventListener('click', copyQuote);
       $('stihl-clear').addEventListener('click', clearAll);
-      ['stihl-customer-name','stihl-customer-contact','stihl-quote-notes'].forEach(id => $(id).addEventListener('input', renderCart));
+      ['stihl-customer-name',
+ 'stihl-customer-contact',
+ 'stihl-customer-email',
+ 'stihl-quote-notes'].forEach(id => $(id).addEventListener('input', renderCart));
     }
 
     function renderCategories(){
