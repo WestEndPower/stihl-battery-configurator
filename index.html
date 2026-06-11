@@ -716,6 +716,19 @@ function renderTools(){
     function renderToolDetails(){
 const box = $('stihl-tool-details');
 const t = state.selectedTool;
+      const series = clean(t.Series).toUpperCase();
+
+let seriesLabel = '';
+
+if(series.includes('AS')){
+  seriesLabel = 'Light Duty';
+}else if(series.includes('AK')){
+  seriesLabel = 'Residential';
+}else if(series.includes('AP')){
+  seriesLabel = 'Commercial Grade';
+}else if(series.includes('AR')){
+  seriesLabel = 'Extended Runtime';
+}
 
 if(!t){
 box.innerHTML = '<div class="stihl-note">Choose a tool or kit to see battery compatibility and package details.</div>';
