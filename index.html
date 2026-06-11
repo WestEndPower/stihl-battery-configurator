@@ -162,7 +162,7 @@
 .stihl-weight-table{
   width:100%;
   border-collapse:collapse;
-  margin-top:8px;
+  margin-top:0;
   font-size:14px;
 }
 
@@ -1193,7 +1193,25 @@ function renderWeightOptions(tool){
 
   return `
     <div class="stihl-weight-wrap">
-      <h3>Tool / Kit Weights <span class="stihl-small">• (Estimated runtime and charge times shown below)</span></h3>
+      <div style="
+  background:#f37021;
+  color:#111;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 14px;
+  margin:12px 0 0 0;
+  border-radius:8px 8px 0 0;
+  border:2px solid #d85f12;
+">
+  <span style="font-size:16px;font-weight:900;">
+    Tool / Kit Weights
+  </span>
+
+  <span style="font-size:12px;font-weight:700;">
+    Estimated Operating Weight
+  </span>
+</div>
       <table class="stihl-weight-table">
         <thead>
           <tr>
