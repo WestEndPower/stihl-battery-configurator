@@ -609,6 +609,11 @@ function renderTools(){
   if(!t){
     box.innerHTML = '<div class="stihl-note">Choose a tool or kit to see battery compatibility and package details.</div>';
     return;
+    const salesBtn = document.getElementById('stihl-sales-sheet');
+
+if(salesBtn){
+  salesBtn.addEventListener('click', printSalesSheet);
+}
   }
 
  const series = clean(t.Series).toUpperCase();
@@ -665,7 +670,9 @@ ${imageOf(t) ? `
             </div>
           ` : ''}
         </div>
-
+<button class="stihl-btn secondary" id="stihl-sales-sheet" type="button">
+  Print Sales Sheet / Save PDF
+</button>
         <div class="stihl-line">
           <span>Recommended Battery</span>
           <strong>${escapeHtml(rec || 'See options')}</strong>
