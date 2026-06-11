@@ -1244,11 +1244,23 @@ const email = clean($('stihl-customer-email').value) || 'Not entered';
 return `${line.qty} x ${nameOf(line.item)} (${itemId}) - ${unit}${line.note ? ' - ' + line.note : ''}`;
       }).join('\n');
 
-      const text = `STIHL Battery Configurator Quote\nWest End Power Equipment\n\Customer: ${customer}
-\Phone: ${phone}
-\Email: ${email}
-\n\Items:
-\n${items}\n\Subtotal: ${subtotal}\Estimated CT Sales Tax: ${tax}\Total: ${total}\n\Notes: ${notes}\n\Prices, compatibility, availability, promotions, and estimated run times should be verified before final sale.`;
+      const text = `STIHL Battery Configurator Quote
+West End Power Equipment
+
+Customer: ${customer}
+Phone: ${phone}
+Email: ${email}
+
+Items:
+${items}
+
+Subtotal: ${subtotal}
+Estimated CT Sales Tax: ${tax}
+Total: ${total}
+
+Notes: ${notes}
+
+Prices, compatibility, availability, promotions, and estimated run times should be verified before final sale.`;
       navigator.clipboard.writeText(text).then(()=> alert('Quote copied.'));
     }
 
