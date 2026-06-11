@@ -812,65 +812,56 @@ function printSalesSheet(){
       </tr>
     `;
   }).join('');
+const customerName = clean($('stihl-customer-name').value);
+const customerPhone = clean($('stihl-customer-contact').value);
+const customerEmail = clean($('stihl-customer-email').value);
 
+const customerBlock =
+(customerName || customerPhone || customerEmail)
+? `
+<div style="
+  background:#f8f8f8;
+  border:1px solid #ddd;
+  border-radius:8px;
+  padding:10px 14px;
+  margin-top:12px;
+  font-size:14px;
+  line-height:1.6;
+">
+  ${customerName ? `<strong>Customer:</strong> ${escapeHtml(customerName)}<br>` : ''}
+  ${customerPhone ? `<strong>Phone:</strong> ${escapeHtml(customerPhone)}<br>` : ''}
+  ${customerEmail ? `<strong>Email:</strong> ${escapeHtml(customerEmail)}<br>` : ''}
+  <strong>Date:</strong> ${new Date().toLocaleDateString()}
+</div>
+`
+: '';
   $('stihl-sales-sheet-output').innerHTML = `
     <div class="stihl-sales-sheet">
      <div class="stihl-sales-header">
-  <img src="https://published-assets.ari-build.com/Content/Published/Site/21168/images/West-End-Logo.png"
-       style="max-height:70px;margin-bottom:10px;">
 
-  <h1>West End Power Equipment</h1>
-  <div>STIHL Battery Sales Sheet</div>
+  <div style="
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:20px;
+  ">
 
-  <p style="margin:12px 0;font-size:14px;line-height:1.6;">
-    <strong>Customer:</strong>
-    ${escapeHtml(clean($('stihl-customer-name').value) || 'Walk-In Customer')}
-    <br>
+    <div>
+      <img src="https://published-assets.ari-build.com/Content/Published/Site/21168/images/West-End-Logo.png"
+           style="max-height:70px;margin-bottom:10px;">
 
-    <strong>Phone:</strong>
-    ${escapeHtml(clean($('stihl-customer-contact').value) || 'Not Provided')}
-    <br>
+      <h1 style="margin:0;">West End Power Equipment</h1>
 
-   <strong>Email:</strong>
-${escapeHtml(clean($('stihl-customer-email').value) || 'Not Provided')}
-<br>
-
-<strong>Date:</strong>
-${new Date().toLocaleDateString()}
-  </p>
-</div>
-      <div class="stihl-sales-grid">
-        <div>
-          ${imageOf(t) ? `
-            <img src="${escapeHtml(imageOf(t))}"
-                 alt="${escapeHtml(nameOf(t))}"
-                 class="stihl-sales-img">
-          ` : ''}
-        </div>
-
-        <div>
-          <h2>${escapeHtml(nameOf(t))}</h2>
-          <p>
-            <strong>Model:</strong> ${escapeHtml(clean(t.Model))}<br>
-            <strong>STIHL ID:</strong> ${escapeHtml(clean(t.StihlID) || skuOf(t))}
-          </p>
-
-          <div style="font-size:24px;font-weight:900;">
-            ${displayPrice(t)}
-          </div>
-
-          ${clean(t.SaleEndDate) ? `
-            <p><strong>Sale Ends:</strong> ${escapeHtml(clean(t.SaleEndDate))}</p>
-          ` : ''}
-
-          <p>
-            <strong>Recommended Battery:</strong>
-            ${escapeHtml(clean(t.RecommendedBattery) || 'See options')}
-          </p>
-
-          ${renderKitIncludes(t)}
-        </div>
+      <div style="font-size:18px;font-weight:700;">
+        STIHL Battery Sales Sheet
       </div>
+    </div>
+
+    ${customerBlock}
+
+  </div>
+
+</div>
 
       ${renderWeightOptions(t)}
 
