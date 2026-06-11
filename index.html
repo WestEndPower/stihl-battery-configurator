@@ -295,19 +295,27 @@
   width:100%;
   border-collapse:collapse;
   margin-top:0;
+  table-layout:fixed;
 }
 
-  .stihl-sales-table th,
+.stihl-sales-table th,
 .stihl-sales-table td{
   border:1px solid #ccc;
   text-align:center;
   vertical-align:middle;
+  padding:6px;
 }
 
-  .stihl-sales-table th{
-    background:#111;
-    color:#fff;
-  }
+.stihl-sales-table th:first-child,
+.stihl-sales-table td:first-child{
+  width:180px;
+  text-align:left;
+  font-weight:700;
+}
+
+.stihl-sales-table th:not(:first-child),
+.stihl-sales-table td:not(:first-child){
+  width:calc((100% - 180px) / 10);
 }
   </style>
   <!-- =========================================================
