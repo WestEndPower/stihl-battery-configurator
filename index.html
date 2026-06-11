@@ -880,7 +880,14 @@ function printSalesSheet(){
   </td>
 </tr>
 
-${chargerCodes.map(charger => `
+${chargerCodes
+  .filter(charger =>
+    codes.some(code => {
+      const b = findBattery(code);
+      return b && clean(b[charger]);
+    })
+  )
+  .map(charger => `
 <tr>
 
   <td><strong>${escapeHtml(charger)}</strong></td>
@@ -891,7 +898,7 @@ ${chargerCodes.map(charger => `
 
     return `
       <td style="text-align:center;">
-        ${time || '—'}
+        ${time || ''}
       </td>
     `;
   }).join('')}
