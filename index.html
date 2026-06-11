@@ -863,9 +863,54 @@ const customerBlock =
 
 </div>
 
-      ${renderWeightOptions(t)}
+      </div>
 
-      <h2>Battery Runtime & Charge Time Options</h2>
+<div class="stihl-sales-grid">
+
+  <div>
+    ${
+      imageOf(t)
+      ? `<img src="${escapeHtml(imageOf(t))}"
+              class="stihl-sales-img"
+              alt="${escapeHtml(nameOf(t))}">`
+      : ''
+    }
+  </div>
+
+  <div>
+
+    <h2 style="margin-top:0;">
+      ${escapeHtml(nameOf(t))}
+    </h2>
+
+    <div style="margin-bottom:12px;">
+      ${displayPrice(t)}
+    </div>
+
+    ${renderKitIncludes(t)}
+
+    <div style="margin-top:10px;">
+      <strong>Category:</strong>
+      ${escapeHtml(clean(t.Category))}
+    </div>
+
+    <div>
+      <strong>Series:</strong>
+      ${escapeHtml(clean(t.Series))}
+    </div>
+
+    <div>
+      <strong>Recommended Battery:</strong>
+      ${escapeHtml(clean(t.RecommendedBattery) || 'See runtime table')}
+    </div>
+
+  </div>
+
+</div>
+
+${renderWeightOptions(t)}
+
+<h2>Battery Runtime & Charge Time Options</h2>
 
       <table class="stihl-sales-table">
         <thead>
