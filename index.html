@@ -609,13 +609,7 @@ function renderTools(){
   if(!t){
     box.innerHTML = '<div class="stihl-note">Choose a tool or kit to see battery compatibility and package details.</div>';
     return;
-    const salesBtn = document.getElementById('stihl-sales-sheet');
-
-if(salesBtn){
-  salesBtn.addEventListener('click', printSalesSheet);
-}
-  }
-
+    
  const series = clean(t.Series).toUpperCase();
 
 let seriesLabel = '';
@@ -686,6 +680,12 @@ ${imageOf(t) ? `
       </div>
     </div>
   `;
+
+  const salesBtn = document.getElementById('stihl-sales-sheet');
+
+  if(salesBtn){
+    salesBtn.addEventListener('click', printSalesSheet);
+  }
 }
     function selectTool(){
   const sku = clean($('stihl-tool-select').value);
