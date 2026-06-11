@@ -1045,7 +1045,57 @@ ${renderWeightOptions(t)}
         </tbody>
       </table>
 
-     <div style="margin-top:20px;display:flex;justify-content:space-between;gap:30px;align-items:flex-start;">
+<div style="
+  margin-top:20px;
+  border:2px solid #f37021;
+  border-radius:10px;
+  overflow:hidden;
+">
+
+  <div style="
+    background:#f37021;
+    color:#111;
+    padding:10px 14px;
+    font-size:18px;
+    font-weight:900;
+  ">
+    Quote Summary
+  </div>
+
+  <table style="
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+  ">
+    <tr>
+      <td style="padding:8px 12px;">Subtotal</td>
+      <td style="padding:8px 12px;text-align:right;">
+        ${$('stihl-subtotal').textContent}
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding:8px 12px;">CT Sales Tax (Est.)</td>
+      <td style="padding:8px 12px;text-align:right;">
+        ${$('stihl-tax').textContent}
+      </td>
+    </tr>
+
+    <tr style="
+      background:#f5f5f5;
+      font-weight:900;
+      font-size:18px;
+    ">
+      <td style="padding:10px 12px;">Estimated Total</td>
+      <td style="padding:10px 12px;text-align:right;">
+        ${$('stihl-total').textContent}
+      </td>
+    </tr>
+  </table>
+
+</div>
+
+<div style="margin-top:20px;display:flex;justify-content:space-between;gap:30px;align-items:flex-start;">
 
   <div style="font-size:12px;flex:1;">
     <strong>West End Power Equipment Company</strong><br>
