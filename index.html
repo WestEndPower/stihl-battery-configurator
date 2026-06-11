@@ -886,6 +886,50 @@ const customerBlock =
 </div>
 `
 : '';
+  <div style="
+  margin-top:20px;
+  border:2px solid #f37021;
+  border-radius:10px;
+  overflow:hidden;
+">
+
+  <div style="
+    background:#f37021;
+    color:#111;
+    padding:10px 14px;
+    font-size:18px;
+    font-weight:900;
+  ">
+    Package Details
+  </div>
+
+  <table style="
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  ">
+    <thead>
+      <tr style="background:#f5f5f5;">
+        <th style="padding:8px;">Qty</th>
+        <th style="padding:8px;">Item</th>
+        <th style="padding:8px;">Unit Price</th>
+        <th style="padding:8px;">Line Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${quoteItems}
+    </tbody>
+  </table>
+
+</div>
+  const quoteItems = state.cart.map(line => `
+  <tr>
+    <td>${line.qty}</td>
+    <td>${escapeHtml(nameOf(line.item))}</td>
+    <td>${line.included ? 'Included' : fmtMoney(priceOf(line.item))}</td>
+    <td>${line.included ? 'Included' : fmtMoney(priceOf(line.item) * line.qty)}</td>
+  </tr>
+`).join('');
   $('stihl-sales-sheet-output').innerHTML = `
     <div class="stihl-sales-sheet">
      <div class="stihl-sales-header">
