@@ -853,6 +853,8 @@ function printSalesSheet(){
       </tr>
     `;
   }).join('');
+  const quoteNumber = 'WEP-' + Date.now().toString().slice(-6);
+const quoteDate = new Date().toLocaleDateString();
 const customerName = clean($('stihl-customer-name').value);
 const customerPhone = clean($('stihl-customer-contact').value);
 const customerEmail = clean($('stihl-customer-email').value);
@@ -912,12 +914,24 @@ const customerBlock =
   </div>
 
   <div style="
-    margin-top:8px;
-    font-size:12px;
-    color:#555;
-  ">
+  margin-top:8px;
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  color:#555;
+">
+
+  <div>
     Prepared by West End Power Equipment • Family Owned Since 1951
   </div>
+
+  <div>
+    Quote #: ${quoteNumber}
+    &nbsp;|&nbsp;
+    Date: ${quoteDate}
+  </div>
+
+</div>
 
 </div>
 
