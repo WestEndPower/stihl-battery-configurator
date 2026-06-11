@@ -718,6 +718,11 @@ function renderTools(){
 const box = $('stihl-tool-details');
 const t = state.selectedTool;
 
+if(!t){
+box.innerHTML = '<div class="stihl-note">Choose a tool or kit to see battery compatibility and package details.</div>';
+return;
+}
+
 const series = clean(t.Series).toUpperCase();
 
 let seriesLabel = '';
