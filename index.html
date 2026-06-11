@@ -832,12 +832,11 @@ function printSalesSheet(){
     <br>
 
    <strong>Email:</strong>
-<a href="mailto:${escapeHtml(clean($('stihl-customer-email').value))}">
-  ${escapeHtml(clean($('stihl-customer-email').value) || 'Not Provided')}
-</a>
+${escapeHtml(clean($('stihl-customer-email').value) || 'Not Provided')}
+<br>
 
-    <strong>Date:</strong>
-    ${new Date().toLocaleDateString()}
+<strong>Date:</strong>
+${new Date().toLocaleDateString()}
   </p>
 </div>
       <div class="stihl-sales-grid">
