@@ -604,89 +604,107 @@ function renderTools(){
     }).join('');
 }
     function renderToolDetails(){
-  const box = $('stihl-tool-details');
-  const t = state.selectedTool;
-  if(!t){
-    box.innerHTML = '<div class="stihl-note">Choose a tool or kit to see battery compatibility and package details.</div>';
-    return;
-    
- const series = clean(t.Series).toUpperCase();
+const box = $('stihl-tool-details');
+const t = state.selectedTool;
+
+if(!t){
+box.innerHTML = '<div class="stihl-note">Choose a tool or kit to see battery compatibility and package details.</div>';
+return;
+}
+
+const series = clean(t.Series).toUpperCase();
 
 let seriesLabel = '';
 
 if(series.includes('AS')){
-  seriesLabel = 'Light Duty';
+seriesLabel = 'Light Duty';
 }else if(series.includes('AK')){
-  seriesLabel = 'Residential';
+seriesLabel = 'Residential';
 }else if(series.includes('AP')){
-  seriesLabel = 'Commercial Grade';
+seriesLabel = 'Commercial Grade';
 }else if(series.includes('AR')){
-  seriesLabel = 'Extended Runtime';
+seriesLabel = 'Extended Runtime';
 }
 
 const badges = [
-  clean(t.ComponentType),
-  seriesLabel,
-  clean(t.Badge)
+clean(t.ComponentType),
+seriesLabel,
+clean(t.Badge)
 ]
 .filter(Boolean)
 .map(b => `<span class="stihl-badge orange">${escapeHtml(b)}</span>`)
 .join('');
-  const rec = clean(t.RecommendedBattery);
 
-  box.innerHTML = `
-    <div class="stihl-card featured">
+const rec = clean(t.RecommendedBattery);
 
- <div class="stihl-product-title">${escapeHtml(nameOf(t))}</div>
+box.innerHTML = ` <div class="stihl-card featured">
 
-${imageOf(t) ? `
-  <div class="stihl-tool-image-wrap">
-    <img src="${escapeHtml(imageOf(t))}"
-         alt="${escapeHtml(nameOf(t))}"
-         class="stihl-tool-image">
-  </div>
-` : ''}
+```
+  <div class="stihl-product-title">${escapeHtml(nameOf(t))}</div>
 
-<div class="stihl-tool-info">
-        <div class="stihl-small">
-          Model: <strong>${escapeHtml(clean(t.Model))}</strong> |
-          STIHL ID: <strong>${escapeHtml(clean(t.StihlID) || skuOf(t))}</strong>
-        </div>
-
-        <div style="margin:8px 0">${badges}</div>
-
-        <div class="stihl-price-row">
-          <div>${displayPrice(t)}</div>
-
-          ${clean(t.SaleEndDate) ? `
-            <div class="stihl-sale-date">
-              Sale Ends: <strong>${escapeHtml(clean(t.SaleEndDate))}</strong>
-            </div>
-          ` : ''}
-        </div>
-<button class="stihl-btn secondary" id="stihl-sales-sheet" type="button">
-  Print Sales Sheet / Save PDF
-</button>
-        <div class="stihl-line">
-          <span>Recommended Battery</span>
-          <strong>${escapeHtml(rec || 'See options')}</strong>
-        </div>
-
-        ${renderKitIncludes(t)}
-
-        ${renderWeightOptions(t)}
-
-        ${clean(t.SpecialText) ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}</div>` : ''}
-      </div>
+  ${imageOf(t) ? `
+    <div class="stihl-tool-image-wrap">
+      <img src="${escapeHtml(imageOf(t))}"
+           alt="${escapeHtml(nameOf(t))}"
+           class="stihl-tool-image">
     </div>
-  `;
+  ` : ''}
 
-  const salesBtn = document.getElementById('stihl-sales-sheet');
+  <div class="stihl-tool-info">
 
-  if(salesBtn){
-    salesBtn.addEventListener('click', printSalesSheet);
-  }
+    <div class="stihl-small">
+      Model: <strong>${escapeHtml(clean(t.Model))}</strong> |
+      STIHL ID: <strong>${escapeHtml(clean(t.StihlID) || skuOf(t))}</strong>
+    </div>
+
+    <div style="margin:8px 0">${badges}</div>
+
+    <div class="stihl-price-row">
+      <div>${displayPrice(t)}</div>
+
+      ${clean(t.SaleEndDate) ? `
+        <div class="stihl-sale-date">
+          Sale Ends: <strong>${escapeHtml(clean(t.SaleEndDate))}</strong>
+        </div>
+      ` : ''}
+    </div>
+
+    <button class="stihl-btn secondary"
+            id="stihl-sales-sheet"
+            type="button">
+      Print Sales Sheet / Save PDF
+    </button>
+
+    <div class="stihl-line">
+      <span>Recommended Battery</span>
+      <strong>${escapeHtml(rec || 'See options')}</strong>
+    </div>
+
+    ${renderKitIncludes(t)}
+
+    ${renderWeightOptions(t)}
+
+    ${clean(t.SpecialText)
+      ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}</div>`
+      : ''}
+
+  </div>
+</div>
+```
+
+`;
+
+const salesBtn = document.getElementById('stihl-sales-sheet');
+
+if(salesBtn){
+salesBtn.addEventListener('click', printSalesSheet);
 }
+}
+
+function printSalesSheet(){
+window.print();
+}
+
     function selectTool(){
   const sku = clean($('stihl-tool-select').value);
   state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
