@@ -217,6 +217,79 @@
       .stihl-panel{box-shadow:none;border:1px solid #999}
       body{font-size:12px}
     }
+  #stihl-sales-sheet-output{
+  display:none;
+}
+
+@media print{
+  body *{
+    visibility:hidden;
+  }
+
+  #stihl-sales-sheet-output,
+  #stihl-sales-sheet-output *{
+    visibility:visible;
+  }
+
+  #stihl-sales-sheet-output{
+    display:block;
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    padding:24px;
+    background:#fff;
+  }
+
+  .stihl-sales-sheet{
+    font-family:Arial,Helvetica,sans-serif;
+    color:#111;
+  }
+
+  .stihl-sales-header{
+    border-bottom:6px solid var(--stihl-orange);
+    margin-bottom:16px;
+    padding-bottom:10px;
+  }
+
+  .stihl-sales-header h1{
+    margin:0;
+    font-size:28px;
+  }
+
+  .stihl-sales-grid{
+    display:grid;
+    grid-template-columns:280px 1fr;
+    gap:20px;
+    align-items:start;
+  }
+
+  .stihl-sales-img{
+    max-width:260px;
+    width:100%;
+    height:auto;
+    object-fit:contain;
+  }
+
+  .stihl-sales-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:14px;
+    font-size:12px;
+  }
+
+  .stihl-sales-table th,
+  .stihl-sales-table td{
+    border:1px solid #ccc;
+    padding:6px;
+    text-align:left;
+  }
+
+  .stihl-sales-table th{
+    background:#111;
+    color:#fff;
+  }
+}
   </style>
   <!-- =========================================================
        SECTION END: STIHL BATTERY CONFIGURATOR HEAD
@@ -404,6 +477,7 @@
         ========================================================== -->
       </aside>
     </div>
+    <div id="stihl-sales-sheet-output"></div>
   </main>
 
   <!-- =========================================================
@@ -705,7 +779,104 @@ salesBtn.addEventListener('click', printSalesSheet);
 }
 
 function printSalesSheet(){
-window.print();
+  const t = state.selectedTool;
+
+  if(!t){
+    alert('Select a tool first.');
+    return;
+  }
+
+  const codes = compatibleBatteryCodes(t);
+
+  const runtimeRows = codes.map(code => {
+    const b = findBattery(code);
+    const runtime = runtimeText(t, code);
+
+    const validChargers = chargerCodes.filter(ch =>
+      b && clean(b[ch])
+    );
+
+    const chargers = validChargers.map(ch => escapeHtml(ch)).join('<br>');
+    const chargeTimes = validChargers.map(ch => `${escapeHtml(clean(b[ch]))} min`).join('<br>');
+
+    return `
+      <tr>
+        <td><strong>${escapeHtml(code)}</strong><br>${batterySpecText(b)}</td>
+        <td>${escapeHtml(runtime)}</td>
+        <td>${chargers || 'N/A'}</td>
+        <td>${chargeTimes || 'N/A'}</td>
+        <td>${batteryChargeCost(b)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  $('stihl-sales-sheet-output').innerHTML = `
+    <div class="stihl-sales-sheet">
+      <div class="stihl-sales-header">
+        <h1>West End Power Equipment</h1>
+        <div>STIHL Battery Sales Sheet</div>
+      </div>
+
+      <div class="stihl-sales-grid">
+        <div>
+          ${imageOf(t) ? `
+            <img src="${escapeHtml(imageOf(t))}"
+                 alt="${escapeHtml(nameOf(t))}"
+                 class="stihl-sales-img">
+          ` : ''}
+        </div>
+
+        <div>
+          <h2>${escapeHtml(nameOf(t))}</h2>
+          <p>
+            <strong>Model:</strong> ${escapeHtml(clean(t.Model))}<br>
+            <strong>STIHL ID:</strong> ${escapeHtml(clean(t.StihlID) || skuOf(t))}
+          </p>
+
+          <div style="font-size:24px;font-weight:900;">
+            ${displayPrice(t)}
+          </div>
+
+          ${clean(t.SaleEndDate) ? `
+            <p><strong>Sale Ends:</strong> ${escapeHtml(clean(t.SaleEndDate))}</p>
+          ` : ''}
+
+          <p>
+            <strong>Recommended Battery:</strong>
+            ${escapeHtml(clean(t.RecommendedBattery) || 'See options')}
+          </p>
+
+          ${renderKitIncludes(t)}
+        </div>
+      </div>
+
+      ${renderWeightOptions(t)}
+
+      <h2>Battery Runtime & Charge Time Options</h2>
+
+      <table class="stihl-sales-table">
+        <thead>
+          <tr>
+            <th>Battery</th>
+            <th>Estimated Runtime</th>
+            <th>Charger</th>
+            <th>Charge Time</th>
+            <th>Est. Cost to Charge</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${runtimeRows}
+        </tbody>
+      </table>
+
+      <p style="margin-top:18px;font-size:12px;">
+        West End Power Equipment • New Milford, CT • (860) 355-8722<br>
+        Prices, availability, compatibility, promotions, and estimated runtimes should be verified before final sale.
+      </p>
+    </div>
+  `;
+
+  window.print();
 }
 
     function selectTool(){
