@@ -843,7 +843,16 @@ function printSalesSheet(){
   const codes = compatibleBatteryCodes(t);
 
   const runtimeRows = `
+<tr>
+  <td><strong>Operating Weight</strong></td>
 
+  ${codes.map(code => {
+    const toolWeight = parseFloat(clean(t.ToolWeight)) || 0;
+    const totalWeight = toolWeight + batteryWeight(code);
+
+    return `<td style="text-align:center;">${totalWeight.toFixed(1)} lbs</td>`;
+  }).join('')}
+</tr>
 <tr>
   <td><strong>Estimated Runtime</strong></td>
 
@@ -866,12 +875,14 @@ function printSalesSheet(){
 </tr>
 
 <tr>
-  <td colspan="${codes.length + 1}" style="
-    background:#f37021;
-    color:#111;
-    text-align:center;
-    padding:8px;
-  ">
+ <td colspan="${codes.length + 1}" style="
+  background:#fff8ef;
+  color:#111;
+  text-align:center;
+  padding:7px;
+  border-top:3px solid #f37021;
+  border-bottom:2px solid #f37021;
+">
     <div style="
       font-weight:900;
       font-size:14px;
@@ -1088,8 +1099,6 @@ const customerBlock =
   </div>
 
 </div>
-
-${renderWeightOptions(t)}
 
 <div style="
   background:#f37021;
