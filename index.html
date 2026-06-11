@@ -1050,12 +1050,22 @@ const customerBlock =
   </div>
 
   <div style="
-    font-size:30px;
-    font-weight:900;
-    line-height:1.1;
+  font-size:30px;
+  font-weight:900;
+  line-height:1.1;
+">
+  ${displayPrice(t)}
+</div>
+
+${clean(t.SaleEndDate) ? `
+  <div style="
+    margin-top:6px;
+    font-size:12px;
+    font-weight:800;
   ">
-    ${displayPrice(t)}
+    Sale Ends: ${escapeHtml(clean(t.SaleEndDate))}
   </div>
+` : ''}
 
 </div>
     ${renderKitIncludes(t)}
