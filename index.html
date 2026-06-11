@@ -1075,8 +1075,25 @@ ${renderWeightOptions(t)}
       </tr>
     </thead>
     <tbody>
-      ${quoteItems}
-    </tbody>
+  ${quoteItems}
+
+  <tr style="
+    background:#f5f5f5;
+    font-weight:900;
+  ">
+    <td colspan="3" style="
+      padding:8px;
+      text-align:right;
+    ">
+      Package Total
+    </td>
+
+    <td style="padding:8px;">
+      ${$('stihl-subtotal').textContent}
+    </td>
+  </tr>
+
+</tbody>
   </table>
 
 </div>
