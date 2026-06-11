@@ -212,6 +212,29 @@
 }
 
 @media print{
+
+  @page{
+    size: letter;
+    margin: 0.35in;
+  }
+
+  html,
+  body{
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  #stihl-sales-sheet-output{
+    padding:0 !important;
+  }
+
+  .stihl-sales-sheet{
+    page-break-after: avoid;
+    break-after: avoid;
+    max-height:10.3in;
+    overflow:hidden;
+  }
+
   body *{
     visibility:hidden;
   }
