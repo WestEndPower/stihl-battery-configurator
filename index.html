@@ -899,8 +899,12 @@ ${chargerCodes
   .map(charger => `
 <tr>
 
-  <td><strong>${escapeHtml(charger)}</strong></td>
-
+  <td style="
+  text-align:left;
+  font-weight:700;
+">
+  ${escapeHtml(charger)}
+</td>
   ${codes.map(code => {
     const b = findBattery(code);
     const time = b ? clean(b[charger]) : '';
