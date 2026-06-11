@@ -629,7 +629,7 @@ $('stihl-tool-select').addEventListener('change', selectTool);
       $('stihl-add-charger').addEventListener('click', ()=> addSelected('charger'));
       $('stihl-add-attachment').addEventListener('click', ()=> addSelected('attachment'));
       $('stihl-add-accessory').addEventListener('click', ()=> addSelected('accessory'));
-      $('stihl-print').addEventListener('click', ()=> window.print());
+      $('stihl-print').addEventListener('click', printSalesSheet);
       $('stihl-copy').addEventListener('click', copyQuote);
       $('stihl-clear').addEventListener('click', clearAll);
       ['stihl-customer-name','stihl-customer-contact','stihl-quote-notes'].forEach(id => $(id).addEventListener('input', renderCart));
@@ -803,13 +803,12 @@ function printSalesSheet(){
   $('stihl-sales-sheet-output').innerHTML = `
     <div class="stihl-sales-sheet">
       <div class="stihl-sales-header">
-
   <img src="https://published-assets.ari-build.com/Content/Published/Site/21168/images/West-End-Logo.png"
        style="max-height:70px;margin-bottom:10px;">
 
+  <h1>West End Power Equipment</h1>
+  <div>STIHL Battery Sales Sheet</div>
 </div>
-        <h1>West End Power Equipment</h1>
-        <div>STIHL Battery Sales Sheet</div>
       </div>
 
       <div class="stihl-sales-grid">
@@ -864,22 +863,13 @@ function printSalesSheet(){
         </tbody>
       </table>
 
-     <div style="margin-top:20px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;">
-
-  <div style="font-size:12px;">
-    <strong>West End Power Equipment</strong><br>
-    265 Danbury Road<br>
-    New Milford, CT 06776<br>
-    (860) 355-8722<br>
-    www.westendpower.com/new-milford
-    <br><br>
-    Prices, availability, compatibility, promotions,
-    and estimated runtimes should be verified before final sale.
-  </div>
-
-  <div style="margin-top:20px;display:flex;justify-content:space-between;gap:30px;">
+     <div style="margin-top:20px;display:flex;justify-content:space-between;gap:30px;align-items:flex-start;">
 
   <div style="font-size:12px;flex:1;">
+    <strong>West End Power Equipment Company</strong><br>
+    Family Owned Since 1951
+    <br><br>
+
     <strong>New Milford</strong><br>
     265 Danbury Road<br>
     New Milford, CT 06776<br>
@@ -888,7 +878,7 @@ function printSalesSheet(){
   </div>
 
   <div style="text-align:center;">
-    <img src="qr code"
+    <img src="images/newmilford-qr.png"
          style="width:100px;height:100px;">
     <div style="font-size:11px;">New Milford</div>
   </div>
@@ -902,7 +892,7 @@ function printSalesSheet(){
   </div>
 
   <div style="text-align:center;">
-    <img src="DANBURY_QR_URL"
+    <img src="images/danbury-qr.png"
          style="width:100px;height:100px;">
     <div style="font-size:11px;">Danbury</div>
   </div>
@@ -912,7 +902,6 @@ function printSalesSheet(){
 <p style="margin-top:15px;font-size:11px;">
   Prices, availability, compatibility, promotions, and estimated runtimes should be verified before final sale.
 </p>
-    <img src="YOUR_QR_CODE_URL"
          style="width:110px;height:110px;">
     <div style="font-size:11px;">
       Scan for Product Details
