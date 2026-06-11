@@ -798,9 +798,11 @@ box.innerHTML = `
       <strong>${escapeHtml(rec || 'See options')}</strong>
     </div>
 
-    ${renderKitIncludes(t)}
+   ${renderKitIncludes(t)}
 
-    ${renderWeightOptions(t)}
+${renderKitSavings(t)}
+
+${renderWeightOptions(t)}
 
     ${clean(t.SpecialText)
       ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}</div>`
@@ -1453,6 +1455,66 @@ function batteryWeight(code){
     b => skuOf(b).toUpperCase() === code.toUpperCase()
   );
   return parseFloat(clean(battery?.Weight)) || 0;
+}
+    function renderKitSavings(tool){
+
+  const kitBattery = findBattery(clean(tool.KitBattery));
+  const kitCharger = findCharger(clean(tool.KitCharger));
+
+  const kitBatteryQty = Number(clean(tool.KitBatteryQty)) || 0;
+  const kitChargerQty = Number(clean(tool.KitChargerQty)) || 0;
+
+  if(!kitBattery && !kitCharger) return '';
+
+  const separateTotal =
+    priceOf(tool) +
+    (kitBattery ? priceOf(kitBattery) * kitBatteryQty : 0) +
+    (kitCharger ? priceOf(kitCharger) * kitChargerQty : 0);
+
+  const packagePrice = priceOf(tool);
+  const savings = separateTotal - packagePrice;
+
+  if(savings <= 0) return '';
+
+  return `
+    <div style="
+      margin-top:12px;
+      background:#effaf2;
+      border:1px solid #b7e0c1;
+      border-left:5px solid #1f7a3a;
+      border-radius:8px;
+      padding:10px 12px;
+    ">
+
+      <div style="
+        font-weight:900;
+        color:#1f7a3a;
+        margin-bottom:6px;
+      ">
+        Package Savings
+      </div>
+
+      <div>
+        Purchased Separately:
+        <strong>${fmtMoney(separateTotal)}</strong>
+      </div>
+
+      <div>
+        Package Price:
+        <strong>${fmtMoney(packagePrice)}</strong>
+      </div>
+
+      <div style="
+        margin-top:4px;
+        font-size:16px;
+        font-weight:900;
+        color:#1f7a3a;
+      ">
+        You Save ${fmtMoney(savings)}
+      </div>
+
+    </div>
+  `;
 }
 function renderWeightOptions(tool){
   const codes = compatibleBatteryCodes(tool);
