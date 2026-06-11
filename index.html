@@ -298,10 +298,11 @@
 }
 
   .stihl-sales-table th,
-  .stihl-sales-table td{
-    border:1px solid #ccc;
-    text-align:left;
-  }
+.stihl-sales-table td{
+  border:1px solid #ccc;
+  text-align:center;
+  vertical-align:middle;
+}
 
   .stihl-sales-table th{
     background:#111;
@@ -832,27 +833,72 @@ function printSalesSheet(){
 
   const codes = compatibleBatteryCodes(t);
 
-  const runtimeRows = codes.map(code => {
+  const runtimeRows = `
+
+<tr>
+  <td><strong>Estimated Runtime</strong></td>
+
+  ${codes.map(code => {
+    const runtime = runtimeText(t, code)
+      .replace(' min','')
+      .replace(' minutes','');
+
+    return `<td style="text-align:center;">${escapeHtml(runtime)}</td>`;
+  }).join('')}
+</tr>
+
+<tr>
+  <td><strong>Cost to Charge</strong></td>
+
+  ${codes.map(code => {
     const b = findBattery(code);
-    const runtime = runtimeText(t, code);
+    return `<td style="text-align:center;">${batteryChargeCost(b)}</td>`;
+  }).join('')}
+</tr>
 
-    const validChargers = chargerCodes.filter(ch =>
-      b && clean(b[ch])
-    );
+<tr>
+  <td colspan="${codes.length + 1}" style="
+    background:#f37021;
+    color:#111;
+    text-align:center;
+    padding:8px;
+  ">
+    <div style="
+      font-weight:900;
+      font-size:14px;
+    ">
+      Charger Charge Times (Minutes)
+    </div>
 
-    const chargers = validChargers.map(ch => escapeHtml(ch)).join('<br>');
-    const chargeTimes = validChargers.map(ch => `${escapeHtml(clean(b[ch]))} min`).join('<br>');
+    <div style="
+      font-size:11px;
+      font-weight:600;
+      margin-top:2px;
+    ">
+      Runtime shown as estimated low-high minutes depending on application.
+    </div>
+  </td>
+</tr>
+
+${chargerCodes.map(charger => `
+<tr>
+
+  <td><strong>${escapeHtml(charger)}</strong></td>
+
+  ${codes.map(code => {
+    const b = findBattery(code);
+    const time = b ? clean(b[charger]) : '';
 
     return `
-      <tr>
-        <td><strong>${escapeHtml(code)}</strong><br>${batterySpecText(b)}</td>
-        <td>${escapeHtml(runtime)}</td>
-        <td>${chargers || 'N/A'}</td>
-        <td>${chargeTimes || 'N/A'}</td>
-        <td>${batteryChargeCost(b)}</td>
-      </tr>
+      <td style="text-align:center;">
+        ${time || '—'}
+      </td>
     `;
-  }).join('');
+  }).join('')}
+
+</tr>
+`).join('')}
+`;
   const quoteNumber = 'WEP-' + Date.now().toString().slice(-6);
 const quoteDate = new Date().toLocaleDateString();
 const customerName = clean($('stihl-customer-name').value);
@@ -1053,14 +1099,20 @@ ${renderWeightOptions(t)}
 
       <table class="stihl-sales-table">
         <thead>
-          <tr>
-            <th>Battery</th>
-            <th>Estimated Runtime</th>
-            <th>Charger</th>
-            <th>Charge Time</th>
-            <th>Est. Cost to Charge</th>
-          </tr>
-        </thead>
+  <tr>
+    <th style="text-align:left;">Performance</th>
+
+    ${codes.map(code => `
+      <th style="text-align:center;">
+        ${escapeHtml(code)}
+        <br>
+        <span style="font-size:11px;font-weight:400;">
+          ${batterySpecText(findBattery(code))}
+        </span>
+      </th>
+    `).join('')}
+  </tr>
+</thead>
         <tbody>
           ${runtimeRows}
         </tbody>
