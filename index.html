@@ -716,20 +716,25 @@ function renderTools(){
     function renderToolDetails(){
 const box = $('stihl-tool-details');
 const t = state.selectedTool;
-      const series = clean(t.Series).toUpperCase();
+
+if(!t){
+box.innerHTML = '<div class="stihl-note">Choose a tool or kit to see battery compatibility and package details.</div>';
+return;
+}
+
+const series = clean(t.Series).toUpperCase();
 
 let seriesLabel = '';
 
 if(series.includes('AS')){
-  seriesLabel = 'Light Duty';
+seriesLabel = 'Light Duty';
 }else if(series.includes('AK')){
-  seriesLabel = 'Residential';
+seriesLabel = 'Residential';
 }else if(series.includes('AP')){
-  seriesLabel = 'Commercial Grade';
+seriesLabel = 'Commercial Grade';
 }else if(series.includes('AR')){
-  seriesLabel = 'Extended Runtime';
+seriesLabel = 'Extended Runtime';
 }
-
 if(!t){
 box.innerHTML = '<div class="stihl-note">Choose a tool or kit to see battery compatibility and package details.</div>';
 return;
@@ -824,6 +829,20 @@ salesBtn.addEventListener('click', printSalesSheet);
 
 function printSalesSheet(){
   const t = state.selectedTool;
+
+  const series = clean(t.Series).toUpperCase();
+
+  let seriesLabel = '';
+
+  if(series.includes('AS')){
+    seriesLabel = 'Light Duty';
+  }else if(series.includes('AK')){
+    seriesLabel = 'Residential';
+  }else if(series.includes('AP')){
+    seriesLabel = 'Commercial Grade';
+  }else if(series.includes('AR')){
+    seriesLabel = 'Extended Runtime';
+  }
 
   if(!t){
     alert('Select a tool first.');
