@@ -831,9 +831,10 @@ function printSalesSheet(){
     ${escapeHtml(clean($('stihl-customer-contact').value) || 'Not Provided')}
     <br>
 
-    <strong>Email:</strong>
-    ${escapeHtml(clean($('stihl-customer-email').value) || 'Not Provided')}
-    <br>
+   <strong>Email:</strong>
+<a href="mailto:${escapeHtml(clean($('stihl-customer-email').value))}">
+  ${escapeHtml(clean($('stihl-customer-email').value) || 'Not Provided')}
+</a>
 
     <strong>Date:</strong>
     ${new Date().toLocaleDateString()}
