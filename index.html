@@ -304,9 +304,17 @@
     color:#fff;
   }
   .stihl-sales-sheet{
-  transform:scale(.82);
-  transform-origin:top left;
-  width:122%;
+  zoom:.82;
+  width:100%;
+}
+  #stihl-sales-sheet-output{
+  page-break-after:avoid !important;
+  break-after:avoid !important;
+}
+
+.stihl-sales-sheet{
+  page-break-inside:avoid !important;
+  break-inside:avoid !important;
 }
 
 .stihl-sales-table{
