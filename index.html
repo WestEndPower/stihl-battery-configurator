@@ -830,7 +830,63 @@ ${(clean(t.WarrantyConsumer) || clean(t.WarrantyProfessional)) ? `
 </div>
 ` : ''}
   ${renderKitSavings(t)}
+${clean(t.PromoTitle) ? `
+<div style="
+  margin-top:10px;
+  background:#effaf2;
+  border:1px solid #b7e0c1;
+  border-left:5px solid #1f7a3a;
+  border-radius:8px;
+  padding:10px 12px;
+">
+  <div style="
+    font-weight:900;
+    color:#1f7a3a;
+    margin-bottom:5px;
+  ">
+    Current STIHL Promotion
+  </div>
 
+  <div style="font-weight:900;font-size:15px;">
+    ${escapeHtml(clean(t.PromoTitle))}
+  </div>
+
+  ${clean(t.PromoDescription) ? `
+    <div style="margin-top:5px;">
+      ${escapeHtml(clean(t.PromoDescription))}
+    </div>
+  ` : ''}
+
+  ${(clean(t.PromoItem) || clean(t.PromoItemQty)) ? `
+    <div style="margin-top:6px;">
+      Includes:
+      <strong>
+        ${Number(clean(t.PromoItemQty) || 1) > 1
+          ? `(${clean(t.PromoItemQty)}) ${escapeHtml(clean(t.PromoItem))}`
+          : `${escapeHtml(clean(t.PromoItem))}`}
+      </strong>
+    </div>
+  ` : ''}
+
+  ${clean(t.PromoValue) ? `
+    <div style="margin-top:6px;">
+      Value: <strong>${fmtMoney(money(t.PromoValue))}</strong>
+    </div>
+  ` : ''}
+
+  ${clean(t.PromoEndDate) ? `
+    <div style="margin-top:6px;">
+      Ends: <strong>${escapeHtml(clean(t.PromoEndDate))}</strong>
+    </div>
+  ` : ''}
+
+  ${clean(t.PromoAppliesTo) ? `
+    <div class="stihl-small" style="margin-top:6px;">
+      Applies To: ${escapeHtml(clean(t.PromoAppliesTo))}
+    </div>
+  ` : ''}
+</div>
+` : ''}
 ${renderWeightOptions(t)}
 
 ${clean(t.SpecialText)
