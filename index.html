@@ -1824,9 +1824,10 @@ Prices, compatibility, availability, promotions, and estimated run times should 
 $('stihl-customer-contact').value = '';
 $('stihl-customer-email').value = '';
 $('stihl-quote-notes').value = '';
-  renderToolDetails();
-  renderAllOptions();
-  renderCart();
+ renderToolDetails();
+renderAllOptions();
+renderKMARuntimeMatrix();
+renderCart();
 }
     function findBattery(code){ return state.batteries.find(b => skuOf(b).toUpperCase() === clean(code).toUpperCase()); }
     function findCharger(code){ return state.chargers.find(c => skuOf(c).toUpperCase() === clean(code).toUpperCase()); }
