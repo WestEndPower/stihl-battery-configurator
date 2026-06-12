@@ -170,8 +170,15 @@
 .stihl-weight-table td{
   border:1px solid #ddd;
   padding:8px;
-  text-align:center;
+  text-align:center !important;
   vertical-align:middle;
+}
+  .stihl-weight-table th{
+  text-align:center !important;
+}
+
+.stihl-weight-table td{
+  text-align:center !important;
 }
 
 .stihl-weight-table th{
@@ -1545,15 +1552,14 @@ function renderWeightOptions(tool){
           <tr>
             <th>Performance</th>
             ${weightCodes.map(code => `
-              <th>
-                <th>
-  ${escapeHtml(code)}
-  <br>
-  <span style="font-size:11px;font-weight:400;">
-    ${batterySpecText(findBattery(code))}
-  </span>
-</th>
-            `).join('')}
+  <th>
+    ${escapeHtml(code)}
+    <br>
+    <span style="font-size:11px;font-weight:400;">
+      ${batterySpecText(findBattery(code))}
+    </span>
+  </th>
+`).join('')}
           </tr>
         </thead>
 
@@ -1590,7 +1596,9 @@ function renderWeightOptions(tool){
             )
             .map(charger => `
               <tr>
-                <td><strong>${escapeHtml(charger)}</strong></td>
+                <td style="text-align:left;">
+  <strong>${escapeHtml(charger)}</strong>
+</td>
                 ${weightCodes.map(code => {
                   const b = findBattery(code);
                   const time = b ? clean(b[charger]) : '';
