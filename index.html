@@ -1469,10 +1469,20 @@ function renderKMARuntimeMatrix(){
     return;
   }
 
-  const rows = state.kmaRuntimes.filter(r =>
-    clean(r.PowerheadSKU).toUpperCase() === skuOf(tool).toUpperCase()
-  );
+  function tight(v){
+  return clean(v).toUpperCase().replace(/[^A-Z0-9]/g,'');
+}
 
+const toolKeys = [
+  skuOf(tool),
+  clean(tool.Model),
+  clean(tool.StihlID),
+  clean(tool.Name)
+].map(tight).filter(Boolean);
+
+const rows = state.kmaRuntimes.filter(r =>
+  toolKeys.includes(tight(r.PowerheadSKU))
+);
   if(!rows.length){
     box.innerHTML = '';
     return;
