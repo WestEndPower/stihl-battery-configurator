@@ -1489,8 +1489,14 @@ const rows = state.kmaRuntimes.filter(r =>
   }
 
   const batteries = batteryCodes.filter(code =>
-    rows.some(r => isTrue(r[`${code}_Compatible`]))
-  );
+  rows.some(r =>
+    isTrue(r[`${code}_Compatible`]) ||
+    clean(r[`${code}_RuntimeLow`]) ||
+    clean(r[`${code}_RuntimeHigh`]) ||
+    clean(r[`${code}_RuntimeMin`]) ||
+    clean(r[`${code}_RuntimeMax`])
+  )
+);
 
   if(!batteries.length){
     box.innerHTML = '';
@@ -1517,9 +1523,13 @@ const rows = state.kmaRuntimes.filter(r =>
               </td>
 
               ${batteries.map(code => {
-                if(!isTrue(r[`${code}_Compatible`])){
-                  return `<td>—</td>`;
-                }
+                const low = clean(r[`${code}_RuntimeLow`] || r[`${code}_RuntimeMin`]);
+const high = clean(r[`${code}_RuntimeHigh`] || r[`${code}_RuntimeMax`]);
+const note = clean(r[`${code}_RuntimeNote`] || r.RuntimeNote);
+
+if(!isTrue(r[`${code}_Compatible`]) && !low && !high && !note){
+  return `<td>—</td>`;
+}
 
                 const low = clean(r[`${code}_RuntimeLow`] || r[`${code}_RuntimeMin`]);
                 const high = clean(r[`${code}_RuntimeHigh`] || r[`${code}_RuntimeMax`]);
