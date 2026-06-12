@@ -1525,24 +1525,25 @@ function renderWeightOptions(tool){
   return `
     <div class="stihl-weight-wrap">
       <div style="
-  background:#f37021;
-  color:#111;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px 14px;
-  margin:12px 0 0 0;
-  border-radius:8px 8px 0 0;
-  border:2px solid #d85f12;
-">
-  <span style="font-size:16px;font-weight:900;">
-    Tool / Kit Weights
-  </span>
+        background:#f37021;
+        color:#111;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:10px 14px;
+        margin:12px 0 0 0;
+        border-radius:8px 8px 0 0;
+        border:2px solid #d85f12;
+      ">
+        <span style="font-size:16px;font-weight:900;">
+          Tool / Kit Weights
+        </span>
 
-  <span style="font-size:12px;font-weight:700;">
-    Estimated Operating Weight
-  </span>
-</div>
+        <span style="font-size:12px;font-weight:700;">
+          Estimated Operating Weight
+        </span>
+      </div>
+
       <table class="stihl-weight-table">
         <thead>
           <tr>
@@ -1554,23 +1555,22 @@ function renderWeightOptions(tool){
           <tr>
             <td>${clean(tool.ToolWeight) ? clean(tool.ToolWeight) + ' lbs' : '—'}</td>
             ${weightCodes.map(code => {
-  const toolWeight = parseFloat(clean(tool.ToolWeight)) || 0;
-  const totalWeight = toolWeight + batteryWeight(code);
-  return `<td>${totalWeight.toFixed(1)} lbs</td>`;
-}).join('')}
+              const toolWeight = parseFloat(clean(tool.ToolWeight)) || 0;
+              const totalWeight = toolWeight + batteryWeight(code);
+              return `<td>${totalWeight.toFixed(1)} lbs</td>`;
+            }).join('')}
           </tr>
-          <!-- WEP_RUNTIME_CHARGE_SECTION_START -->
-<div class="stihl-box" id="runtimeChargeBox">
-  <h3>Run Time, Recharge Cost & Charge Time</h3>
-  <div id="runtimeChargeTable"></div>
-</div>
-// WEP_CHARGE_TIME_HELPER_END
         </tbody>
       </table>
-      <div class="stihl-small">Weights shown are combined tool and battery operating weights.</div>
+
+      <div class="stihl-small">
+        Weights shown are combined tool and battery operating weights.
+      </div>
     </div>
   `;
 }
+
+Then your runtime/charge table will continue to work from the existing renderRuntimePanel() section.
     function batterySpecText(battery){
   if(!battery) return '';
 
