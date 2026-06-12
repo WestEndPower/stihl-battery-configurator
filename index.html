@@ -739,14 +739,18 @@ seriesLabel = 'Commercial Grade';
 seriesLabel = 'Extended Runtime';
 }
 
-const badges = [
-clean(t.ComponentType),
-seriesLabel,
-clean(t.Badge)
+let badges = [
+  clean(t.ComponentType),
+  seriesLabel,
+  clean(t.Badge)
 ]
 .filter(Boolean)
 .map(b => `<span class="stihl-badge orange">${escapeHtml(b)}</span>`)
 .join('');
+
+if(clean(t.PromoTitle)){
+  badges += '<span class="stihl-badge green">PROMOTION</span>';
+}
 
 const rec = clean(t.RecommendedBattery);
 box.innerHTML = `
@@ -863,7 +867,7 @@ ${clean(t.PromoTitle) ? `
       <strong>
         ${Number(clean(t.PromoItemQty) || 1) > 1
           ? `(${clean(t.PromoItemQty)}) ${escapeHtml(clean(t.PromoItem))}`
-          : `${escapeHtml(clean(t.PromoItem))}`}
+          : `${escapeHtml(nameOf(findBattery(clean(t.PromoItem))) || clean(t.PromoItem))}`}
       </strong>
     </div>
   ` : ''}
@@ -1707,7 +1711,7 @@ function renderWeightOptions(tool){
         border:2px solid #d85f12;
       ">
         <span style="font-size:16px;font-weight:900;">
-  Tool Kit Weights, Run Times & Charge Times
+  Tool / Kit Weights, Run Times & Charge Times
 </span>
 
 <span style="font-size:12px;font-weight:700;">
