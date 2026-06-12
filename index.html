@@ -429,7 +429,8 @@
             </div>
             <button class="stihl-btn" id="stihl-add-attachment" type="button">Add</button>
           </div>
-<div id="stihl-attachment-runtime"></div>
+<div id="stihl-kma-runtime-matrix"></div>
+          
           <div class="stihl-option-row">
             <div>
               <label for="stihl-accessory-select">Accessories</label>
@@ -668,7 +669,6 @@ $('stihl-tool-select').addEventListener('change', selectTool);
       $('stihl-add-battery').addEventListener('click', ()=> addSelected('battery'));
       $('stihl-add-charger').addEventListener('click', ()=> addSelected('charger'));
       $('stihl-add-attachment').addEventListener('click', ()=> addSelected('attachment'));
-      $('stihl-attachment-select').addEventListener('change', renderAttachmentRuntime);
       $('stihl-add-accessory').addEventListener('click', ()=> addSelected('accessory'));
       $('stihl-print').addEventListener('click', printSalesSheet);
       $('stihl-copy').addEventListener('click', copyQuote);
