@@ -1534,7 +1534,7 @@ function renderWeightOptions(tool){
         border:2px solid #d85f12;
       ">
         <span style="font-size:16px;font-weight:900;">
-          Tool / Kit Weights, Run Times & Charge Times
+          Tool Kit Weights, Run Times & Charge Times
         <span style="font-size:12px;font-weight:700;">
           Estimated Values
         </span>
@@ -1546,11 +1546,13 @@ function renderWeightOptions(tool){
             <th>Performance</th>
             ${weightCodes.map(code => `
               <th>
-                ${escapeHtml(code)}<br>
-                <span style="font-size:11px;font-weight:400;">
-                  ${batterySpecText(findBattery(code))}
-                </span>
-              </th>
+                <th>
+  ${escapeHtml(code)}
+  <br>
+  <span style="font-size:11px;font-weight:400;">
+    ${batterySpecText(findBattery(code))}
+  </span>
+</th>
             `).join('')}
           </tr>
         </thead>
@@ -1600,7 +1602,7 @@ function renderWeightOptions(tool){
       </table>
 
       <div class="stihl-small">
-        Weights shown are combined tool and battery operating weights. Charge times shown are estimated.
+        Weights shown are combined tool and battery weights. Charge times shown are estimated.
       </div>
     </div>
   `;
