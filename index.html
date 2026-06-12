@@ -1394,7 +1394,15 @@ function addToolToQuote(){
       if(low) return `${low} min`;
       if(high) return `${high} min`;
       if(cuts) return `${cuts} cuts${material ? ' in ' + material : ''}`;
-      return 'See product notes';
+      if(
+  clean(tool.Model).toUpperCase().includes('KMA') ||
+  clean(tool.SubCategory).toLowerCase().includes('kombi') ||
+  clean(tool.Type).toLowerCase().includes('kombi')
+){
+  return 'Varies by attachment';
+}
+
+return 'See product notes';
     }
 
     function compatibleChargers(tool){
