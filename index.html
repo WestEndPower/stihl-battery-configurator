@@ -819,7 +819,16 @@ box.innerHTML = `
   <strong>${escapeHtml(rec || 'See options')}</strong>
 </div>
 `}
-
+${(clean(t.WarrantyConsumer) || clean(t.WarrantyProfessional)) ? `
+<div class="stihl-line">
+  <span>Warranty Coverage</span>
+  <strong>
+    ${clean(t.WarrantyConsumer) ? `Consumer: ${escapeHtml(clean(t.WarrantyConsumer))}` : ''}
+    ${clean(t.WarrantyConsumer) && clean(t.WarrantyProfessional) ? ' | ' : ''}
+    ${clean(t.WarrantyProfessional) ? `Professional: ${escapeHtml(clean(t.WarrantyProfessional))}` : ''}
+  </strong>
+</div>
+` : ''}
   ${renderKitSavings(t)}
 
 ${renderWeightOptions(t)}
