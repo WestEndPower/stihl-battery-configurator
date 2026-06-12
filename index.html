@@ -1451,49 +1451,88 @@ return 'See product notes';
       ${escapeHtml(nameOf(a))} — ${fmtMoney(priceOf(a))}
     </option>`).join('');
 }
+function renderKMARuntimeMatrix(){
+  const box = $('stihl-kma-runtime-matrix');
+  if(!box) return;
 
-  const row = state.kmaRuntimes.find(r =>
-    clean(r.PowerheadSKU).toUpperCase() === skuOf(tool).toUpperCase() &&
-    (
-      clean(r.AttachmentModel).toUpperCase() === attachmentSku.toUpperCase() ||
-      clean(r.AttachmentSTIHLSKU).toUpperCase() === attachmentSku.toUpperCase()
-    )
+  const tool = state.selectedTool;
+
+  const isKombi = tool && (
+    skuOf(tool).toUpperCase().includes('KMA') ||
+    clean(tool.Model).toUpperCase().includes('KMA') ||
+    clean(tool.SubCategory).toLowerCase().includes('kombi') ||
+    clean(tool.Type).toLowerCase().includes('kombi')
   );
 
-  if(!row){
-    box.innerHTML = '<div class="stihl-small">Runtime varies by attachment and battery.</div>';
+  if(!isKombi){
+    box.innerHTML = '';
+    return;
+  }
+
+  const rows = state.kmaRuntimes.filter(r =>
+    clean(r.PowerheadSKU).toUpperCase() === skuOf(tool).toUpperCase()
+  );
+
+  if(!rows.length){
+    box.innerHTML = '';
     return;
   }
 
   const batteries = batteryCodes.filter(code =>
-    isTrue(row[`${code}_Compatible`])
+    rows.some(r => isTrue(r[`${code}_Compatible`]))
   );
 
+  if(!batteries.length){
+    box.innerHTML = '';
+    return;
+  }
+
   box.innerHTML = `
-    <table class="stihl-weight-table" style="margin-top:8px;">
-      <thead>
-        <tr>
-          <th>Attachment</th>
-          ${batteries.map(code => `<th>${escapeHtml(code)}</th>`).join('')}
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>${escapeHtml(clean(row.AttachmmentName) || clean(row.AttachmentModel))}</strong></td>
-          ${batteries.map(code => {
-            const low = clean(row[`${code}_RuntimeLow`] || row[`${code}_RuntimeMin`]);
-            const high = clean(row[`${code}_RuntimeHigh`] || row[`${code}_RuntimeMax`]);
+    <div class="stihl-card" style="margin-top:10px;">
+      <h3 style="margin-top:0;">Estimated Attachment Run Times</h3>
 
-            let runtime = '—';
-            if(low && high) runtime = `${low} - ${high}`;
-            else if(low) runtime = low;
-            else if(high) runtime = high;
+      <table class="stihl-weight-table">
+        <thead>
+          <tr>
+            <th>Attachment</th>
+            ${batteries.map(code => `<th>${escapeHtml(code)}</th>`).join('')}
+          </tr>
+        </thead>
 
-            return `<td>${escapeHtml(runtime)}</td>`;
-          }).join('')}
-        </tr>
-      </tbody>
-    </table>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td style="text-align:left !important;">
+                <strong>${escapeHtml(clean(r.AttachmmentName) || clean(r.AttachmentName) || clean(r.AttachmentModel))}</strong>
+              </td>
+
+              ${batteries.map(code => {
+                if(!isTrue(r[`${code}_Compatible`])){
+                  return `<td>—</td>`;
+                }
+
+                const low = clean(r[`${code}_RuntimeLow`] || r[`${code}_RuntimeMin`]);
+                const high = clean(r[`${code}_RuntimeHigh`] || r[`${code}_RuntimeMax`]);
+                const note = clean(r[`${code}_RuntimeNote`] || r.RuntimeNote);
+
+                let runtime = 'Varies';
+
+                if(low && high) runtime = `${low} - ${high}`;
+                else if(low) runtime = low;
+                else if(high) runtime = high;
+                else if(note) runtime = note;
+
+                return `<td>${escapeHtml(runtime)}</td>`;
+              }).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+
+      <div class="stihl-small" style="margin-top:8px;">
+        Run times vary by battery, attachment, and operating conditions.
+      </div>
+    </div>
   `;
 }
     function renderAccessoryOptions(){
