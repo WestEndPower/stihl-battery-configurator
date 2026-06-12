@@ -448,8 +448,7 @@
             <button class="stihl-btn" id="stihl-add-accessory" type="button">Add</button>
           </div>
 
-          <div id="stihl-runtime-panel"></div>
-        </section>
+          </section>
         <!-- =========================================================
              SECTION END: OPTIONS PANEL
         ========================================================== -->
@@ -1637,8 +1636,7 @@ function renderWeightOptions(tool){
     </table>
   `;
 }
-    function renderRuntimePanel(){
-  const t = state.selectedTool;
+    const t = state.selectedTool;
   if(!t){
     $('stihl-runtime-panel').innerHTML = '';
     return;
