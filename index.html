@@ -790,6 +790,12 @@ box.innerHTML = `
             type="button">
       Print Sales Sheet / Save PDF
     </button>
+    
+    <button class="stihl-btn light"
+        id="stihl-price-tag"
+        type="button">
+  Print Price Tag
+</button>
 
     ${clean(t.KitBattery) ? `
 <div class="stihl-line">
@@ -905,7 +911,13 @@ ${clean(t.SpecialText)
 const salesBtn = document.getElementById('stihl-sales-sheet');
 
 if(salesBtn){
-salesBtn.addEventListener('click', printSalesSheet);
+  salesBtn.addEventListener('click', printSalesSheet);
+}
+
+const priceTagBtn = document.getElementById('stihl-price-tag');
+
+if(priceTagBtn){
+  priceTagBtn.addEventListener('click', printPriceTag);
 }
 }
 
