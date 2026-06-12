@@ -1534,9 +1534,7 @@ function renderWeightOptions(tool){
         border:2px solid #d85f12;
       ">
         <span style="font-size:16px;font-weight:900;">
-          Estimated Tool / Kit Weights, Run Times and Charge Times
-        </span>
-
+          Tool / Kit Weights, Run Times & Charge Times
         <span style="font-size:12px;font-weight:700;">
           Estimated Values
         </span>
@@ -1629,55 +1627,6 @@ function renderWeightOptions(tool){
   if(!wattHours) return 'N/A';
 
   return fmtMoney((wattHours / 1000) * electricRate);
-}
-    function renderRuntimePanelTable(t){
-  if(!t) return '';
-
-  const codes = compatibleBatteryCodes(t);
-
-  const rows = codes.map(code => {
-    const b = findBattery(code);
-    const runtime = runtimeText(t, code);
-
-    const validChargers = chargerCodes.filter(ch =>
-      b && clean(b[ch])
-    );
-
-    const chargerLines = validChargers.map(ch => `
-      <div>
-        <strong>${escapeHtml(ch)}:</strong>
-        ${escapeHtml(clean(b[ch]))} min
-      </div>
-    `).join('');
-
-    return `
-      <tr>
-        <td>
-          <strong>${escapeHtml(code)}</strong><br>
-          <span class="stihl-small">${batterySpecText(b)}</span><br>
-          <span class="stihl-small"><strong>Runtime:</strong> ${escapeHtml(runtime)}</span>
-        </td>
-
-        <td>${batteryChargeCost(b)}</td>
-
-        <td>${chargerLines || 'N/A'}</td>
-      </tr>
-    `;
-  }).join('');
-
-  return `
-    <h3>Run Time, Cost to Recharge & Charge Times</h3>
-    <table class="stihl-table">
-      <thead>
-        <tr>
-          <th>Battery / Runtime</th>
-          <th>Est. Cost to Charge</th>
-          <th>Charge Times by Charger</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>
-  `;
 }
 
     function addSelected(type){
