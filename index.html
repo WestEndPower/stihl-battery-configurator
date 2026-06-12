@@ -803,8 +803,6 @@ ${renderKitSavings(t)}
 
 ${renderWeightOptions(t)}
 
-${renderRuntimePanelTable(t)}
-
 ${clean(t.SpecialText)
   ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}</div>`
   : ''}
@@ -1536,40 +1534,79 @@ function renderWeightOptions(tool){
         border:2px solid #d85f12;
       ">
         <span style="font-size:16px;font-weight:900;">
-          Tool / Kit Weights
+          Estimated Tool / Kit Weights, Run Times and Charge Times
         </span>
 
         <span style="font-size:12px;font-weight:700;">
-          Estimated Operating Weight
+          Estimated Values
         </span>
       </div>
 
       <table class="stihl-weight-table">
         <thead>
           <tr>
-            <th>Tool Only</th>
-            ${weightCodes.map(code => `<th>w/${escapeHtml(code)}</th>`).join('')}
+            <th>Performance</th>
+            ${weightCodes.map(code => `
+              <th>
+                ${escapeHtml(code)}<br>
+                <span style="font-size:11px;font-weight:400;">
+                  ${batterySpecText(findBattery(code))}
+                </span>
+              </th>
+            `).join('')}
           </tr>
         </thead>
+
         <tbody>
           <tr>
-            <td>${clean(tool.ToolWeight) ? clean(tool.ToolWeight) + ' lbs' : '—'}</td>
+            <td><strong>Operating Weight</strong></td>
             ${weightCodes.map(code => {
               const toolWeight = parseFloat(clean(tool.ToolWeight)) || 0;
               const totalWeight = toolWeight + batteryWeight(code);
               return `<td>${totalWeight.toFixed(1)} lbs</td>`;
             }).join('')}
           </tr>
+
+          <tr>
+            <td><strong>Run Time</strong></td>
+            ${weightCodes.map(code => `
+              <td>${escapeHtml(runtimeText(tool, code))}</td>
+            `).join('')}
+          </tr>
+
+          <tr>
+            <td><strong>Cost to Charge</strong></td>
+            ${weightCodes.map(code => `
+              <td>${batteryChargeCost(findBattery(code))}</td>
+            `).join('')}
+          </tr>
+
+          ${chargerCodes
+            .filter(charger =>
+              weightCodes.some(code => {
+                const b = findBattery(code);
+                return b && clean(b[charger]);
+              })
+            )
+            .map(charger => `
+              <tr>
+                <td><strong>${escapeHtml(charger)}</strong></td>
+                ${weightCodes.map(code => {
+                  const b = findBattery(code);
+                  const time = b ? clean(b[charger]) : '';
+                  return `<td>${escapeHtml(time || '—')}</td>`;
+                }).join('')}
+              </tr>
+            `).join('')}
         </tbody>
       </table>
 
       <div class="stihl-small">
-        Weights shown are combined tool and battery operating weights.
+        Weights shown are combined tool and battery operating weights. Charge times shown are estimated.
       </div>
     </div>
   `;
 }
-
     function batterySpecText(battery){
   if(!battery) return '';
 
