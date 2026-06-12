@@ -1420,15 +1420,49 @@ ${clean(t.SaleEndDate) ? `
   window.print();
 }
 function printPriceTag(){
-    function selectTool(){
-  const sku = clean($('stihl-tool-select').value);
-  state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
 
-  renderToolDetails();
-  renderAllOptions();
-  renderKMARuntimeMatrix();
-  renderCart();
+  const t = state.selectedTool;
+
+  if(!t){
+    alert('Select a tool first.');
+    return;
+  }
+
+  const tagHtml = document.querySelector('.stihl-tool-info');
+
+  if(!tagHtml){
+    alert('No product details found.');
+    return;
+  }
+
+  $('stihl-sales-sheet-output').innerHTML = `
+    <div id="stihl-price-tag-sheet">
+
+      <div style="
+        max-width:700px;
+        margin:0 auto;
+        border:4px solid #f37021;
+        border-radius:14px;
+        padding:20px;
+        background:#fff;
+      ">
+
+        <div style="text-align:center;margin-bottom:12px;">
+          <img src="https://published-assets.ari-build.com/Content/Published/Site/21168/images/West-End-Logo.png"
+               style="max-height:60px;">
+        </div>
+
+        ${tagHtml.innerHTML}
+
+      </div>
+
+    </div>
+  `;
+
+  window.print();
 }
+
+function selectTool(){
         
 function addToolToQuote(){
   const sku = clean($('stihl-tool-select').value);
