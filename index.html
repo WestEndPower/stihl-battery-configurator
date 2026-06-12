@@ -1463,7 +1463,15 @@ function printPriceTag(){
 }
 
 function selectTool(){
-        
+  const sku = clean($('stihl-tool-select').value);
+  state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
+
+  renderToolDetails();
+  renderAllOptions();
+  renderKMARuntimeMatrix();
+  renderCart();
+}
+
 function addToolToQuote(){
   const sku = clean($('stihl-tool-select').value);
 
