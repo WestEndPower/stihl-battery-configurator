@@ -1423,11 +1423,12 @@ return 'See product notes';
     }
 
     function renderAllOptions(){
-      renderBatteryOptions();
-      renderChargerOptions();
-      renderAttachmentOptions();
-      renderAccessoryOptions();
-          }
+  renderBatteryOptions();
+  renderChargerOptions();
+  renderAttachmentOptions();
+  renderAccessoryOptions();
+  renderKMARuntimeMatrix();
+}
 
     function renderBatteryOptions(){
       const codes = compatibleBatteryCodes(state.selectedTool);
@@ -1539,11 +1540,7 @@ const note = clean(r[`${code}_RuntimeNote`] || r.RuntimeNote);
 if(!isTrue(r[`${code}_Compatible`]) && !low && !high && !note){
   return `<td>—</td>`;
 }
-
-                const low = clean(r[`${code}_RuntimeLow`] || r[`${code}_RuntimeMin`]);
-                const high = clean(r[`${code}_RuntimeHigh`] || r[`${code}_RuntimeMax`]);
-                const note = clean(r[`${code}_RuntimeNote`] || r.RuntimeNote);
-
+               
                 let runtime = 'Varies';
 
                 if(low && high) runtime = `${low} - ${high}`;
