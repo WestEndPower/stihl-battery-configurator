@@ -799,10 +799,38 @@ box.innerHTML = `
       Print Sales Sheet / Save PDF
     </button>
 
-    <div class="stihl-line">
-      <span>Recommended Battery</span>
-      <strong>${escapeHtml(rec || 'See options')}</strong>
-    </div>
+    ${clean(t.KitBattery) ? `
+<div class="stihl-line">
+  <span>Includes</span>
+  <strong>
+    ${clean(t.KitBattery)
+      ? (
+          Number(clean(t.KitBatteryQty) || 1) > 1
+            ? `(${clean(t.KitBatteryQty)}) ${escapeHtml(clean(t.KitBattery))} Batteries`
+            : `${escapeHtml(clean(t.KitBattery))} Battery`
+        )
+      : ''}
+
+    ${clean(t.KitCharger)
+      ? ` + ${
+          Number(clean(t.KitChargerQty) || 1) > 1
+            ? `(${clean(t.KitChargerQty)}) ${escapeHtml(clean(t.KitCharger))} Chargers`
+            : `${escapeHtml(clean(t.KitCharger))} Charger`
+        }`
+      : ''}
+  </strong>
+</div>
+
+<div class="stihl-line">
+  <span>Estimated Runtime</span>
+  <strong>${escapeHtml(runtimeText(t, clean(t.KitBattery)))}</strong>
+</div>
+` : `
+<div class="stihl-line">
+  <span>Optional Battery</span>
+  <strong>${escapeHtml(rec || 'See options')}</strong>
+</div>
+`}
 
    ${renderKitIncludes(t)}
 
