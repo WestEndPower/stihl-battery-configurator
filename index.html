@@ -1564,63 +1564,6 @@ function renderWeightOptions(tool){
   <h3>Run Time, Recharge Cost & Charge Time</h3>
   <div id="runtimeChargeTable"></div>
 </div>
-<!-- WEP_RUNTIME_CHARGE_SECTION_END -->
-// WEP_RUNTIME_CHARGE_FUNCTION_START
-function renderRuntimeChargeInfo(t){
-  const batteries = ['AK10','AK20','AK30','AK30S','AP200S','AP300S','AP500S'];
-
-  let rows = batteries.map(b => {
-    const min = clean(t[`Runtime${b}Min`]);
-    const max = clean(t[`Runtime${b}Max`]);
-    const note = clean(t[`Runtime${b}Note`]);
-
-    if(!min && !max && !note) return '';
-
-    const runtime = note || (min && max ? `${min} - ${max} min` : min ? `${min} min` : max ? `${max} min` : 'See notes');
-
-    const battery = batteriesData.find(x => clean(x.Model).toUpperCase() === b.toUpperCase());
-    const cost = battery ? clean(battery.CostToRecharge) : '';
-    const chargerTimes = battery ? renderChargeTimesForBattery(battery) : '';
-
-    return `
-      <tr>
-        <td><strong>${b}</strong></td>
-        <td>${runtime}</td>
-        <td>${cost || 'N/A'}</td>
-        <td>${chargerTimes || 'N/A'}</td>
-      </tr>
-    `;
-  }).join('');
-
-  if(!rows){
-    $('runtimeChargeTable').innerHTML = `<p>No run time or charge time information listed for this product.</p>`;
-    return;
-  }
-
-  $('runtimeChargeTable').innerHTML = `
-    <table class="stihl-table">
-      <thead>
-        <tr>
-          <th>Battery</th>
-          <th>Estimated Run Time</th>
-          <th>Cost to Recharge</th>
-          <th>Charge Times by Charger</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>
-  `;
-}
-// WEP_RUNTIME_CHARGE_FUNCTION_END
-   // WEP_CHARGE_TIME_HELPER_START
-function renderChargeTimesForBattery(b){
-  const chargers = ['AL101','AL301','AL301-4','AL500','AL501'];
-
-  return chargers.map(c => {
-    const time = clean(b[`ChargeTime${c}`]);
-    return time ? `${c}: ${time} min` : '';
-  }).filter(Boolean).join('<br>');
-}
 // WEP_CHARGE_TIME_HELPER_END
         </tbody>
       </table>
