@@ -429,7 +429,7 @@
             </div>
             <button class="stihl-btn" id="stihl-add-attachment" type="button">Add</button>
           </div>
-
+<div id="stihl-attachment-runtime"></div>
           <div class="stihl-option-row">
             <div>
               <label for="stihl-accessory-select">Accessories</label>
@@ -668,6 +668,7 @@ $('stihl-tool-select').addEventListener('change', selectTool);
       $('stihl-add-battery').addEventListener('click', ()=> addSelected('battery'));
       $('stihl-add-charger').addEventListener('click', ()=> addSelected('charger'));
       $('stihl-add-attachment').addEventListener('click', ()=> addSelected('attachment'));
+      $('stihl-attachment-select').addEventListener('change', renderAttachmentRuntime);
       $('stihl-add-accessory').addEventListener('click', ()=> addSelected('accessory'));
       $('stihl-print').addEventListener('click', printSalesSheet);
       $('stihl-copy').addEventListener('click', copyQuote);
@@ -1433,13 +1434,80 @@ return 'See product notes';
     }
 
     function renderAttachmentOptions(){
-      const isKombi = state.selectedTool && (clean(state.selectedTool.Model).toUpperCase().includes('KMA') || clean(state.selectedTool.SubCategory).toLowerCase().includes('kombi') || clean(state.selectedTool.Type).toLowerCase().includes('kombi'));
-      const list = isKombi ? state.attachments : [];
-      $('stihl-attachment-select').innerHTML = '<option value="">' + (isKombi ? 'Choose attachment' : 'Select a KMA powerhead first') + '</option>' + list.map(a => `<option value="${escapeHtml(skuOf(a))}">
-  ${escapeHtml(nameOf(a))} — ${fmtMoney(priceOf(a))}
-</option>`).join('');
-    }
+  const isKombi = state.selectedTool && (
+    clean(state.selectedTool.Model).toUpperCase().includes('KMA') ||
+    clean(state.selectedTool.SubCategory).toLowerCase().includes('kombi') ||
+    clean(state.selectedTool.Type).toLowerCase().includes('kombi')
+  );
 
+  const list = isKombi ? state.attachments : [];
+
+  $('stihl-attachment-select').innerHTML =
+    '<option value="">' +
+    (isKombi ? 'Choose attachment' : 'Select a KMA powerhead first') +
+    '</option>' +
+    list.map(a => `<option value="${escapeHtml(skuOf(a))}">
+      ${escapeHtml(nameOf(a))} — ${fmtMoney(priceOf(a))}
+    </option>`).join('');
+
+  renderAttachmentRuntime();
+}
+function renderAttachmentRuntime(){
+  const box = $('stihl-attachment-runtime');
+  if(!box) return;
+
+  const tool = state.selectedTool;
+  const attachmentSku = clean($('stihl-attachment-select').value);
+
+  if(!tool || !attachmentSku){
+    box.innerHTML = '';
+    return;
+  }
+
+  const row = state.kmaRuntimes.find(r =>
+    clean(r.PowerheadSKU).toUpperCase() === skuOf(tool).toUpperCase() &&
+    (
+      clean(r.AttachmentModel).toUpperCase() === attachmentSku.toUpperCase() ||
+      clean(r.AttachmentSTIHLSKU).toUpperCase() === attachmentSku.toUpperCase()
+    )
+  );
+
+  if(!row){
+    box.innerHTML = '<div class="stihl-small">Runtime varies by attachment and battery.</div>';
+    return;
+  }
+
+  const batteries = batteryCodes.filter(code =>
+    isTrue(row[`${code}_Compatible`])
+  );
+
+  box.innerHTML = `
+    <table class="stihl-weight-table" style="margin-top:8px;">
+      <thead>
+        <tr>
+          <th>Attachment</th>
+          ${batteries.map(code => `<th>${escapeHtml(code)}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>${escapeHtml(clean(row.AttachmmentName) || clean(row.AttachmentModel))}</strong></td>
+          ${batteries.map(code => {
+            const low = clean(row[`${code}_RuntimeLow`] || row[`${code}_RuntimeMin`]);
+            const high = clean(row[`${code}_RuntimeHigh`] || row[`${code}_RuntimeMax`]);
+
+            let runtime = '—';
+            if(low && high) runtime = `${low} - ${high}`;
+            else if(low) runtime = low;
+            else if(high) runtime = high;
+
+            return `<td>${escapeHtml(runtime)}</td>`;
+          }).join('')}
+        </tr>
+      </tbody>
+    </table>
+  `;
+}
     function renderAccessoryOptions(){
       $('stihl-accessory-select').innerHTML = '<option value="">Choose accessory</option>' + state.accessories.map(a => `<option value="${escapeHtml(skuOf(a))}">${escapeHtml(nameOf(a))} — ${fmtMoney(priceOf(a))}</option>`).join('');
     }
