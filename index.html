@@ -1636,64 +1636,6 @@ function renderWeightOptions(tool){
     </table>
   `;
 }
-    const t = state.selectedTool;
-  if(!t){
-    $('stihl-runtime-panel').innerHTML = '';
-    return;
-  }
-
-  const codes = compatibleBatteryCodes(t);
-
-  const rows = codes.map(code => {
-    const b = findBattery(code);
-    const runtime = runtimeText(t, code);
-
-    const validChargers = chargerCodes.filter(ch =>
-      b && clean(b[ch])
-    );
-
-    const chargers = validChargers
-      .map(ch => escapeHtml(ch))
-      .join('<br>');
-
-    const chargeTimes = validChargers
-      .map(ch => `${escapeHtml(clean(b[ch]))} min`)
-      .join('<br>');
-
-    return `
-      <tr>
-        <td>
-  <strong>${escapeHtml(code)}</strong><br>
-  <span class="stihl-small">${batterySpecText(b)}</span>
-</td>
-<td>${escapeHtml(runtime)}</td>
-<td>${chargers || 'N/A'}</td>
-<td>${chargeTimes || 'N/A'}</td>
-<td>${batteryChargeCost(b)}</td>
-      </tr>
-    `;
-  }).join('');
-
-  $('stihl-runtime-panel').innerHTML = `
-    <h3>Estimated Runtime & Charge Time</h3>
-
-    <table class="stihl-table">
-      <thead>
-        <tr>
-         <th>Battery</th>
-<th>Estimated Runtime</th>
-<th>Charger</th>
-<th>Charge Time</th>
-<th>Est. Cost to Charge</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        ${rows}
-      </tbody>
-    </table>
-  `;
-}
 
     function addSelected(type){
       let item, qty = 1;
