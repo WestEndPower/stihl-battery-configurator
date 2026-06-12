@@ -1606,16 +1606,24 @@ function renderWeightOptions(tool){
       b && clean(b[ch])
     );
 
-    const chargers = validChargers.map(ch => escapeHtml(ch)).join('<br>');
-    const chargeTimes = validChargers.map(ch => `${escapeHtml(clean(b[ch]))} min`).join('<br>');
+    const chargerLines = validChargers.map(ch => `
+      <div>
+        <strong>${escapeHtml(ch)}:</strong>
+        ${escapeHtml(clean(b[ch]))} min
+      </div>
+    `).join('');
 
     return `
       <tr>
-        <td><strong>${escapeHtml(code)}</strong><br><span class="stihl-small">${batterySpecText(b)}</span></td>
-        <td>${escapeHtml(runtime)}</td>
-        <td>${chargers || 'N/A'}</td>
-        <td>${chargeTimes || 'N/A'}</td>
+        <td>
+          <strong>${escapeHtml(code)}</strong><br>
+          <span class="stihl-small">${batterySpecText(b)}</span><br>
+          <span class="stihl-small"><strong>Runtime:</strong> ${escapeHtml(runtime)}</span>
+        </td>
+
         <td>${batteryChargeCost(b)}</td>
+
+        <td>${chargerLines || 'N/A'}</td>
       </tr>
     `;
   }).join('');
@@ -1625,11 +1633,9 @@ function renderWeightOptions(tool){
     <table class="stihl-table">
       <thead>
         <tr>
-          <th>Battery</th>
-          <th>Estimated Runtime</th>
-          <th>Charger</th>
-          <th>Charge Time</th>
+          <th>Battery / Runtime</th>
           <th>Est. Cost to Charge</th>
+          <th>Charge Times by Charger</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
