@@ -240,7 +240,9 @@
     margin:0 !important;
     background:#fff !important;
   }
-
+#stihl-price-tag-sheet{
+  display:block !important;
+}
   .stihl-sales-sheet{
     font-family:Arial,Helvetica,sans-serif;
     color:#111;
@@ -1417,7 +1419,7 @@ ${clean(t.SaleEndDate) ? `
 
   window.print();
 }
-
+function printPriceTag(){
     function selectTool(){
   const sku = clean($('stihl-tool-select').value);
   state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
