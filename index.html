@@ -912,9 +912,10 @@ ${clean(t.PromoTitle) ? `
 
   ${clean(t.PromoValue) || clean(t.PromoEndDate) ? `
   <div style="
-    margin-top:6px;
-    font-weight:700;
-  ">
+  margin-top:6px;
+  font-weight:800;
+  color:#f37021;
+">
     ${clean(t.PromoValue)
       ? `${fmtMoney(money(t.PromoValue))} Value`
       : ''}
