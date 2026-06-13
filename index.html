@@ -605,19 +605,13 @@ cart: []
 `;
 }
   return `
-  <span style="
-    display:block;
-    font-size:12px;
-    font-weight:800;
-    text-transform:uppercase;
-    color:#666;
-  ">
-    MSRP
-  </span>
-
-  <span class="stihl-price">
-    ${fmtMoney(sale || msrp)}
-  </span>
+<div style="
+  font-size:18px;
+  font-weight:900;
+  color:#c00000;
+">
+  MSRP ${fmtMoney(sale || msrp)}
+</div>
 `;
 }
     function sortByOrder(a,b){ return (Number(a.SortOrder)||9999) - (Number(b.SortOrder)||9999); }
