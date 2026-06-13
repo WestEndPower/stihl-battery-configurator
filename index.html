@@ -763,7 +763,7 @@ function renderCategoryButtons(){
   const cats = [...new Set(state.tools.map(t => clean(t.Category)).filter(Boolean))].sort();
 
   $('stihl-category-buttons').innerHTML =
-    `<button type="button" class="stihl-series-btn active" data-category="">All Systems</button>` +
+    `<button type="button" class="stihl-series-btn active" data-category="">All Categories</button>` +
     cats.map(c => `
       <button type="button" class="stihl-series-btn" data-category="${escapeHtml(c)}">
         ${escapeHtml(c)}
