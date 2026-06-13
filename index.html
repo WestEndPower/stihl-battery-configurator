@@ -74,7 +74,13 @@
 }  
   .stihl-card{border:1px solid var(--stihl-border);border-radius:12px;padding:14px;margin:10px 0;background:#fff}
     .stihl-card.featured{border:2px solid var(--stihl-orange)}
-    .stihl-line{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid #eee;padding:7px 0}
+    .stihl-line{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  border-bottom:1px solid #eee;
+  padding:3px 0;
+}
 .stihl-line:last-child{border-bottom:0}
 .stihl-line span{color:#555}
 .stihl-line strong{text-align:right}
@@ -156,7 +162,7 @@
 .stihl-weight-table th,
 .stihl-weight-table td{
   border:1px solid #ddd;
-  padding:8px;
+  padding:5px;
   text-align:center !important;
   vertical-align:middle;
 }
@@ -1222,7 +1228,7 @@ ${clean(t.SaleEndDate) ? `
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:10px 14px;
+  padding:7px 12px;
   margin:20px 0 0 0;
   border-radius:8px 8px 0 0;
   border:2px solid #d85f12;
@@ -1799,7 +1805,7 @@ function renderWeightOptions(tool){
         display:flex;
         justify-content:space-between;
         align-items:center;
-        padding:10px 14px;
+        padding:7px 12px;
         margin:12px 0 0 0;
         border-radius:8px 8px 0 0;
         border:2px solid #d85f12;
