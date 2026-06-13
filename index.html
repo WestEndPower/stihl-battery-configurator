@@ -693,20 +693,28 @@ cart: []
 $('stihl-category').addEventListener('change', renderTools);
 
 document.querySelectorAll('#stihl-system-buttons .stihl-series-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
+ btn.addEventListener('click', () => {
 
-    document.querySelectorAll('#stihl-system-buttons .stihl-series-btn')
-      .forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#stihl-system-buttons .stihl-series-btn')
+    .forEach(b => b.classList.remove('active'));
 
-    btn.classList.add('active');
+  btn.classList.add('active');
 
-    state.selectedSystemButton = clean(btn.dataset.system);
+  state.selectedSystemButton = clean(btn.dataset.system);
 
-    renderTools();
-  });
+  state.selectedTool = null;
+
+  renderTools();
+  renderToolDetails();
+  renderAllOptions();
+  renderKMARuntimeMatrix();
+});
 });
 
 document.querySelectorAll('#stihl-category-buttons .stihl-series-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+
+    document.querySelectorAll('#stihl-category-buttons .stihl-series-btn').forEach(btn => {
   btn.addEventListener('click', () => {
 
     document.querySelectorAll('#stihl-category-buttons .stihl-series-btn')
@@ -716,10 +724,14 @@ document.querySelectorAll('#stihl-category-buttons .stihl-series-btn').forEach(b
 
     state.selectedCategoryButton = clean(btn.dataset.category);
 
+    state.selectedTool = null;
+
     renderTools();
+    renderToolDetails();
+    renderAllOptions();
+    renderKMARuntimeMatrix();
   });
 });
-
 $('stihl-tool-select').addEventListener('change', selectTool);
       $('stihl-add-tool').addEventListener('click', addToolToQuote);
       $('stihl-add-battery').addEventListener('click', ()=> addSelected('battery'));
