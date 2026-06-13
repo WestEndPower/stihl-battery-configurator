@@ -1608,7 +1608,7 @@ return 'See product notes';
     }
 
     function compatibleChargers(tool){
-      if(!tool) return state.chargers;
+  if(!tool) return [];
       const codes = chargerCodes.filter(code => isTrue(tool[code]) || [tool.StandardCharger,tool.RapidCharger,tool.HighSpeedCharger,tool.MultiCharger,tool.KitCharger].map(clean).includes(code));
       return state.chargers.filter(c => codes.includes(skuOf(c)));
     }
