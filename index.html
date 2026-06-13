@@ -591,7 +591,21 @@ cart: []
     `;
   }
 
-  return `<span class="stihl-price">${fmtMoney(sale || msrp)}</span>`;
+  return `
+  <span style="
+    display:block;
+    font-size:12px;
+    font-weight:800;
+    text-transform:uppercase;
+    color:#666;
+  ">
+    MSRP
+  </span>
+
+  <span class="stihl-price">
+    ${fmtMoney(sale || msrp)}
+  </span>
+`;
 }
     function sortByOrder(a,b){ return (Number(a.SortOrder)||9999) - (Number(b.SortOrder)||9999); }
 
@@ -1751,44 +1765,33 @@ function batteryWeight(code){
   if(savings <= 0) return '';
 
   return `
-    <div style="
-      margin-top:12px;
-      background:#effaf2;
-      border:1px solid #b7e0c1;
-      border-left:5px solid #1f7a3a;
-      border-radius:8px;
-      padding:10px 12px;
-    ">
+  <span style="
+    display:block;
+    font-size:12px;
+    font-weight:800;
+    text-transform:uppercase;
+    color:#666;
+  ">
+    MSRP
+  </span>
 
-      <div style="
-        font-weight:900;
-        color:#1f7a3a;
-        margin-bottom:6px;
-      ">
-        Package Savings
-      </div>
+  <span class="stihl-price">
+    ${fmtMoney(sale || msrp)}
+  </span>
+`;
 
-      <div>
-        Purchased Separately:
-        <strong>${fmtMoney(separateTotal)}</strong>
-      </div>
-
-      <div>
-        Package Price:
-        <strong>${fmtMoney(packagePrice)}</strong>
-      </div>
-
-      <div style="
-        margin-top:4px;
-        font-size:16px;
-        font-weight:900;
-        color:#1f7a3a;
-      ">
-        You Save ${fmtMoney(savings)}
-      </div>
-
+    <div class="stihl-line">
+      <span>Purchased Separately</span>
+      <strong>${fmtMoney(separateTotal)}</strong>
     </div>
-  `;
+
+    <div class="stihl-line">
+      <span>Package Price</span>
+      <strong>${fmtMoney(packagePrice)}</strong>
+    </div>
+
+  </div>
+`;
 }
     
 function renderWeightOptions(tool){
