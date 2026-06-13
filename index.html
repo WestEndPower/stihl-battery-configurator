@@ -1640,7 +1640,14 @@ const toolKeys = [
 ].map(tight).filter(Boolean);
 
 const rows = state.kmaRuntimes.filter(r =>
-  toolKeys.includes(tight(r.PowerheadSKU))
+  toolKeys.includes(tight(
+  r.PowerheadSKU ||
+  r.PowerheadSku ||
+  r.PowerheadModel ||
+  r.Powerhead ||
+  r.Model ||
+  r.StihlID
+))
 );
   if(!rows.length){
     box.innerHTML = '';
