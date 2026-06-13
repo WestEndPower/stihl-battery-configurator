@@ -1639,16 +1639,21 @@ const toolKeys = [
   clean(tool.Name)
 ].map(tight).filter(Boolean);
 
-const rows = state.kmaRuntimes.filter(r =>
-  toolKeys.includes(tight(
-  r.PowerheadSKU ||
-  r.PowerheadSku ||
-  r.PowerheadModel ||
-  r.Powerhead ||
-  r.Model ||
-  r.StihlID
-))
-);
+const rows = state.kmaRuntimes.filter(r => {
+  const powerheadKey = tight(
+    r.PowerheadSKU ||
+    r.PowerheadSku ||
+    r.PowerheadModel ||
+    r.Powerhead ||
+    r.Model ||
+    r.StihlID
+  );
+
+  return toolKeys.some(key =>
+    key === powerheadKey ||
+    key.startsWith(powerheadKey)
+  );
+});
   if(!rows.length){
   box.innerHTML = `
     <div class="stihl-note" style="margin-top:10px;">
