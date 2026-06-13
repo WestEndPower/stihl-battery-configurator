@@ -837,11 +837,14 @@ ${(clean(t.WarrantyConsumer) || clean(t.WarrantyProfessional)) ? `
   <strong>
     ${clean(t.WarrantyConsumer) ? `Consumer: ${escapeHtml(clean(t.WarrantyConsumer))}` : ''}
     ${clean(t.WarrantyConsumer) && clean(t.WarrantyProfessional) ? ' | ' : ''}
-    ${clean(t.WarrantyProfessional) ? `Professional: ${escapeHtml(clean(t.WarrantyProfessional))}` : ''}
+   ${clean(t.WarrantyProfessional) ? `Professional: ${escapeHtml(clean(t.WarrantyProfessional))}` : ''}
   </strong>
 </div>
 ` : ''}
-  ${renderKitSavings(t)}
+
+${renderProductSpecs(t)}
+
+${renderKitSavings(t)}
 ${clean(t.PromoTitle) ? `
 <div style="
   margin-top:10px;
@@ -1673,6 +1676,43 @@ function batteryWeight(code){
     b => skuOf(b).toUpperCase() === code.toUpperCase()
   );
   return parseFloat(clean(battery?.Weight)) || 0;
+}
+    function renderProductSpecs(tool){
+
+  const specs = [
+    [clean(tool.Spec1Label), clean(tool.Spec1Value)],
+    [clean(tool.Spec2Label), clean(tool.Spec2Value)],
+    [clean(tool.Spec3Label), clean(tool.Spec3Value)],
+    [clean(tool.Spec4Label), clean(tool.Spec4Value)]
+  ].filter(([label,value]) => label && value);
+
+  if(!specs.length) return '';
+
+  return `
+    <div style="
+      margin-top:12px;
+      border:1px solid #ddd;
+      border-radius:8px;
+      overflow:hidden;
+    ">
+
+      <div style="
+        background:#f5f5f5;
+        padding:8px 12px;
+        font-weight:900;
+      ">
+        Product Specs
+      </div>
+
+      ${specs.map(([label,value]) => `
+        <div class="stihl-line">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+        </div>
+      `).join('')}
+
+    </div>
+  `;
 }
     function renderKitSavings(tool){
 
