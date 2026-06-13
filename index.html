@@ -852,51 +852,38 @@ ${clean(t.PromoTitle) ? `
   padding:10px 12px;
 ">
   <div style="
-    font-weight:900;
-    color:#1f7a3a;
-    margin-bottom:5px;
-  ">
-    Current STIHL Promotion
-  </div>
-
-  <div style="font-weight:900;font-size:15px;">
-    ${escapeHtml(clean(t.PromoTitle))}
-  </div>
-
+  font-weight:900;
+  color:#1f7a3a;
+  margin-bottom:6px;
+  font-size:15px;
+">
+  Current STIHL Promotion — ${escapeHtml(clean(t.PromoTitle))}
+</div>
   ${clean(t.PromoDescription) ? `
     <div style="margin-top:5px;">
       ${escapeHtml(clean(t.PromoDescription))}
     </div>
   ` : ''}
 
-  ${(clean(t.PromoItem) || clean(t.PromoItemQty)) ? `
-    <div style="margin-top:6px;">
-      Includes:
-      <strong>
-        ${Number(clean(t.PromoItemQty) || 1) > 1
-          ? `(${clean(t.PromoItemQty)}) ${escapeHtml(clean(t.PromoItem))}`
-          : `${escapeHtml(nameOf(findBattery(clean(t.PromoItem))) || clean(t.PromoItem))}`}
-      </strong>
-    </div>
-  ` : ''}
+  ${clean(t.PromoValue) || clean(t.PromoEndDate) ? `
+  <div style="
+    margin-top:6px;
+    font-weight:700;
+  ">
+    ${clean(t.PromoValue)
+      ? `${fmtMoney(money(t.PromoValue))} Value`
+      : ''}
 
-  ${clean(t.PromoValue) ? `
-    <div style="margin-top:6px;">
-      Value: <strong>${fmtMoney(money(t.PromoValue))}</strong>
-    </div>
-  ` : ''}
+    ${clean(t.PromoValue) && clean(t.PromoEndDate)
+      ? ' • '
+      : ''}
 
-  ${clean(t.PromoEndDate) ? `
-    <div style="margin-top:6px;">
-      Ends: <strong>${escapeHtml(clean(t.PromoEndDate))}</strong>
-    </div>
-  ` : ''}
+    ${clean(t.PromoEndDate)
+      ? `Ends ${escapeHtml(clean(t.PromoEndDate))}`
+      : ''}
+  </div>
+` : ''}
 
-  ${clean(t.PromoAppliesTo) ? `
-    <div class="stihl-small" style="margin-top:6px;">
-      Applies To: ${escapeHtml(clean(t.PromoAppliesTo))}
-    </div>
-  ` : ''}
 </div>
 ` : ''}
 ${renderWeightOptions(t)}
