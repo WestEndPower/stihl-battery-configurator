@@ -772,7 +772,7 @@ function renderTools(){
   const list = state.tools.filter(t => {
     if(cat && clean(t.Category) !== cat) return false;
     if(buttonCat && clean(t.Category) !== buttonCat) return false;
-    if(system && clean(t.System).toUpperCase() !== system) return false;
+    if(system && !clean(t.System).toUpperCase().includes(system)) return false;
     if(q && !toolSearchText(t).includes(q)) return false;
     return true;
   });
@@ -1569,7 +1569,7 @@ function addToolToQuote(){
   renderCart();
 }
     function compatibleBatteryCodes(tool){
-      if(!tool) return batteryCodes;
+  if(!tool) return [];
       return batteryCodes.filter(code => isTrue(tool[code]) || hasRuntime(tool, code) || clean(tool.RecommendedBattery) === code || clean(tool.KitBattery) === code);
     }
 
