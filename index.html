@@ -671,7 +671,6 @@ cart: []
         $('stihl-load-status').className = 'stihl-success';
         $('stihl-load-status').textContent = 'Configurator data loaded.';
         renderCategories();
-renderCategories();
 renderSystemButtons();
 renderCategoryButtons();
 renderTools();
@@ -687,9 +686,24 @@ renderTools();
       $('stihl-search').addEventListener('input', renderTools);
 $('stihl-category').addEventListener('change', renderTools);
 
-document.querySelectorAll('.stihl-series-btn').forEach(btn => {
+document.querySelectorAll('#stihl-system-buttons .stihl-series-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.stihl-series-btn')
+
+    document.querySelectorAll('#stihl-system-buttons .stihl-series-btn')
+      .forEach(b => b.classList.remove('active'));
+
+    btn.classList.add('active');
+
+    state.selectedSystemButton = clean(btn.dataset.system);
+
+    renderTools();
+  });
+});
+
+document.querySelectorAll('#stihl-category-buttons .stihl-series-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+
+    document.querySelectorAll('#stihl-category-buttons .stihl-series-btn')
       .forEach(b => b.classList.remove('active'));
 
     btn.classList.add('active');
@@ -748,10 +762,11 @@ function renderTools(){
   const q = clean($('stihl-search').value).toLowerCase();
   const cat = clean($('stihl-category').value);
   const buttonCat = clean(state.selectedCategoryButton);
-
+  const system = clean(state.selectedSystemButton);
   const list = state.tools.filter(t => {
     if(cat && clean(t.Category) !== cat) return false;
     if(buttonCat && clean(t.Category) !== buttonCat) return false;
+    if(system && clean(t.System).toUpperCase() !== system) return false;
     if(q && !toolSearchText(t).includes(q)) return false;
     return true;
   });
