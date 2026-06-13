@@ -671,8 +671,10 @@ cart: []
         $('stihl-load-status').className = 'stihl-success';
         $('stihl-load-status').textContent = 'Configurator data loaded.';
         renderCategories();
-        renderCategoryButtons();
-        renderTools();
+renderCategories();
+renderSystemButtons();
+renderCategoryButtons();
+renderTools();
         renderAllOptions();
         bindEvents();
       }catch(err){
@@ -717,6 +719,17 @@ $('stihl-tool-select').addEventListener('change', selectTool);
       const cats = [...new Set(state.tools.map(t => clean(t.Category)).filter(Boolean))].sort();
       $('stihl-category').innerHTML = '<option value="">All categories</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
     }
+    function renderSystemButtons(){
+  const systems = ['AS','AK','AP','AR'];
+
+  $('stihl-system-buttons').innerHTML =
+    `<button type="button" class="stihl-series-btn active" data-system="">All</button>` +
+    systems.map(s => `
+      <button type="button" class="stihl-series-btn" data-system="${s}">
+        ${s}
+      </button>
+    `).join('');
+}
 function renderCategoryButtons(){
   const cats = [...new Set(state.tools.map(t => clean(t.Category)).filter(Boolean))].sort();
 
