@@ -1594,10 +1594,19 @@ return 'See product notes';
     }
 
     function renderAttachmentOptions(){
-  const isKombi = state.selectedTool && (
-    clean(state.selectedTool.Model).toUpperCase().includes('KMA') ||
-    clean(state.selectedTool.SubCategory).toLowerCase().includes('kombi') ||
-    clean(state.selectedTool.Type).toLowerCase().includes('kombi')
+
+  const tool = state.selectedTool;
+
+  function tight(v){
+    return clean(v).toUpperCase().replace(/[^A-Z0-9]/g,'');
+  }
+
+  const isKombi = tool && (
+    tight(skuOf(tool)).startsWith('KM') ||
+    tight(clean(tool.Model)).startsWith('KM') ||
+    clean(tool.SubCategory).toLowerCase().includes('kombi') ||
+    clean(tool.Type).toLowerCase().includes('kombi') ||
+    clean(tool.Category).toLowerCase().includes('kombi')
   );
 
   const list = isKombi ? state.attachments : [];
@@ -1616,11 +1625,20 @@ function renderKMARuntimeMatrix(){
 
   const tool = state.selectedTool;
 
+  function renderAttachmentOptions(){
+
+  const tool = state.selectedTool;
+
+  function tight(v){
+    return clean(v).toUpperCase().replace(/[^A-Z0-9]/g,'');
+  }
+
   const isKombi = tool && (
-    skuOf(tool).toUpperCase().includes('KMA') ||
-    clean(tool.Model).toUpperCase().includes('KMA') ||
+    tight(skuOf(tool)).startsWith('KM') ||
+    tight(clean(tool.Model)).startsWith('KM') ||
     clean(tool.SubCategory).toLowerCase().includes('kombi') ||
-    clean(tool.Type).toLowerCase().includes('kombi')
+    clean(tool.Type).toLowerCase().includes('kombi') ||
+    clean(tool.Category).toLowerCase().includes('kombi')
   );
 
   if(!isKombi){
