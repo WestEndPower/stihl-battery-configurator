@@ -584,13 +584,26 @@ cart: []
   const msrp = money(item.MSRP);
 
   if(sale && msrp && sale < msrp){
-    return `
-      <span class="stihl-old">${fmtMoney(msrp)}</span>
-      <span class="stihl-badge orange">ON SALE</span>
-      <span class="stihl-sale-price">${fmtMoney(sale)}</span>
-    `;
-  }
+  return `
+<div style="
+  font-size:12px;
+  font-weight:800;
+  text-transform:uppercase;
+  color:#666;
+  margin-bottom:4px;
+">
+  MSRP <span class="stihl-old">${fmtMoney(msrp)}</span>
+</div>
 
+<div style="
+  font-size:16px;
+  font-weight:900;
+  color:#c00000;
+">
+  SALE PRICE ${fmtMoney(sale)}
+</div>
+`;
+}
   return `
   <span style="
     display:block;
