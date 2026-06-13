@@ -832,7 +832,22 @@ box.innerHTML = `
 </div>
 `}
 ${(clean(t.WarrantyConsumer) || clean(t.WarrantyProfessional)) ? `
-...
+<div class="stihl-line">
+  <span>Warranty Coverage</span>
+  <strong>
+    ${clean(t.WarrantyConsumer)
+      ? `Consumer: ${escapeHtml(clean(t.WarrantyConsumer))}`
+      : ''}
+
+    ${clean(t.WarrantyConsumer) && clean(t.WarrantyProfessional)
+      ? ' | '
+      : ''}
+
+    ${clean(t.WarrantyProfessional)
+      ? `Professional: ${escapeHtml(clean(t.WarrantyProfessional))}`
+      : ''}
+  </strong>
+</div>
 ` : ''}
 
 ${renderProductSpecs(t)}
@@ -1709,10 +1724,6 @@ function batteryWeight(code){
   `;
 }
 
-function renderKitSavings(tool){
-
-  const kitBattery = findBattery(clean(tool.KitBattery));
-  ...
     function renderKitSavings(tool){
 
   const kitBattery = findBattery(clean(tool.KitBattery));
