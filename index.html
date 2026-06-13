@@ -1755,9 +1755,9 @@ function batteryWeight(code){
   if(!kitBattery && !kitCharger) return '';
 
   const separateTotal =
-  (money(tool.ToolOnlyPrice) || money(tool.ToolOnlyMSRP) || priceOf(tool)) +
-  (kitBattery ? priceOf(kitBattery) * kitBatteryQty : 0) +
-  (kitCharger ? priceOf(kitCharger) * kitChargerQty : 0);
+    (money(tool.ToolOnlyPrice) || money(tool.ToolOnlyMSRP) || priceOf(tool)) +
+    (kitBattery ? priceOf(kitBattery) * kitBatteryQty : 0) +
+    (kitCharger ? priceOf(kitCharger) * kitChargerQty : 0);
 
   const packagePrice = priceOf(tool);
   const savings = separateTotal - packagePrice;
@@ -1765,33 +1765,23 @@ function batteryWeight(code){
   if(savings <= 0) return '';
 
   return `
-  <span style="
-    display:block;
-    font-size:12px;
-    font-weight:800;
-    text-transform:uppercase;
-    color:#666;
-  ">
-    MSRP
-  </span>
-
-  <span class="stihl-price">
-    ${fmtMoney(sale || msrp)}
-  </span>
-`;
-
-    <div class="stihl-line">
-      <span>Purchased Separately</span>
+    <div style="
+      margin:8px 0;
+      font-size:13px;
+      font-weight:700;
+    ">
+      Purchased Separately
       <strong>${fmtMoney(separateTotal)}</strong>
-    </div>
 
-    <div class="stihl-line">
-      <span>Package Price</span>
-      <strong>${fmtMoney(packagePrice)}</strong>
+      <span style="
+        color:#1f7a3a;
+        font-weight:900;
+        margin-left:10px;
+      ">
+        | Save ${fmtMoney(savings)}
+      </span>
     </div>
-
-  </div>
-`;
+  `;
 }
     
 function renderWeightOptions(tool){
