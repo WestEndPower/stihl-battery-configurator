@@ -1700,7 +1700,10 @@ const rows = state.kmaRuntimes.filter(r => {
           ${rows.map(r => `
             <tr>
               <td style="text-align:left !important;">
-                <strong>${escapeHtml(clean(r.AttachmentName) || clean(r.AttachmentName) || clean(r.AttachmentModel))}</strong>
+                <strong>${escapeHtml(
+  clean(r.AttachmentName) ||
+  clean(r.AttachmentModel)
+)}</strong>
               </td>
 
               ${batteries.map(code => {
