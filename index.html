@@ -1650,9 +1650,13 @@ const rows = state.kmaRuntimes.filter(r =>
 ))
 );
   if(!rows.length){
-    box.innerHTML = '';
-    return;
-  }
+  box.innerHTML = `
+    <div class="stihl-note" style="margin-top:10px;">
+      No KMA runtime data found for this powerhead.
+    </div>
+  `;
+  return;
+}
 
   const batteries = batteryCodes.filter(code =>
   rows.some(r =>
@@ -1665,9 +1669,13 @@ const rows = state.kmaRuntimes.filter(r =>
 );
 
   if(!batteries.length){
-    box.innerHTML = '';
-    return;
-  }
+  box.innerHTML = `
+    <div class="stihl-note" style="margin-top:10px;">
+      KMA runtime data found, but no compatible battery runtime columns were detected.
+    </div>
+  `;
+  return;
+}
 
   box.innerHTML = `
     <div class="stihl-card" style="margin-top:10px;">
