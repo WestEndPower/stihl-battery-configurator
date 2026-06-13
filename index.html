@@ -1630,8 +1630,8 @@ function renderKMARuntimeMatrix(){
   }
 
   const isKombi = tool && (
-    tight(skuOf(tool)).startsWith('KM') ||
-    tight(clean(tool.Model)).startsWith('KM') ||
+    tight(skuOf(tool)).startsWith('KMA') ||
+    tight(clean(tool.Model)).startsWith('KMA') ||
     clean(tool.SubCategory).toLowerCase().includes('kombi') ||
     clean(tool.Type).toLowerCase().includes('kombi') ||
     clean(tool.Category).toLowerCase().includes('kombi')
