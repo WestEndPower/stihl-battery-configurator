@@ -1811,11 +1811,10 @@ if(!isTrue(r[`${code}_Compatible`]) && !low && !high && !note){
   }
 
   const modelKeys = [
-    clean(tool.Model),
-    clean(tool.StihlID),
-    skuOf(tool),
-    clean(tool.Name)
-  ]
+  clean(tool.Model),
+  clean(tool.StihlID),
+  skuOf(tool)
+]
   .map(v => v.toUpperCase().replace(/[^A-Z0-9]/g,''))
   .filter(Boolean);
 
