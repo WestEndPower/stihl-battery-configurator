@@ -1,3 +1,4 @@
-﻿SKU,Model,Name,Description,MSRP,SalePrice,Category,SubCategory,Type,Builder,ComponentType,Badge,CompatibleTools,Tags,SortOrder,Active,Featured,ImageURL,ProductURL,ShippingWeight,BoxLength,BoxWidth,BoxHeight
-EA08 430 7901, ,CM12 Charging Circuit,CM12 Charging Circuit,1289.99,1289.99,Accessories,Battery Management,Charging Circuit,STIHL Configurator,Accessory, ,AS Series:AK Series:AP Series, ,1,TRUE,FALSE, , ,,,,
-,,,,,,,,,,,,,,,,,,,,,,
+﻿SKU,Description,MSRP,SalePrice,ItemType,Active,SortOrder,BGA86,FSA57,FSA60R,FSA80R,FSA120R,FSA135R,KMA80R,KMA120R,KMA135R,KMA200R,ImageURL
+EA08 430 7901,CM12 Charging Circuit,1289.99,1289.99,Accessory,T,1,F,F,F,F,F,F,F,F,F,F, 
+4866 701 8301,Flat Straight Nozzle,14.99,14.99,Accessory,T,2,T,F,F,F,F,F,F,F,F,F, 
+4002 710 2169,AutoCut C 26-2,39.99,39.99,Accessory,T,3,F,F,F,T,T,T,F,F,F,F, 
