@@ -1810,17 +1810,18 @@ if(!isTrue(r[`${code}_Compatible`]) && !low && !high && !note){
     return;
   }
 
-  const modelKeys = [
-  baseModel(tool.Model),
-  baseModel(tool.StihlID),
-  baseModel(skuOf(tool))
-].filter(Boolean);
+  function baseModel(v){
+    return clean(v)
+      .toUpperCase()
+      .split('_')[0]
+      .replace(/[^A-Z0-9]/g,'');
+  }
 
-const modelKeys = [
-  baseModel(tool.Model),
-  baseModel(tool.StihlID),
-  baseModel(skuOf(tool))
-].filter(Boolean);
+  const modelKeys = [
+    baseModel(tool.Model),
+    baseModel(tool.StihlID),
+    baseModel(skuOf(tool))
+  ].filter(Boolean);
 
   const list = state.accessories.filter(a => {
 
@@ -1828,10 +1829,11 @@ const modelKeys = [
 
     return Object.keys(a).some(col => {
       const colKey = clean(col).toUpperCase().replace(/[^A-Z0-9]/g,'');
+
       return modelKeys.some(key =>
-  key === colKey ||
-  key.startsWith(colKey)
-) && isTrue(a[col]);
+        key === colKey ||
+        key.startsWith(colKey)
+      ) && isTrue(a[col]);
     });
 
   });
@@ -1844,7 +1846,7 @@ const modelKeys = [
       </option>
     `).join('');
 }
-
+    
 function batteryWeight(code){
   const battery = state.batteries.find(
     b => skuOf(b).toUpperCase() === code.toUpperCase()
