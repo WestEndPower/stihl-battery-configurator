@@ -1810,12 +1810,11 @@ if(!isTrue(r[`${code}_Compatible`]) && !low && !high && !note){
     return;
   }
 
-  function baseModel(v){
-  return clean(v)
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g,'')
-    .split('_')[0];
-}
+  const modelKeys = [
+  baseModel(tool.Model),
+  baseModel(tool.StihlID),
+  baseModel(skuOf(tool))
+].filter(Boolean);
 
 const modelKeys = [
   baseModel(tool.Model),
