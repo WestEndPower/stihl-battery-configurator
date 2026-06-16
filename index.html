@@ -571,12 +571,21 @@ cart: []
     }
     function fmtMoney(n){ return '$' + (Number(n)||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
     function isTrue(v){
-      const s = clean(v).toLowerCase();
-      return ['true','yes','y','1','x'].includes(s);
-    }
+  const s = clean(v).toUpperCase();
+  return ['T','TRUE','YES','Y','1','X'].includes(s);
+}
     function skuOf(item){ return clean(item.SKU || item.sku); }
     function modelOf(item){ return clean(item.Model || item.BatteryName || item.ChargerName || item.Name || skuOf(item)); }
-    function nameOf(item){ return clean(item.Name || item.BatteryName || item.ChargerName || item.Model || skuOf(item)); }
+    function nameOf(item){
+  return clean(
+    item.Name ||
+    item.Description ||
+    item.BatteryName ||
+    item.ChargerName ||
+    item.Model ||
+    skuOf(item)
+  );
+}
     function imageOf(item){
   return clean(
     item.ImageURL ||
@@ -1792,8 +1801,43 @@ if(!isTrue(r[`${code}_Compatible`]) && !low && !high && !note){
   `;
 }
     function renderAccessoryOptions(){
-      $('stihl-accessory-select').innerHTML = '<option value="">Choose accessory</option>' + state.accessories.map(a => `<option value="${escapeHtml(skuOf(a))}">${escapeHtml(nameOf(a))} — ${fmtMoney(priceOf(a))}</option>`).join('');
-    }
+
+  const tool = state.selectedTool;
+
+  if(!tool){
+    $('stihl-accessory-select').innerHTML =
+      '<option value="">Select a tool first</option>';
+    return;
+  }
+
+  const modelKeys = [
+    clean(tool.Model),
+    clean(tool.StihlID),
+    skuOf(tool),
+    clean(tool.Name)
+  ]
+  .map(v => v.toUpperCase().replace(/[^A-Z0-9]/g,''))
+  .filter(Boolean);
+
+  const list = state.accessories.filter(a => {
+
+    if(!(clean(a.Active)==='' || isTrue(a.Active))) return false;
+
+    return Object.keys(a).some(col => {
+      const colKey = clean(col).toUpperCase().replace(/[^A-Z0-9]/g,'');
+      return modelKeys.includes(colKey) && isTrue(a[col]);
+    });
+
+  });
+
+  $('stihl-accessory-select').innerHTML =
+    '<option value="">Choose compatible accessory</option>' +
+    list.map(a => `
+      <option value="${escapeHtml(skuOf(a))}">
+        ${escapeHtml(nameOf(a))} — ${fmtMoney(priceOf(a))}
+      </option>
+    `).join('');
+}
 
 function batteryWeight(code){
   const battery = state.batteries.find(
