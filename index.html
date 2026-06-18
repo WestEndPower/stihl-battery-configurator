@@ -41,6 +41,21 @@
     .stihl-btn.secondary{background:#111;color:#fff}
     .stihl-btn.light{background:#eee;color:#111}
     .stihl-btn.danger{background:#b00020;color:#fff}
+    .stihl-finance-btn{
+  background:#1f7a3a;
+  color:#fff;
+  font-weight:900;
+  margin-top:8px;
+  border:1px solid #17602d;
+}
+
+.stihl-finance-btn:hover{
+  background:#17602d;
+}
+
+.stihl-finance-btn:visited{
+  color:#fff;
+}
     .stihl-btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
   .stihl-series-buttons{
   display:flex;
@@ -1999,13 +2014,12 @@ return programPayment(a) - programPayment(b);
       Term: ${escapeHtml(clean(p.TermMonths))} months |
       Est. Payment: <strong>${fmtMoney(payment)}/mo</strong>
       ${clean(p.CreditApplicationURL) ? `
-        <br><a class="stihl-btn secondary"
-               style="margin-top:8px;"
-               href="${escapeHtml(clean(p.CreditApplicationURL))}"
-               target="_blank"
-               rel="noopener">
-          Apply for Financing
-        </a>
+        <br><a class="stihl-btn stihl-finance-btn"
+       href="${escapeHtml(clean(p.CreditApplicationURL))}"
+       target="_blank"
+       rel="noopener">
+  ✓ Apply for Financing
+</a>
       ` : ''}
     `;
   });
