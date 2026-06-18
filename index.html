@@ -611,6 +611,8 @@
 <div id="stihl-delivery-options" style="margin-top:12px;display:none;"></div>
 <input id="stihl-delivery-choice" type="hidden" value="">
 <input id="stihl-delivery-fee" type="hidden" value="0">
+<div id="stihl-financing-options" style="margin-top:14px;display:none;"></div>
+<input id="stihl-financing-choice" type="hidden" value="">          
           
           <div class="stihl-btn-row">
             <button class="stihl-btn secondary" id="stihl-print" type="button">Print / Save PDF</button>
@@ -643,7 +645,8 @@
       attachments: 'data/attachments.csv',
       accessories: 'data/accessories.csv',
      kmaRuntimes: 'data/kma-runtimes.csv',
-delivery: 'data/delivery.csv'
+delivery: 'data/delivery.csv',
+paymentOptions: 'data/payment-options.csv'
     };
 
     const batteryCodes = ['AS2','AK10','AK20','AK30','AK30S','AP200S','AP300S','AP500S','AR2000L','AR3000L'];
@@ -657,6 +660,7 @@ delivery: 'data/delivery.csv'
   accessories: [],
   kmaRuntimes: [],
 delivery: [],
+paymentOptions: [],
 selectedTool: null,
 selectedCategoryButton: '',
 selectedSystemButton: '',
@@ -769,14 +773,15 @@ cart: []
 
     async function init(){
       try{
-        const [tools,batteries,chargers,attachments,accessories,kmaRuntimes,delivery] = await Promise.all([
+        const [tools,batteries,chargers,attachments,accessories,kmaRuntimes,delivery,paymentOptions] = await Promise.all([
           loadCSV(DATA_FILES.tools),
           loadCSV(DATA_FILES.batteries),
           loadCSV(DATA_FILES.chargers),
           loadCSV(DATA_FILES.attachers || DATA_FILES.attachments),
           loadCSV(DATA_FILES.accessories),
           loadCSV(DATA_FILES.kmaRuntimes),
-loadCSV(DATA_FILES.delivery)
+loadCSV(DATA_FILES.delivery),
+loadOptionalCSV(DATA_FILES.paymentOptions)
         ]);
 
         state.tools = tools.filter(t => clean(t.Active)==='' || isTrue(t.Active)).sort(sortByOrder);
@@ -786,6 +791,10 @@ loadCSV(DATA_FILES.delivery)
         state.accessories = accessories.filter(a => clean(a.Active)==='' || isTrue(a.Active)).sort(sortByOrder);
         state.kmaRuntimes = kmaRuntimes;
         state.delivery = delivery.filter(d => clean(d.Active)==='' || isTrue(d.Active));
+        state.paymentOptions = paymentOptions
+  .filter(p => clean(p.Active)==='' || isTrue(p.Active))
+  .filter(p => clean(p.Display)==='' || isTrue(p.Display))
+  .sort(sortByOrder);
 
         $('stihl-load-status').className = 'stihl-success';
         $('stihl-load-status').textContent = 'Configurator data loaded.';
@@ -1845,6 +1854,138 @@ box.querySelectorAll('[data-pickup-choice]').forEach(b => {
     });
   });
 }
+function monthlyPayment(principal, apr, months){
+  principal = Number(principal) || 0;
+  apr = Number(apr) || 0;
+  months = Number(months) || 0;
+
+  if(!principal || !months) return 0;
+  if(apr <= 0) return principal / months;
+
+  const r = apr / 100 / 12;
+  return principal * r / (1 - Math.pow(1 + r, -months));
+}
+
+function currentQuoteTotal(){
+  const txt = clean($('stihl-total')?.textContent).replace(/[$,]/g,'');
+  return Number(txt) || 0;
+}
+
+function financingApplies(program){
+  const tool = state.selectedTool;
+  if(!tool) return false;
+
+  const amount = currentQuoteTotal();
+  const min = money(program.MinAmount);
+  const max = money(program.MaxAmount);
+
+  if(min && amount < min) return false;
+  if(max && amount > max) return false;
+
+  const sku = skuOf(tool);
+  const model = clean(tool.Model);
+  const group = clean(tool.FinancingGroup);
+
+  return (
+    isTrue(program.AllProducts) ||
+    (group && isTrue(program[group])) ||
+    (sku && isTrue(program[sku])) ||
+    (model && isTrue(program[model]))
+  );
+}
+
+function renderFinancingOptions(){
+  const box = $('stihl-financing-options');
+  if(!box || !state.selectedTool){
+    if(box) box.style.display = 'none';
+    return;
+  }
+
+  const amount = currentQuoteTotal();
+  const programs = state.paymentOptions.filter(financingApplies);
+
+  if(!programs.length || amount <= 0){
+    box.style.display = 'none';
+    return;
+  }
+
+  box.style.display = '';
+
+  box.innerHTML = `
+    <label>Financing Options</label>
+
+    <select id="stihl-financing-sort" style="margin-bottom:8px;">
+      <option value="payment">Sort by Lowest Payment</option>
+      <option value="rate">Sort by Lowest Rate</option>
+    </select>
+
+    <select id="stihl-financing-select">
+      <option value="">Choose financing option</option>
+    </select>
+
+    <div id="stihl-financing-detail" class="stihl-small" style="margin-top:8px;"></div>
+  `;
+
+  function programPayment(p){
+    const principal = amount + money(p.ApplicationFee);
+    return monthlyPayment(principal, money(p.APR), Number(clean(p.TermMonths)));
+  }
+
+  function fillFinanceSelect(){
+    const sort = clean($('stihl-financing-sort').value);
+
+    const sorted = [...programs].sort((a,b) => {
+      if(sort === 'rate') return money(a.APR) - money(b.APR);
+      return programPayment(a) - programPayment(b);
+    });
+
+    $('stihl-financing-select').innerHTML =
+      '<option value="">Choose financing option</option>' +
+      sorted.map((p,i) => `
+        <option value="${i}">
+          ${escapeHtml(clean(p.Label))} — ${fmtMoney(programPayment(p))}/mo
+        </option>
+      `).join('');
+
+    $('stihl-financing-select').dataset.programs =
+      JSON.stringify(sorted);
+  }
+
+  fillFinanceSelect();
+
+  $('stihl-financing-sort').addEventListener('change', fillFinanceSelect);
+
+  $('stihl-financing-select').addEventListener('change', () => {
+    const selectedIndex = Number($('stihl-financing-select').value);
+    const list = JSON.parse($('stihl-financing-select').dataset.programs || '[]');
+    const p = list[selectedIndex];
+
+    if(!p){
+      $('stihl-financing-choice').value = '';
+      $('stihl-financing-detail').innerHTML = '';
+      return;
+    }
+
+    const payment = programPayment(p);
+    $('stihl-financing-choice').value = clean(p.Label);
+
+    $('stihl-financing-detail').innerHTML = `
+      <strong>${escapeHtml(clean(p.Label))}</strong><br>
+      APR: ${escapeHtml(clean(p.APR))}% |
+      Term: ${escapeHtml(clean(p.TermMonths))} months |
+      Est. Payment: <strong>${fmtMoney(payment)}/mo</strong>
+      ${clean(p.CreditApplicationURL) ? `
+        <br><a class="stihl-btn secondary"
+               style="margin-top:8px;"
+               href="${escapeHtml(clean(p.CreditApplicationURL))}"
+               target="_blank"
+               rel="noopener">
+          Apply for Financing
+        </a>
+      ` : ''}
+    `;
+  });
+}
     
 function selectTool(){
   const sku = clean($('stihl-tool-select').value);
@@ -2501,6 +2642,7 @@ function addAccessoryCardToQuote(sku, qty){
           `;
         }).join('');
         lines.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', () => removeCart(btn.getAttribute('data-remove'))));
+      renderFinancingOptions();
       }
 
       const productSubtotal = state.cart.reduce((sum,line)=>
