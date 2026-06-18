@@ -1944,6 +1944,8 @@ function renderFinancingOptions(){
 
   function fillFinanceSelect(){
     const sort = clean($('stihl-financing-sort').value);
+    $('stihl-financing-choice').value = '';
+$('stihl-financing-detail').innerHTML = '';
     if(sort === 'creditcard'){
   $('stihl-financing-select').innerHTML =
     '<option value="creditcard">Credit Card Payment</option>';
