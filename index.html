@@ -1867,10 +1867,15 @@ renderCart();
   btn.addEventListener('click', () => {
 
     $('stihl-delivery-choice').value = btn.dataset.pickupChoice;
-    $('stihl-delivery-fee').value = 0;
+$('stihl-delivery-fee').value = 0;
 
-    box.querySelectorAll('[data-pickup-choice]')
-      .forEach(b => b.classList.remove('selected'));
+const deliverySelect = $('stihl-delivery-area');
+if(deliverySelect){
+  deliverySelect.value = '';
+}
+
+box.querySelectorAll('[data-pickup-choice]')
+  .forEach(b => b.classList.remove('selected'));
 
     btn.classList.add('selected');
 
