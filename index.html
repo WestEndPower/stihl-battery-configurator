@@ -1852,11 +1852,14 @@ function renderDeliveryOptions(){
       const fee = money(opt?.dataset.fee);
 
       $('stihl-delivery-choice').value =
-        zip ? `Delivery to ${town} ${zip}` : '';
+  zip ? `Delivery to ${town} ${zip}` : '';
 
-      $('stihl-delivery-fee').value = zip ? fee : 0;
+$('stihl-delivery-fee').value = zip ? fee : 0;
 
-      renderCart();
+box.querySelectorAll('[data-pickup-choice]')
+  .forEach(b => b.classList.remove('selected'));
+
+renderCart();
     });
   }
 
