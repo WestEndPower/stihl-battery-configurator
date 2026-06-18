@@ -766,12 +766,21 @@ cart: []
     }
 
     async function loadCSV(url){
-      const res = await fetch(url, {cache:'no-store'});
-      if(!res.ok) throw new Error(url + ' not found');
-      return parseCSV(await res.text());
-    }
+  const res = await fetch(url, {cache:'no-store'});
+  if(!res.ok) throw new Error(url + ' not found');
+  return parseCSV(await res.text());
+}
 
-    async function init(){
+async function loadOptionalCSV(url){
+  try{
+    return await loadCSV(url);
+  }catch(e){
+    console.warn(url + ' not found');
+    return [];
+  }
+}
+
+async function init(){
       try{
         const [tools,batteries,chargers,attachments,accessories,kmaRuntimes,delivery,paymentOptions] = await Promise.all([
           loadCSV(DATA_FILES.tools),
