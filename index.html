@@ -41,6 +41,10 @@
     .stihl-btn.secondary{background:#111;color:#fff}
     .stihl-btn.light{background:#eee;color:#111}
     .stihl-btn.danger{background:#b00020;color:#fff}
+  .stihl-btn.selected{
+  background:#111 !important;
+  color:#fff !important;
+}
     .stihl-finance-btn{
   background:#1f7a3a;
   color:#fff;
@@ -1857,26 +1861,19 @@ function renderDeliveryOptions(){
   }
 
   box.querySelectorAll('[data-pickup-choice]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      $('stihl-delivery-choice').value = btn.dataset.pickupChoice;
-      $('stihl-delivery-fee').value = 0;
+  btn.addEventListener('click', () => {
 
-      box.querySelectorAll('[data-pickup-choice]')
-        .forEach(b => b.classList.remove('secondary'));
+    $('stihl-delivery-choice').value = btn.dataset.pickupChoice;
+    $('stihl-delivery-fee').value = 0;
 
-      btn.style.background = '#111';
-btn.style.color = '#fff';
+    box.querySelectorAll('[data-pickup-choice]')
+      .forEach(b => b.classList.remove('selected'));
 
-box.querySelectorAll('[data-pickup-choice]').forEach(b => {
-  if(b !== btn){
-    b.style.background = '';
-    b.style.color = '';
-  }
-});
+    btn.classList.add('selected');
 
-      renderCart();
-    });
+    renderCart();
   });
+});
 }
 function monthlyPayment(principal, apr, months){
   principal = Number(principal) || 0;
@@ -1941,7 +1938,7 @@ function renderFinancingOptions(){
 <select id="stihl-financing-sort" style="margin-bottom:8px;">
   <option value="">Select Payment Option</option>
   <option value="payment">Financing - Lowest Payment</option>
-  <option value="rate">Financing - Lowest Rate</option>
+  <option value="rate">Financing - Lowest APR</option>
   <option value="creditcard">Credit Card Payment</option>
 </select>
 
