@@ -835,11 +835,7 @@ $('stihl-tool-select').addEventListener('change', selectTool);
       </button>
     `).join('');
 
-  state.selectedPowerButton = clean(btn.dataset.power);
-
-updateSystemButtonVisibility();
-
-state.selectedTool = null;
+  updateSystemButtonVisibility();
 }
 
 function updateSystemButtonVisibility(){
