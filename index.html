@@ -765,27 +765,7 @@ renderTools();
       $('stihl-search').addEventListener('input', renderTools);
 $('stihl-category').addEventListener('change', renderTools);
 
- // POWER TYPE BUTTONS
-  document.querySelectorAll('#stihl-power-buttons .stihl-series-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-
-      document.querySelectorAll('#stihl-power-buttons .stihl-series-btn')
-        .forEach(b => b.classList.remove('active'));
-
-      btn.classList.add('active');
-
-      state.selectedPowerButton = clean(btn.dataset.power);
-
-      state.selectedTool = null;
-
-      renderTools();
-      renderToolDetails();
-      renderAllOptions();
-      renderKMARuntimeMatrix();
-    });
-  });
-      
-      
+ // POWER TYPE BUTTONS  
 document.querySelectorAll('#stihl-power-buttons .stihl-series-btn').forEach(btn => {
   btn.addEventListener('click', () => {
 
