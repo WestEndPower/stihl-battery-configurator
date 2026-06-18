@@ -884,9 +884,10 @@ $('stihl-tool-select').addEventListener('change', selectTool);
   'stihl-state',
   'stihl-zip',
   'stihl-customer-email',
-'stihl-quote-notes',
-'stihl-delivery-choice'
+  'stihl-quote-notes'
 ].forEach(id => $(id).addEventListener('input', renderCart));
+
+$('stihl-delivery-choice').addEventListener('change', renderCart);
     }
 
     function renderCategories(){
