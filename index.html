@@ -668,6 +668,8 @@ delivery: 'data/delivery.csv',
 paymentOptions: 'data/payment-options.csv'
     };
 
+    const CONFIGURATOR_API =
+  "https://westendpower-configurator-api.YOUR-SUBDOMAIN.workers.dev";
     const batteryCodes = ['AS2','AK10','AK20','AK30','AK30S','AP200S','AP300S','AP500S','AR2000L','AR3000L'];
     const chargerCodes = ['AL1','AL5','AL5-2','AL101','AL301','AL301-4','AL501'];
 
@@ -1209,7 +1211,7 @@ if(priceTagBtn){
 }
 }
 
-function printSalesSheet(){
+async function printSalesSheet(){
   const t = state.selectedTool;
 
   if(!t){
@@ -1726,7 +1728,8 @@ ${clean(t.SaleEndDate) ? `
     </div>
   `;
 
-  window.print();
+  await sendQuoteLead('Print / Save PDF');
+window.print();
 }
 function printPriceTag(){
 
@@ -1922,7 +1925,48 @@ function financingApplies(program){
     (model && isTrue(program[model]))
   );
 }
+async function sendQuoteLead(actionType){
+  const payload = {
+    configurator: 'STIHL',
+    source: 'STIHL Configurator',
+    action: actionType || 'Print / Save PDF',
+    customer: clean($('stihl-customer-name')?.value),
+    business: clean($('stihl-business-name')?.value),
+    phone: clean($('stihl-customer-contact')?.value),
+    altPhone: clean($('stihl-alt-phone')?.value),
+    email: clean($('stihl-customer-email')?.value),
+    address: [
+      clean($('stihl-street-address')?.value),
+      clean($('stihl-city')?.value),
+      clean($('stihl-state')?.value),
+      clean($('stihl-zip')?.value)
+    ].filter(Boolean).join(', '),
+    delivery: deliveryLabel(),
+    payment: clean($('stihl-financing-choice')?.value),
+    notes: clean($('stihl-quote-notes')?.value),
+    subtotal: $('stihl-subtotal')?.textContent,
+    tax: $('stihl-tax')?.textContent,
+    total: $('stihl-total')?.textContent,
+    selectedTool: state.selectedTool ? nameOf(state.selectedTool) : '',
+    items: state.cart.map(line => ({
+      qty: line.qty,
+      name: nameOf(line.item),
+      price: line.included ? 'Included' : fmtMoney(priceOf(line.item)),
+      lineTotal: line.included
+        ? 'Included'
+        : fmtMoney(priceOf(line.item) * line.qty)
+    }))
+  };
 
+  try{
+    await fetch(`${CONFIGURATOR_API}/quote-lead`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+  }catch(e){
+    console.warn('Quote lead email failed', e);
+  }
 function renderFinancingOptions(){
   const box = $('stihl-financing-options');
   if(!box || !state.selectedTool){
@@ -1938,6 +1982,7 @@ function renderFinancingOptions(){
     return;
   }
 
+}
   box.style.display = '';
 
   box.innerHTML = `
