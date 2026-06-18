@@ -1786,17 +1786,17 @@ function renderDeliveryOptions(){
     ` : ''}
 
     <div class="stihl-btn-row" style="margin-top:10px;">
-      <button class="stihl-btn light"
-              type="button"
-              data-pickup-choice="Pickup in New Milford">
-        Pickup in New Milford
-      </button>
+      <button class="stihl-btn"
+        type="button"
+        data-pickup-choice="Pickup in New Milford">
+  📍 Pickup in New Milford
+</button>
 
-      <button class="stihl-btn light"
-              type="button"
-              data-pickup-choice="Pickup in Danbury">
-        Pickup in Danbury
-      </button>
+<button class="stihl-btn"
+        type="button"
+        data-pickup-choice="Pickup in Danbury">
+  📍 Pickup in Danbury
+</button>
     </div>
   `;
 
@@ -1831,7 +1831,15 @@ function renderDeliveryOptions(){
       box.querySelectorAll('[data-pickup-choice]')
         .forEach(b => b.classList.remove('secondary'));
 
-      btn.classList.add('secondary');
+      btn.style.background = '#111';
+btn.style.color = '#fff';
+
+box.querySelectorAll('[data-pickup-choice]').forEach(b => {
+  if(b !== btn){
+    b.style.background = '';
+    b.style.color = '';
+  }
+});
 
       renderCart();
     });
