@@ -1278,14 +1278,23 @@ ${chargerCodes
   const quoteNumber = 'WEP-' + Date.now().toString().slice(-6);
 const quoteDate = new Date().toLocaleDateString();
 const customerName = clean($('stihl-customer-name').value);
+const businessName = clean($('stihl-business-name').value);
+
 const customerPhone = clean($('stihl-customer-contact').value);
+const altPhone = clean($('stihl-alt-phone').value);
+
+const streetAddress = clean($('stihl-street-address').value);
+const city = clean($('stihl-city').value);
+const stateName = clean($('stihl-state').value);
+const zip = clean($('stihl-zip').value);
+
 const customerEmail = clean($('stihl-customer-email').value);
 
 const customerBlock =
-(customerName || customerPhone || customerEmail)
+(customerName || businessName || customerPhone || customerEmail)
 ? `
 <div style="
-  min-width:260px;
+  min-width:320px;
   background:#f8f8f8;
   border:1px solid #ddd;
   border-radius:8px;
@@ -1293,10 +1302,24 @@ const customerBlock =
   font-size:13px;
   line-height:1.6;
 ">
+
   ${customerName ? `<strong>Customer:</strong> ${escapeHtml(customerName)}<br>` : ''}
+  ${businessName ? `<strong>Business:</strong> ${escapeHtml(businessName)}<br>` : ''}
+
   ${customerPhone ? `<strong>Phone:</strong> ${escapeHtml(customerPhone)}<br>` : ''}
+  ${altPhone ? `<strong>Alt Phone:</strong> ${escapeHtml(altPhone)}<br>` : ''}
+
+  ${streetAddress ? `${escapeHtml(streetAddress)}<br>` : ''}
+
+  ${(city || stateName || zip)
+    ? `${escapeHtml(city)}${city && stateName ? ', ' : ''}${escapeHtml(stateName)} ${escapeHtml(zip)}<br>`
+    : ''
+  }
+
   ${customerEmail ? `<strong>Email:</strong> ${escapeHtml(customerEmail)}<br>` : ''}
+
   <strong>Date:</strong> ${new Date().toLocaleDateString()}
+
 </div>
 `
 : '';
