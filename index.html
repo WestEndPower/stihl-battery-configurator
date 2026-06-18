@@ -590,9 +590,18 @@
           <div style="margin-top:10px">
             <label for="stihl-quote-notes">Notes</label>
             <textarea id="stihl-quote-notes" placeholder="Optional quote notes"></textarea>
-          </div>
+</div>
 
-          <div id="stihl-cart-lines" style="margin-top:12px"></div>
+<div id="stihl-delivery-options" style="margin-top:10px;display:none;">
+  <label for="stihl-delivery-choice">Delivery Options</label>
+  <select id="stihl-delivery-choice">
+    <option value="">Choose delivery option</option>
+    <option value="Local Delivery Requested">Local Delivery Requested</option>
+    <option value="Customer Pickup">Customer Pickup</option>
+  </select>
+</div>
+
+<div id="stihl-cart-lines" style="margin-top:12px"></div>
 
           <div class="stihl-line">
             <span>Subtotal</span>
@@ -875,7 +884,8 @@ $('stihl-tool-select').addEventListener('change', selectTool);
   'stihl-state',
   'stihl-zip',
   'stihl-customer-email',
-  'stihl-quote-notes'
+'stihl-quote-notes',
+'stihl-delivery-choice'
 ].forEach(id => $(id).addEventListener('input', renderCart));
     }
 
@@ -1725,14 +1735,32 @@ function printPriceTag(){
   window.print();
 }
 
+function renderDeliveryOptions(){
+  const box = $('stihl-delivery-options');
+  const choice = $('stihl-delivery-choice');
+
+  if(!box) return;
+
+  const show =
+    state.selectedTool &&
+    isTrue(state.selectedTool.LocalDelivery);
+
+  box.style.display = show ? '' : 'none';
+
+  if(!show && choice){
+    choice.value = '';
+  }
+}
+    
 function selectTool(){
   const sku = clean($('stihl-tool-select').value);
   state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
 
   renderToolDetails();
-  renderAllOptions();
-  renderKMARuntimeMatrix();
-  renderCart();
+renderAllOptions();
+renderKMARuntimeMatrix();
+renderDeliveryOptions();
+renderCart();
 }
 
 function addToolToQuote(){
