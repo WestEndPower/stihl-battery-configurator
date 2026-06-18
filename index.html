@@ -440,11 +440,11 @@
 </div>
 </div>
 
+<div class="stihl-series-buttons" id="stihl-category-buttons"></div>
+          
 <div class="stihl-series-buttons" id="stihl-power-buttons"></div>          
 
 <div class="stihl-series-buttons" id="stihl-system-buttons"></div>
-
-<div class="stihl-series-buttons" id="stihl-category-buttons"></div>
 
 <label for="stihl-tool-select">Tool / Kit</label>
 
@@ -786,23 +786,25 @@ $('stihl-category').addEventListener('change', renderTools);
   });
       
       
-document.querySelectorAll('#stihl-system-buttons .stihl-series-btn').forEach(btn => {
- btn.addEventListener('click', () => {
+document.querySelectorAll('#stihl-power-buttons .stihl-series-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
 
-  document.querySelectorAll('#stihl-system-buttons .stihl-series-btn')
-    .forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#stihl-power-buttons .stihl-series-btn')
+      .forEach(b => b.classList.remove('active'));
 
-  btn.classList.add('active');
+    btn.classList.add('active');
 
-  state.selectedSystemButton = clean(btn.dataset.system);
+    state.selectedPowerButton = clean(btn.dataset.power);
 
-  state.selectedTool = null;
+    updateSystemButtonVisibility();
 
-  renderTools();
-  renderToolDetails();
-  renderAllOptions();
-  renderKMARuntimeMatrix();
-});
+    state.selectedTool = null;
+
+    renderTools();
+    renderToolDetails();
+    renderAllOptions();
+    renderKMARuntimeMatrix();
+  });
 });
 
 document.querySelectorAll('#stihl-category-buttons .stihl-series-btn').forEach(btn => {
@@ -852,7 +854,28 @@ $('stihl-tool-select').addEventListener('change', selectTool);
         ${p}
       </button>
     `).join('');
+
+  state.selectedPowerButton = clean(btn.dataset.power);
+
+updateSystemButtonVisibility();
+
+state.selectedTool = null;
 }
+
+function updateSystemButtonVisibility(){
+  const power = clean(state.selectedPowerButton);
+  const systemBox = $('stihl-system-buttons');
+
+  if(!systemBox) return;
+
+  if(power === 'Gas' || power === 'Electric'){
+    systemBox.style.display = 'none';
+    state.selectedSystemButton = '';
+  }else{
+    systemBox.style.display = 'flex';
+  }
+}    
+    
     function renderSystemButtons(){
   const systems = ['AS','AK','AP','AR'];
 
