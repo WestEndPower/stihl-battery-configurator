@@ -753,8 +753,8 @@ renderPowerButtons();
 renderSystemButtons();
 renderCategoryButtons();
 renderTools();
-        renderAllOptions();
-        ;
+renderAllOptions();
+bindEvents();
       }catch(err){
         $('stihl-load-status').className = 'stihl-error';
         $('stihl-load-status').innerHTML = '<strong>Data file problem:</strong> ' + err.message + '<br>Check that the files are uploaded as data/tools.csv, data/batteries.csv, data/chargers.csv, data/attachments.csv, data/accessories.csv, and data/kma-runtimes.csv.';
