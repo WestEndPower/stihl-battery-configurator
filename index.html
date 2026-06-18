@@ -754,7 +754,7 @@ renderSystemButtons();
 renderCategoryButtons();
 renderTools();
         renderAllOptions();
-        bindEvents();
+        ;
       }catch(err){
         $('stihl-load-status').className = 'stihl-error';
         $('stihl-load-status').innerHTML = '<strong>Data file problem:</strong> ' + err.message + '<br>Check that the files are uploaded as data/tools.csv, data/batteries.csv, data/chargers.csv, data/attachments.csv, data/accessories.csv, and data/kma-runtimes.csv.';
@@ -786,7 +786,26 @@ document.querySelectorAll('#stihl-power-buttons .stihl-series-btn').forEach(btn 
     renderKMARuntimeMatrix();
   });
 });
+      
+document.querySelectorAll('#stihl-system-buttons .stihl-series-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
 
+    document.querySelectorAll('#stihl-system-buttons .stihl-series-btn')
+      .forEach(b => b.classList.remove('active'));
+
+    btn.classList.add('active');
+
+    state.selectedSystemButton = clean(btn.dataset.system);
+
+    state.selectedTool = null;
+
+    renderTools();
+    renderToolDetails();
+    renderAllOptions();
+    renderKMARuntimeMatrix();
+  });
+});
+      
 document.querySelectorAll('#stihl-category-buttons .stihl-series-btn').forEach(btn => {
   btn.addEventListener('click', () => {
 
