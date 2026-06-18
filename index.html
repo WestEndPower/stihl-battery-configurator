@@ -1924,7 +1924,7 @@ function renderFinancingOptions(){
     <label>Payment Options</label>
 
 <select id="stihl-financing-sort" style="margin-bottom:8px;">
-  <option value="payment">Select Payment Option</option>
+  <option value="">Select Payment Option</option>
   <option value="payment">Sort by Lowest Payment</option>
   <option value="rate">Sort by Lowest Rate</option>
   <option value="creditcard">Credit Card Payment</option>
@@ -1944,6 +1944,16 @@ function renderFinancingOptions(){
 
   function fillFinanceSelect(){
     const sort = clean($('stihl-financing-sort').value);
+    if(sort === 'creditcard'){
+  $('stihl-financing-select').innerHTML =
+    '<option value="creditcard">Credit Card Payment</option>';
+
+  $('stihl-financing-choice').value = 'Credit Card Payment';
+  $('stihl-financing-detail').innerHTML =
+    '<strong>Credit Card Payment</strong><br>Customer will pay by credit card.';
+
+  return;
+}
 
     const sorted = [...programs].sort((a,b) => {
       if(sort === 'rate') return money(a.APR) - money(b.APR);
