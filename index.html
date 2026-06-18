@@ -1964,9 +1964,12 @@ async function sendQuoteLead(actionType){
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify(payload)
     });
-  }catch(e){
+ }catch(e){
     console.warn('Quote lead email failed', e);
   }
+}
+
+function renderFinancingOptions(){
 function renderFinancingOptions(){
   const box = $('stihl-financing-options');
   if(!box || !state.selectedTool){
@@ -1982,8 +1985,7 @@ function renderFinancingOptions(){
     return;
   }
 
-}
-  box.style.display = '';
+box.style.display = '';
 
   box.innerHTML = `
     <label>Payment Options</label>
