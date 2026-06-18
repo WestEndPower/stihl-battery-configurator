@@ -2665,6 +2665,8 @@ const tax = subtotal * TAX_RATE;
 $('stihl-subtotal').textContent = fmtMoney(subtotal);
 $('stihl-tax').textContent = fmtMoney(tax);
 $('stihl-total').textContent = fmtMoney(subtotal + tax);
+
+      renderFinancingOptions();
     }
 
     function copyQuote(){
