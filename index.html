@@ -440,6 +440,8 @@
 </div>
 </div>
 
+<div class="stihl-series-buttons" id="stihl-power-buttons"></div>          
+
 <div class="stihl-series-buttons" id="stihl-system-buttons"></div>
 
 <div class="stihl-series-buttons" id="stihl-category-buttons"></div>
@@ -619,6 +621,7 @@
   selectedTool: null,
 selectedCategoryButton: '',
 selectedSystemButton: '',
+selectedPowerButton: '',
 cart: []
 };
 
@@ -746,9 +749,10 @@ cart: []
         $('stihl-load-status').className = 'stihl-success';
         $('stihl-load-status').textContent = 'Configurator data loaded.';
         renderCategories();
-        renderSystemButtons();
-        renderCategoryButtons();
-        renderTools();
+renderPowerButtons();
+renderSystemButtons();
+renderCategoryButtons();
+renderTools();
         renderAllOptions();
         bindEvents();
       }catch(err){
@@ -761,6 +765,27 @@ cart: []
       $('stihl-search').addEventListener('input', renderTools);
 $('stihl-category').addEventListener('change', renderTools);
 
+ // POWER TYPE BUTTONS
+  document.querySelectorAll('#stihl-power-buttons .stihl-series-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+
+      document.querySelectorAll('#stihl-power-buttons .stihl-series-btn')
+        .forEach(b => b.classList.remove('active'));
+
+      btn.classList.add('active');
+
+      state.selectedPowerButton = clean(btn.dataset.power);
+
+      state.selectedTool = null;
+
+      renderTools();
+      renderToolDetails();
+      renderAllOptions();
+      renderKMARuntimeMatrix();
+    });
+  });
+      
+      
 document.querySelectorAll('#stihl-system-buttons .stihl-series-btn').forEach(btn => {
  btn.addEventListener('click', () => {
 
@@ -817,6 +842,17 @@ $('stihl-tool-select').addEventListener('change', selectTool);
       const cats = [...new Set(state.tools.map(t => clean(t.Category)).filter(Boolean))].sort();
       $('stihl-category').innerHTML = '<option value="">All categories</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
     }
+    function renderPowerButtons(){
+  const powers = ['Battery','Gas','Electric'];
+
+  $('stihl-power-buttons').innerHTML =
+    `<button type="button" class="stihl-series-btn active" data-power="">All Equipment</button>` +
+    powers.map(p => `
+      <button type="button" class="stihl-series-btn" data-power="${p}">
+        ${p}
+      </button>
+    `).join('');
+}
     function renderSystemButtons(){
   const systems = ['AS','AK','AP','AR'];
 
@@ -847,11 +883,13 @@ function renderTools(){
   const cat = clean($('stihl-category').value);
   const buttonCat = clean(state.selectedCategoryButton);
   const system = clean(state.selectedSystemButton);
+  const power = clean(state.selectedPowerButton);
   const list = state.tools.filter(t => {
     if(cat && clean(t.Category) !== cat) return false;
     if(buttonCat && clean(t.Category) !== buttonCat) return false;
-    if(system && !clean(t.System).toUpperCase().includes(system)) return false;
-    if(q && !toolSearchText(t).includes(q)) return false;
+    if(power && clean(t.PowerType) !== power) return false;
+if(system && !clean(t.System).toUpperCase().includes(system)) return false;
+if(q && !toolSearchText(t).includes(q)) return false;
     return true;
   });
 
