@@ -1921,12 +1921,14 @@ function renderFinancingOptions(){
   box.style.display = '';
 
   box.innerHTML = `
-    <label>Financing Options</label>
+    <label>Payment Options</label>
 
-    <select id="stihl-financing-sort" style="margin-bottom:8px;">
-      <option value="payment">Sort by Lowest Payment</option>
-      <option value="rate">Sort by Lowest Rate</option>
-    </select>
+<select id="stihl-financing-sort" style="margin-bottom:8px;">
+  <option value="payment">Select Payment Option</option>
+  <option value="payment">Sort by Lowest Payment</option>
+  <option value="rate">Sort by Lowest Rate</option>
+  <option value="creditcard">Credit Card Payment</option>
+</select>
 
     <select id="stihl-financing-select">
       <option value="">Choose financing option</option>
@@ -1945,7 +1947,8 @@ function renderFinancingOptions(){
 
     const sorted = [...programs].sort((a,b) => {
       if(sort === 'rate') return money(a.APR) - money(b.APR);
-      return programPayment(a) - programPayment(b);
+if(sort === 'creditcard') return 0;
+return programPayment(a) - programPayment(b);
     });
 
     $('stihl-financing-select').innerHTML =
