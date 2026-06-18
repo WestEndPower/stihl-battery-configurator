@@ -538,22 +538,54 @@
           <h2>Quote Summary</h2>
 
           <div>
-            <label for="stihl-customer-name">Customer Name</label>
-<input id="stihl-customer-name"
-       placeholder="Customer name" />
+            <div>
+  <label for="stihl-customer-name">Customer</label>
+  <input id="stihl-customer-name" placeholder="Customer name" />
 </div>
 
 <div style="margin-top:10px">
-  <label for="stihl-customer-contact">Phone</label>
-  <input id="stihl-customer-contact"
-         placeholder="Phone number" />
+  <label for="stihl-business-name">Business Name</label>
+  <input id="stihl-business-name" placeholder="Business name" />
+</div>
+
+<div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+  <div>
+    <label for="stihl-customer-contact">Phone</label>
+    <input id="stihl-customer-contact" placeholder="Phone number" />
+  </div>
+
+  <div>
+    <label for="stihl-alt-phone">Alt. Phone</label>
+    <input id="stihl-alt-phone" placeholder="Alt. phone" />
+  </div>
+</div>
+
+<div style="margin-top:10px">
+  <label for="stihl-street-address">Street Address</label>
+  <input id="stihl-street-address" placeholder="Street address" />
+</div>
+
+<div style="margin-top:10px;display:grid;grid-template-columns:1fr 90px 120px;gap:10px;">
+  <div>
+    <label for="stihl-city">City</label>
+    <input id="stihl-city" placeholder="City" />
+  </div>
+
+  <div>
+    <label for="stihl-state">State</label>
+    <input id="stihl-state" placeholder="CT" />
+  </div>
+
+  <div>
+    <label for="stihl-zip">ZIP</label>
+    <input id="stihl-zip" placeholder="06776" />
+  </div>
 </div>
 
 <div style="margin-top:10px">
   <label for="stihl-customer-email">Email</label>
-  <input id="stihl-customer-email"
-         type="email"
-         placeholder="Email address" />
+  <input id="stihl-customer-email" type="email" placeholder="Email address" />
+</div>
 </div>
           <div style="margin-top:10px">
             <label for="stihl-quote-notes">Notes</label>
@@ -833,10 +865,18 @@ $('stihl-tool-select').addEventListener('change', selectTool);
       $('stihl-print').addEventListener('click', printSalesSheet);
       $('stihl-copy').addEventListener('click', copyQuote);
       $('stihl-clear').addEventListener('click', clearAll);
-      ['stihl-customer-name',
- 'stihl-customer-contact',
- 'stihl-customer-email',
- 'stihl-quote-notes'].forEach(id => $(id).addEventListener('input', renderCart));
+      [
+  'stihl-customer-name',
+  'stihl-business-name',
+  'stihl-customer-contact',
+  'stihl-alt-phone',
+  'stihl-street-address',
+  'stihl-city',
+  'stihl-state',
+  'stihl-zip',
+  'stihl-customer-email',
+  'stihl-quote-notes'
+].forEach(id => $(id).addEventListener('input', renderCart));
     }
 
     function renderCategories(){
