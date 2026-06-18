@@ -2198,7 +2198,13 @@ function batteryWeight(code){
   if(!kitBattery && !kitCharger) return '';
 
   const separateTotal =
-    (money(tool.ToolOnlyPrice) || money(tool.ToolOnlyMSRP) || priceOf(tool)) +
+    (
+  money(tool.ToolOnlySalePrice) ||
+  money(tool.ToolOnlyPrice) ||
+  money(tool.ToolOnlyPriceMSRP) ||
+  money(tool.ToolOnlyMSRP) ||
+  priceOf(tool)
+) +
     (kitBattery ? priceOf(kitBattery) * kitBatteryQty : 0) +
     (kitCharger ? priceOf(kitCharger) * kitChargerQty : 0);
 
