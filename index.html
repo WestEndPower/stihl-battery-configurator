@@ -608,13 +608,9 @@
             <span>Total</span>
             <strong class="stihl-total" id="stihl-total">$0.00</strong>
           </div>
-<div id="stihl-delivery-options" style="margin-top:10px;display:none;">
-  <label for="stihl-delivery-choice">Delivery Options</label>
-  <select id="stihl-delivery-choice">
-    <option value="">Choose delivery option</option>
-    <option value="Local Delivery Requested">Local Delivery Requested</option>
-<option value="Pickup in New Milford">Pickup in New Milford</option>
-<option value="Pickup in Danbury">Pickup in Danbury</option>
+<div id="stihl-delivery-options" style="margin-top:12px;display:none;"></div>
+<input id="stihl-delivery-choice" type="hidden" value="">
+<input id="stihl-delivery-fee" type="hidden" value="0">
   </select>
 </div>
           
@@ -648,7 +644,8 @@
       chargers: 'data/chargers.csv',
       attachments: 'data/attachments.csv',
       accessories: 'data/accessories.csv',
-      kmaRuntimes: 'data/kma-runtimes.csv'
+     kmaRuntimes: 'data/kma-runtimes.csv',
+delivery: 'data/delivery.csv'
     };
 
     const batteryCodes = ['AS2','AK10','AK20','AK30','AK30S','AP200S','AP300S','AP500S','AR2000L','AR3000L'];
@@ -661,7 +658,8 @@
   attachments: [],
   accessories: [],
   kmaRuntimes: [],
-  selectedTool: null,
+delivery: [],
+selectedTool: null,
 selectedCategoryButton: '',
 selectedSystemButton: '',
 selectedPowerButton: '',
@@ -773,13 +771,14 @@ cart: []
 
     async function init(){
       try{
-        const [tools,batteries,chargers,attachments,accessories,kmaRuntimes] = await Promise.all([
+        const [tools,batteries,chargers,attachments,accessories,kmaRuntimes,delivery] = await Promise.all([
           loadCSV(DATA_FILES.tools),
           loadCSV(DATA_FILES.batteries),
           loadCSV(DATA_FILES.chargers),
           loadCSV(DATA_FILES.attachers || DATA_FILES.attachments),
           loadCSV(DATA_FILES.accessories),
-          loadCSV(DATA_FILES.kmaRuntimes)
+          loadCSV(DATA_FILES.kmaRuntimes),
+loadCSV(DATA_FILES.delivery)
         ]);
 
         state.tools = tools.filter(t => clean(t.Active)==='' || isTrue(t.Active)).sort(sortByOrder);
@@ -788,6 +787,7 @@ cart: []
         state.attachments = attachments.filter(a => clean(a.Active)==='' || isTrue(a.Active)).sort(sortByOrder);
         state.accessories = accessories.filter(a => clean(a.Active)==='' || isTrue(a.Active)).sort(sortByOrder);
         state.kmaRuntimes = kmaRuntimes;
+        state.delivery = delivery.filter(d => clean(d.Active)==='' || isTrue(d.Active));
 
         $('stihl-load-status').className = 'stihl-success';
         $('stihl-load-status').textContent = 'Configurator data loaded.';
@@ -888,8 +888,6 @@ $('stihl-tool-select').addEventListener('change', selectTool);
   'stihl-customer-email',
   'stihl-quote-notes'
 ].forEach(id => $(id).addEventListener('input', renderCart));
-
-$('stihl-delivery-choice').addEventListener('change', renderCart);
     }
 
     function renderCategories(){
@@ -1738,21 +1736,108 @@ function printPriceTag(){
   window.print();
 }
 
+function deliveryFee(){
+  return money($('stihl-delivery-fee')?.value || 0);
+}
+
+function deliveryLabel(){
+  return clean($('stihl-delivery-choice')?.value);
+}
+
 function renderDeliveryOptions(){
   const box = $('stihl-delivery-options');
-  const choice = $('stihl-delivery-choice');
 
-  if(!box) return;
-
-  const show =
-    state.selectedTool &&
-    isTrue(state.selectedTool.LocalDelivery);
-
-  box.style.display = show ? '' : 'none';
-
-  if(!show && choice){
-    choice.value = '';
+  if(!box || !state.selectedTool){
+    if(box) box.style.display = 'none';
+    return;
   }
+
+  const allowDelivery = isTrue(state.selectedTool.LocalDelivery);
+  const deliveryGroup = clean(state.selectedTool.DeliveryGroup);
+
+  box.style.display = '';
+
+  box.innerHTML = `
+    <label>Delivery / Pickup</label>
+
+    ${allowDelivery ? `
+      <button class="stihl-btn light"
+              type="button"
+              id="stihl-show-delivery">
+        Local Delivery
+      </button>
+
+      <select id="stihl-delivery-area" style="display:none;margin-top:10px;">
+        <option value="">Select ZIP / Delivery Area</option>
+        ${state.delivery.map(d => {
+          const zip = clean(d.ZipCode || d.ZIP || d.Zip || d.Lookup);
+          const town = clean(d.DeliveryTown || d.Town || d.City);
+          const fee = money(d[deliveryGroup]);
+
+          if(!zip || !town || !deliveryGroup) return '';
+
+          return `
+            <option value="${escapeHtml(zip)}"
+                    data-fee="${fee}"
+                    data-town="${escapeHtml(town)}">
+              ${escapeHtml(zip)} — ${escapeHtml(town)} — ${fee > 0 ? fmtMoney(fee) : 'Included'}
+            </option>
+          `;
+        }).join('')}
+      </select>
+    ` : ''}
+
+    <div class="stihl-btn-row" style="margin-top:10px;">
+      <button class="stihl-btn light"
+              type="button"
+              data-pickup-choice="Pickup in New Milford">
+        Pickup in New Milford
+      </button>
+
+      <button class="stihl-btn light"
+              type="button"
+              data-pickup-choice="Pickup in Danbury">
+        Pickup in Danbury
+      </button>
+    </div>
+  `;
+
+  const deliveryBtn = $('stihl-show-delivery');
+  const deliverySelect = $('stihl-delivery-area');
+
+  if(deliveryBtn && deliverySelect){
+    deliveryBtn.addEventListener('click', () => {
+      deliverySelect.style.display = '';
+    });
+
+    deliverySelect.addEventListener('change', () => {
+      const opt = deliverySelect.selectedOptions[0];
+      const zip = clean(deliverySelect.value);
+      const town = clean(opt?.dataset.town);
+      const fee = money(opt?.dataset.fee);
+
+      $('stihl-delivery-choice').value =
+        zip ? `Delivery to ${town} ${zip}` : '';
+
+      $('stihl-delivery-fee').value = zip ? fee : 0;
+
+      renderCart();
+    });
+  }
+
+  box.querySelectorAll('[data-pickup-choice]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $('stihl-delivery-choice').value = btn.dataset.pickupChoice;
+      $('stihl-delivery-fee').value = 0;
+
+      box.querySelectorAll('[data-pickup-choice]')
+        .forEach(b => b.classList.remove('secondary'));
+
+      btn.classList.add('secondary');
+
+      renderCart();
+    });
+  });
 }
     
 function selectTool(){
@@ -2412,11 +2497,17 @@ function addAccessoryCardToQuote(sku, qty){
         lines.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', () => removeCart(btn.getAttribute('data-remove'))));
       }
 
-      const subtotal = state.cart.reduce((sum,line)=> sum + (line.included ? 0 : priceOf(line.item) * line.qty), 0);
-      const tax = subtotal * TAX_RATE;
-      $('stihl-subtotal').textContent = fmtMoney(subtotal);
-      $('stihl-tax').textContent = fmtMoney(tax);
-      $('stihl-total').textContent = fmtMoney(subtotal + tax);
+      const productSubtotal = state.cart.reduce((sum,line)=>
+  sum + (line.included ? 0 : priceOf(line.item) * line.qty), 0
+);
+
+const delivery = deliveryFee();
+const subtotal = productSubtotal + delivery;
+const tax = subtotal * TAX_RATE;
+
+$('stihl-subtotal').textContent = fmtMoney(subtotal);
+$('stihl-tax').textContent = fmtMoney(tax);
+$('stihl-total').textContent = fmtMoney(subtotal + tax);
     }
 
     function copyQuote(){
