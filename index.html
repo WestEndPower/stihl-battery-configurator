@@ -635,7 +635,9 @@
           
           <div class="stihl-btn-row">
             <button class="stihl-btn secondary" id="stihl-print" type="button">Print / Save PDF</button>
-<button class="stihl-btn light" id="stihl-copy" type="button">Copy Quote</button>
+<button class="stihl-btn light" id="stihl-email-quote" type="button">
+  Email Quote
+</button>
 <button class="stihl-btn danger" id="stihl-clear" type="button">Clear</button>
 
 <button class="stihl-btn" id="stihl-stripe-deposit" type="button">
@@ -923,7 +925,7 @@ $('stihl-tool-select').addEventListener('change', selectTool);
       $('stihl-add-attachment').addEventListener('click', ()=> addSelected('attachment'));
       // Accessories are now added from image cards rendered below.
       $('stihl-print').addEventListener('click', printSalesSheet);
-      $('stihl-copy').addEventListener('click', copyQuote);
+      $('stihl-email-quote').addEventListener('click', emailQuote);
       $('stihl-clear').addEventListener('click', clearAll);
       $('stihl-stripe-deposit').addEventListener('click', () => startStripeCheckout('deposit'));
       $('stihl-stripe-full').addEventListener('click', () => startStripeCheckout('full'));
@@ -1755,6 +1757,18 @@ function financingApplies(program){
     console.warn(e);
   }
 }
+
+    async function emailQuote(){
+
+  await sendQuoteLead('Email Quote');
+
+  alert(
+    'Quote submitted to West End Power.\n\n' +
+    'A sales representative will review and contact the customer.'
+  );
+
+}
+    
 async function sendQuoteLead(actionType){
   const payload = {
     configurator: 'STIHL',
