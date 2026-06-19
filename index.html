@@ -1772,12 +1772,14 @@ sku: skuOf(state.selectedTool),
 }
     
 async function sendQuoteLead(actionType){
-  async function sendQuoteLead(actionType){
 
   const quoteNumber = createQuoteNumber('STIHL');
 
   const payload = {
-  const payload = {
+    quoteNumber: quoteNumber,
+    configurator: 'STIHL',
+    source: 'STIHL Configurator',
+    action: actionType || 'Print / Save PDF',
   quoteNumber: quoteNumber,
   configurator: 'STIHL',
     source: 'STIHL Configurator',
