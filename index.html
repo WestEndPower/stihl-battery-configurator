@@ -704,6 +704,15 @@ cart: []
       return isFinite(n) ? n : 0;
     }
     function fmtMoney(n){ return '$' + (Number(n)||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+    function createQuoteNumber(brand){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  const n = Date.now().toString().slice(-5);
+
+  return `${brand}-${y}${m}${day}-${n}`;
+}
     function isTrue(v){
   const s = clean(v).toUpperCase();
   return ['T','TRUE','YES','Y','1','X'].includes(s);
@@ -1256,7 +1265,7 @@ async function printSalesSheet(){
     seriesLabel = 'Extended Runtime';
   }
   
-  const quoteNumber = 'WEP-' + Date.now().toString().slice(-6);
+  const quoteNumber = createQuoteNumber('STIHL');
 const quoteDate = new Date().toLocaleDateString();
 const customerName = clean($('stihl-customer-name').value);
 const businessName = clean($('stihl-business-name').value);
@@ -1711,7 +1720,8 @@ function financingApplies(program){
   }
 
   const payload = {
-    brand: 'STIHL',
+  quoteNumber: createQuoteNumber('STIHL'),
+  brand: 'STIHL',
     configurator: 'STIHL Equipment Package Builder',
     type: type,
     total: total,
@@ -1762,8 +1772,14 @@ sku: skuOf(state.selectedTool),
 }
     
 async function sendQuoteLead(actionType){
+  async function sendQuoteLead(actionType){
+
+  const quoteNumber = createQuoteNumber('STIHL');
+
   const payload = {
-    configurator: 'STIHL',
+  const payload = {
+  quoteNumber: quoteNumber,
+  configurator: 'STIHL',
     source: 'STIHL Configurator',
     action: actionType || 'Print / Save PDF',
     customer: clean($('stihl-customer-name')?.value),
