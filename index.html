@@ -1006,6 +1006,20 @@ if(q && !toolSearchText(t).includes(q)) return false;
       return `<option value="${escapeHtml(skuOf(t))}">${escapeHtml(label)}</option>`;
     }).join('');
 }
+    function shouldShowBatteryInfo(tool){
+  if(!tool) return false;
+
+  const powerType = clean(tool.PowerType).toUpperCase();
+  const systemType = clean(tool.System).toUpperCase();
+
+  return !(
+    powerType === 'GAS' ||
+    powerType === 'ELECTRIC' ||
+    systemType === 'GAS' ||
+    systemType === 'ELECTRIC'
+  );
+}
+    
     function renderToolDetails(){
 const box = $('stihl-tool-details');
 const t = state.selectedTool;
@@ -1187,7 +1201,7 @@ ${clean(t.PromoTitle) ? `
 
 </div>
 ` : ''}
-${renderWeightOptions(t)}
+${shouldShowBatteryInfo(t) ? renderWeightOptions(t) : ''}
 
 ${clean(t.SpecialText)
   ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}</div>`
