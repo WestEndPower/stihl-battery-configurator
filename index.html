@@ -1248,6 +1248,7 @@ async function printSalesSheet(){
   }
 
   const codes = compatibleBatteryCodes(t);
+  const showBatteryInfo = shouldShowBatteryInfo(t);
 
   const runtimeRows = `
 <tr>
@@ -1532,8 +1533,7 @@ ${clean(t.SaleEndDate) ? `
     border-top:1px solid #e5e5e5;
     font-size:13px;
   ">
-    <strong>Recommended Battery:</strong>
-    ${escapeHtml(clean(t.RecommendedBattery) || 'See performance matrix')}
+    const showBatteryInfo = shouldShowBatteryInfo(t);
   </div>
 
 </div>
@@ -1542,6 +1542,7 @@ ${clean(t.SaleEndDate) ? `
 
 </div>
 
+${showBatteryInfo ? `
 <div style="
   background:#f37021;
   color:#111;
@@ -1568,26 +1569,28 @@ ${clean(t.SaleEndDate) ? `
   </span>
 </div>
 
-      <table class="stihl-sales-table">
-        <thead>
-  <tr>
-    <th>Performance</th>
+<table class="stihl-sales-table">
+  <thead>
+    <tr>
+      <th>Performance</th>
 
-    ${codes.map(code => `
-      <th style="text-align:center;">
-        ${escapeHtml(code)}
-        <br>
-        <span style="font-size:11px;font-weight:400;">
-          ${batterySpecText(findBattery(code))}
-        </span>
-      </th>
-    `).join('')}
-  </tr>
-</thead>
-        <tbody>
-          ${runtimeRows}
-        </tbody>
-      </table>
+      ${codes.map(code => `
+        <th style="text-align:center;">
+          ${escapeHtml(code)}
+          <br>
+          <span style="font-size:11px;font-weight:400;">
+            ${batterySpecText(findBattery(code))}
+          </span>
+        </th>
+      `).join('')}
+    </tr>
+  </thead>
+
+  <tbody>
+    ${runtimeRows}
+  </tbody>
+</table>
+` : ''}
 
 <div style="
   margin-top:20px;
