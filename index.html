@@ -1389,14 +1389,21 @@ const customerBlock =
 `
 : '';
   
-  const quoteItems = state.cart.map(line => `
-  <tr>
-    <td>${line.qty}</td>
-    <td>${escapeHtml(nameOf(line.item))}</td>
-    <td>${line.included ? 'Included' : fmtMoney(priceOf(line.item))}</td>
-    <td>${line.included ? 'Included' : fmtMoney(priceOf(line.item) * line.qty)}</td>
-  </tr>
-`).join('');
+  const quoteItems = state.cart.map(line => {
+  const msrp = money(line.item.MSRP);
+  const sale = money(line.item.SalePrice);
+  const unit = priceOf(line.item);
+
+  return `
+    <tr>
+      <td>${line.qty}</td>
+      <td>${escapeHtml(nameOf(line.item))}</td>
+      <td>${line.included ? 'Included' : (msrp ? fmtMoney(msrp) : '')}</td>
+      <td>${line.included ? 'Included' : fmtMoney(sale || unit)}</td>
+      <td>${line.included ? 'Included' : fmtMoney(unit * line.qty)}</td>
+    </tr>
+  `;
+}).join('');
   $('stihl-sales-sheet-output').innerHTML = `
     <div class="stihl-sales-sheet">
      <div class="stihl-sales-header">
@@ -1610,10 +1617,11 @@ ${showBatteryInfo ? `
   ">
     <thead>
       <tr style="background:#f5f5f5;">
-        <th style="padding:8px;">Qty</th>
-        <th style="padding:8px;">Item</th>
-        <th style="padding:8px;">Unit Price</th>
-        <th style="padding:8px;">Line Total</th>
+       <th style="padding:8px;">Qty</th>
+<th style="padding:8px;">Item</th>
+<th style="padding:8px;">MSRP</th>
+<th style="padding:8px;">Sale Price</th>
+<th style="padding:8px;">Line Total</th>
       </tr>
     </thead>
     <tbody>
@@ -1623,7 +1631,7 @@ ${showBatteryInfo ? `
     background:#f5f5f5;
     font-weight:900;
   ">
-    <td colspan="3" style="
+    <td colspan="4" style="
       padding:8px;
       text-align:right;
     ">
