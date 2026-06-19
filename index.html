@@ -1543,56 +1543,6 @@ ${clean(t.SaleEndDate) ? `
 
 </div>
 
-${showBatteryInfo ? `
-<div style="
-  background:#f37021;
-  color:#111;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:7px 12px;
-  margin:20px 0 0 0;
-  border-radius:8px 8px 0 0;
-  border:2px solid #d85f12;
-">
-  <span style="
-    font-size:18px;
-    font-weight:900;
-  ">
-    Battery Performance & Charging Matrix
-  </span>
-
-  <span style="
-    font-size:12px;
-    font-weight:700;
-  ">
-    Estimated Values
-  </span>
-</div>
-
-<table class="stihl-sales-table">
-  <thead>
-    <tr>
-      <th>Performance</th>
-
-      ${codes.map(code => `
-        <th style="text-align:center;">
-          ${escapeHtml(code)}
-          <br>
-          <span style="font-size:11px;font-weight:400;">
-            ${batterySpecText(findBattery(code))}
-          </span>
-        </th>
-      `).join('')}
-    </tr>
-  </thead>
-
-  <tbody>
-    ${runtimeRows}
-  </tbody>
-</table>
-` : ''}
-
 <div style="
   margin-top:20px;
   border:2px solid #f37021;
