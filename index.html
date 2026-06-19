@@ -640,13 +640,6 @@
 </button>
 <button class="stihl-btn danger" id="stihl-clear" type="button">Clear</button>
 
-<button class="stihl-btn" id="stihl-stripe-deposit" type="button">
-  Pay Deposit
-</button>
-
-<button class="stihl-btn secondary" id="stihl-stripe-full" type="button">
-  Pay In Full
-</button>
           </div>
 
           <p class="stihl-small">Prices, compatibility, availability, promotions, and estimated run times should be verified before final sale.</p>
@@ -927,8 +920,6 @@ $('stihl-tool-select').addEventListener('change', selectTool);
       $('stihl-print').addEventListener('click', printSalesSheet);
       $('stihl-email-quote').addEventListener('click', emailQuote);
       $('stihl-clear').addEventListener('click', clearAll);
-      $('stihl-stripe-deposit').addEventListener('click', () => startStripeCheckout('deposit'));
-      $('stihl-stripe-full').addEventListener('click', () => startStripeCheckout('full'));
       [
   'stihl-customer-name',
   'stihl-business-name',
@@ -1730,8 +1721,9 @@ function financingApplies(program){
     customerEmail: clean($('stihl-customer-email')?.value),
     customerPhone: clean($('stihl-customer-contact')?.value),
 
-    product: state.cart.map(line => `${line.qty} x ${nameOf(line.item)}`).join(', '),
-    sku: state.cart.map(line => skuOf(line.item)).filter(Boolean).join(', '),
+    product: clean(state.selectedTool?.Model) || nameOf(state.selectedTool),
+
+sku: skuOf(state.selectedTool),
 
     successUrl: 'https://www.westendpower.com/checkout-success',
     cancelUrl: window.location.href
