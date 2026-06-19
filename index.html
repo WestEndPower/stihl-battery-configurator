@@ -1130,10 +1130,12 @@ ${renderKitSavings(t)}
   <strong>${escapeHtml(runtimeText(t, clean(t.KitBattery)))}</strong>
 </div>
 ` : `
+${shouldShowBatteryInfo(t) ? `
 <div class="stihl-line">
   <span>Optional Battery</span>
   <strong>${escapeHtml(rec || 'See options')}</strong>
 </div>
+` : ''}
 `}
 ${(clean(t.WarrantyConsumer) || clean(t.WarrantyProfessional)) ? `
 <div class="stihl-line">
