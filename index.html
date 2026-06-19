@@ -1248,9 +1248,6 @@ async function printSalesSheet(){
   }else if(series.includes('AR')){
     seriesLabel = 'Extended Runtime';
   }
-
-  const codes = compatibleBatteryCodes(t);
-  const showBatteryInfo = shouldShowBatteryInfo(t);
   
   const quoteNumber = 'WEP-' + Date.now().toString().slice(-6);
 const quoteDate = new Date().toLocaleDateString();
