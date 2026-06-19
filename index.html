@@ -636,7 +636,7 @@
           <div class="stihl-btn-row">
             <button class="stihl-btn secondary" id="stihl-print" type="button">Print / Save PDF</button>
 <button class="stihl-btn light" id="stihl-email-quote" type="button">
-  Email Quote
+  Confirm Price & Availability
 </button>
 <button class="stihl-btn danger" id="stihl-clear" type="button">Clear</button>
 
@@ -1762,11 +1762,12 @@ sku: skuOf(state.selectedTool),
 
     async function emailQuote(){
 
-  await sendQuoteLead('Email Quote');
+  await sendQuoteLead('Confirm Price & Availability');
 
   alert(
-    'Quote submitted to West End Power.\n\n' +
-    'A sales representative will review and contact the customer.'
+    'Thank you.\n\n' +
+    'Your request has been submitted to West End Power.\n\n' +
+    'A sales representative will review pricing, inventory availability, promotions, delivery options and financing programs and contact you shortly.'
   );
 
 }
