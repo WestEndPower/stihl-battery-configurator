@@ -634,9 +634,17 @@
 <input id="stihl-financing-choice" type="hidden" value="">          
           
           <div class="stihl-btn-row">
-            <button class="stihl-btn secondary" id="stihl-print" type="button">Print / Save PDF</button>
-            <button class="stihl-btn light" id="stihl-copy" type="button">Copy Quote</button>
-            <button class="stihl-btn danger" id="stihl-clear" type="button">Clear</button>
+            <button class="stihl-btn secondary" id="stihl-print" type="button">Print / Save PDF & Email Quote</button>
+<button class="stihl-btn light" id="stihl-copy" type="button">Copy Quote</button>
+<button class="stihl-btn danger" id="stihl-clear" type="button">Clear</button>
+
+<button class="stihl-btn" id="stihl-stripe-deposit" type="button">
+  Pay Deposit
+</button>
+
+<button class="stihl-btn secondary" id="stihl-stripe-full" type="button">
+  Pay In Full
+</button>
           </div>
 
           <p class="stihl-small">Prices, compatibility, availability, promotions, and estimated run times should be verified before final sale.</p>
@@ -913,6 +921,8 @@ $('stihl-tool-select').addEventListener('change', selectTool);
       $('stihl-print').addEventListener('click', printSalesSheet);
       $('stihl-copy').addEventListener('click', copyQuote);
       $('stihl-clear').addEventListener('click', clearAll);
+      $('stihl-stripe-deposit').addEventListener('click', () => startStripeCheckout('deposit'));
+      $('stihl-stripe-full').addEventListener('click', () => startStripeCheckout('full'));
       [
   'stihl-customer-name',
   'stihl-business-name',
@@ -1694,6 +1704,52 @@ function financingApplies(program){
     (sku && isTrue(program[sku])) ||
     (model && isTrue(program[model]))
   );
+}
+    async function startStripeCheckout(type){
+  const total = currentQuoteTotal();
+
+  if(!total || total < 1){
+    alert('Add items to the quote before checkout.');
+    return;
+  }
+
+  const payload = {
+    brand: 'STIHL',
+    configurator: 'STIHL Equipment Package Builder',
+    type: type,
+    total: total,
+    depositAmount: 500,
+
+    customerName: clean($('stihl-customer-name')?.value),
+    customerEmail: clean($('stihl-customer-email')?.value),
+    customerPhone: clean($('stihl-customer-contact')?.value),
+
+    product: state.cart.map(line => `${line.qty} x ${nameOf(line.item)}`).join(', '),
+    sku: state.cart.map(line => skuOf(line.item)).filter(Boolean).join(', '),
+
+    successUrl: 'https://www.westendpower.com/checkout-success',
+    cancelUrl: window.location.href
+  };
+
+  try{
+    const res = await fetch(STRIPE_CHECKOUT_API, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if(!res.ok || !data.url){
+      alert(data.error || 'Stripe checkout failed.');
+      return;
+    }
+
+    window.open(data.url, '_blank');
+  }catch(e){
+    alert('Stripe checkout failed. Please try again or contact West End Power.');
+    console.warn(e);
+  }
 }
 async function sendQuoteLead(actionType){
   const payload = {
