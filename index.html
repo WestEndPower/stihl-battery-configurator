@@ -2079,22 +2079,29 @@ return programPayment(a) - programPayment(b);
 function selectTool(){
   const sku = clean($('stihl-tool-select').value);
   state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
-const isGasTool =
-  clean(state.selectedTool?.PowerType).toUpperCase() === 'GAS' ||
-  clean(state.selectedTool?.System).toUpperCase() === 'GAS';
+const powerType =
+  clean(state.selectedTool?.PowerType).toUpperCase();
+
+const systemType =
+  clean(state.selectedTool?.System).toUpperCase();
+
+const hideBatteryInfo =
+  powerType === 'GAS' ||
+  powerType === 'ELECTRIC' ||
+  systemType === 'GAS' ||
+  systemType === 'ELECTRIC';
   
-  $('stihl-options-panel').style.display = isGasTool ? 'none' : '';
 const isKombi =
   clean(state.selectedTool?.Model).toUpperCase().startsWith('KM');
 
 $('stihl-battery-select').closest('.stihl-option-row').style.display =
-  isGasTool ? 'none' : '';
+  hideBatteryInfo ? 'none' : '';
 
 $('stihl-charger-select').closest('.stihl-option-row').style.display =
-  isGasTool ? 'none' : '';
+  hideBatteryInfo ? 'none' : '';
 
 $('stihl-kma-runtime-matrix').style.display =
-  isGasTool ? 'none' : '';
+  hideBatteryInfo ? 'none' : '';
 
 if(isKombi){
   $('stihl-attachment-select').closest('.stihl-option-row').style.display = '';
