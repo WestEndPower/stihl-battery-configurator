@@ -1251,95 +1251,7 @@ async function printSalesSheet(){
 
   const codes = compatibleBatteryCodes(t);
   const showBatteryInfo = shouldShowBatteryInfo(t);
-
-  const runtimeRows = `
-<tr>
-  <td><strong>Operating Weight</strong></td>
-
-  ${codes.map(code => {
-    const toolWeight = parseFloat(clean(t.ToolWeight)) || 0;
-    const totalWeight = toolWeight + batteryWeight(code);
-
-    return `<td style="text-align:center;">${totalWeight.toFixed(1)} lbs</td>`;
-  }).join('')}
-</tr>
-<tr>
-  <td><strong>Estimated Runtime</strong></td>
-
-  ${codes.map(code => {
-    const runtime = runtimeText(t, code)
-      .replace(' min','')
-      .replace(' minutes','');
-
-    return `<td style="text-align:center;">${escapeHtml(runtime)}</td>`;
-  }).join('')}
-</tr>
-
-<tr>
-  <td><strong>Cost to Charge</strong></td>
-
-  ${codes.map(code => {
-    const b = findBattery(code);
-    return `<td style="text-align:center;">${batteryChargeCost(b)}</td>`;
-  }).join('')}
-</tr>
-
-<tr>
- <td colspan="${codes.length + 1}" style="
-  background:#fff8ef;
-  color:#111;
-  text-align:center;
-  padding:7px;
-  border-top:3px solid #f37021;
-  border-bottom:2px solid #f37021;
-">
-    <div style="
-      font-weight:900;
-      font-size:14px;
-    ">
-      Charging Chart
-    </div>
-
-    <div style="
-      font-size:11px;
-      font-weight:600;
-      margin-top:2px;
-    ">
-      Charge times shown in minutes. Runtime values are listed above.
-    </div>
-  </td>
-</tr>
-
-${chargerCodes
-  .filter(charger =>
-    codes.some(code => {
-      const b = findBattery(code);
-      return b && clean(b[charger]);
-    })
-  )
-  .map(charger => `
-<tr>
-
-  <td style="
-  text-align:left;
-  font-weight:700;
-">
-  ${escapeHtml(charger)}
-</td>
-  ${codes.map(code => {
-    const b = findBattery(code);
-    const time = b ? clean(b[charger]) : '';
-
-    return `
-      <td style="text-align:center;">
-        ${time || ''}
-      </td>
-    `;
-  }).join('')}
-
-</tr>
-`).join('')}
-`;
+  
   const quoteNumber = 'WEP-' + Date.now().toString().slice(-6);
 const quoteDate = new Date().toLocaleDateString();
 const customerName = clean($('stihl-customer-name').value);
@@ -1446,12 +1358,6 @@ const customerBlock =
     Quote #: ${quoteNumber}
     &nbsp;|&nbsp;
     Date: ${quoteDate}
-  </div>
-
-</div>
-
-</div>
-
   </div>
 
 </div>
