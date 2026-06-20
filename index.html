@@ -956,24 +956,31 @@ function formatPhoneInput(el){
   'stihl-street-address',
   'stihl-city'
 ].forEach(id => {
-  $(id).addEventListener('blur', () => titleCaseInput($(id)));
+  $(id).addEventListener('blur', () => {
+    titleCaseInput($(id));
+    renderCart();
+  });
 });
 
 $('stihl-state').addEventListener('blur', () => {
   $('stihl-state').value = clean($('stihl-state').value).toUpperCase();
+  renderCart();
 });
 
 $('stihl-customer-email').addEventListener('blur', () => {
   lowerCaseInput($('stihl-customer-email'));
+  renderCart();
 });
 
 [
   'stihl-customer-contact',
   'stihl-alt-phone'
 ].forEach(id => {
-  $(id).addEventListener('input', () => formatPhoneInput($(id)));
+  $(id).addEventListener('input', () => {
+    formatPhoneInput($(id));
+    renderCart();
+  });
 });
-
 }
 
 function lowerCaseInput(el){
