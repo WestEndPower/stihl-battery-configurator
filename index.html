@@ -1064,7 +1064,6 @@ function updateSystemButtonVisibility(){
 function renderTools(){
   const q = clean($('stihl-search').value).toLowerCase();
   const cat = clean($('stihl-category').value);
-  const system = '';
   const power = clean(state.selectedPowerButton);
   const list = state.tools.filter(t => {
     if(cat && clean(t.Category) !== cat) return false;
