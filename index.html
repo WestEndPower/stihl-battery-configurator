@@ -34,6 +34,27 @@
     .stihl-panel h2{margin:0 0 12px;font-size:22px}
     .stihl-panel h3{margin:14px 0 8px;font-size:17px}
     .stihl-controls{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+    .stihl-category-feature{
+  background:#fff8ef;
+  border:2px solid var(--stihl-orange);
+  border-radius:12px;
+  padding:14px;
+  margin-bottom:14px;
+}
+
+.stihl-category-feature label{
+  font-size:16px;
+  font-weight:900;
+  color:#111;
+  text-transform:uppercase;
+}
+
+#stihl-category{
+  border:2px solid var(--stihl-orange);
+  font-size:17px;
+  font-weight:800;
+  background:#fff;
+}
     label{font-weight:700;font-size:13px;display:block;margin-bottom:5px}
     input,select,textarea{width:100%;padding:11px 12px;border:1px solid #cfcfcf;border-radius:9px;font-size:15px;background:#fff}
     textarea{min-height:70px}
@@ -447,22 +468,23 @@
         <section class="stihl-panel" id="stihl-tool-picker-panel">
           <h2>1. Select Tool or Kit</h2>
 
-          <div class="stihl-controls">
-            <div>
-              <label for="stihl-search">Filter Available Tools</label>
-              <input id="stihl-search" type="search" placeholder="Enter model, STIHL ID, or keyword to narrow the tool list..." />
-            </div>
-            <div>
+          <div class="stihl-category-feature">
   <label for="stihl-category">Category</label>
   <select id="stihl-category">
     <option value="">All Categories</option>
   </select>
 </div>
+
+<div class="stihl-controls">
+  <div>
+    <label for="stihl-search">Filter Available Tools</label>
+    <input id="stihl-search" type="search" placeholder="Enter model, STIHL ID, or keyword to narrow the tool list..." />
+  </div>
 </div>
           
 <div class="stihl-series-buttons" id="stihl-power-buttons"></div>          
 
-<div class="stihl-series-buttons" id="stihl-system-buttons"></div>
+<div class="stihl-series-buttons" id="stihl-system-buttons" style="display:none;"></div>
 
 <label for="stihl-tool-select">Tool / Kit</label>
 
@@ -1044,7 +1066,7 @@ function renderCategoryButtons(){
 function renderTools(){
   const q = clean($('stihl-search').value).toLowerCase();
   const cat = clean($('stihl-category').value);
-  const system = clean(state.selectedSystemButton);
+  const system = '';
   const power = clean(state.selectedPowerButton);
   const list = state.tools.filter(t => {
     if(cat && clean(t.Category) !== cat) return false;
