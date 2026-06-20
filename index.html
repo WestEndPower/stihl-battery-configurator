@@ -689,7 +689,6 @@ const batteryCodes = ['AS2','AK10','AK20','AK30','AK30S','AP200S','AP300S','AP50
 delivery: [],
 paymentOptions: [],
 selectedTool: null,
-selectedCategoryButton: '',
 selectedSystemButton: '',
 selectedPowerButton: '',
 cart: []
@@ -857,7 +856,14 @@ bindEvents();
 
     function bindEvents(){
       $('stihl-search').addEventListener('input', renderTools);
-$('stihl-category').addEventListener('change', renderTools);
+$('stihl-category').addEventListener('change', () => {
+  state.selectedTool = null;
+  $('stihl-tool-select').value = '';
+  renderTools();
+  renderToolDetails();
+  renderAllOptions();
+  renderKMARuntimeMatrix();
+});
 
  // POWER TYPE BUTTONS  
 document.querySelectorAll('#stihl-power-buttons .stihl-series-btn').forEach(btn => {
