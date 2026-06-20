@@ -927,10 +927,53 @@ $('stihl-tool-select').addEventListener('change', selectTool);
   'stihl-customer-email',
   'stihl-quote-notes'
 ].forEach(id => $(id).addEventListener('input', renderCart));
-      function titleCaseInput(el){
+
+function titleCaseInput(el){
   el.value = clean(el.value)
     .toLowerCase()
     .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function lowerCaseInput(el){
+  el.value = clean(el.value).toLowerCase();
+}
+
+function formatPhoneInput(el){
+  const digits = el.value.replace(/\D/g,'').slice(0,10);
+
+  if(digits.length <= 3){
+    el.value = digits;
+  }else if(digits.length <= 6){
+    el.value = `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+  }else{
+    el.value = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+  }
+}
+
+[
+  'stihl-customer-name',
+  'stihl-business-name',
+  'stihl-street-address',
+  'stihl-city'
+].forEach(id => {
+  $(id).addEventListener('blur', () => titleCaseInput($(id)));
+});
+
+$('stihl-state').addEventListener('blur', () => {
+  $('stihl-state').value = clean($('stihl-state').value).toUpperCase();
+});
+
+$('stihl-customer-email').addEventListener('blur', () => {
+  lowerCaseInput($('stihl-customer-email'));
+});
+
+[
+  'stihl-customer-contact',
+  'stihl-alt-phone'
+].forEach(id => {
+  $(id).addEventListener('input', () => formatPhoneInput($(id)));
+});
+
 }
 
 function lowerCaseInput(el){
