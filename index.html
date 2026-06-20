@@ -40,6 +40,7 @@
   border-radius:12px;
   padding:14px;
   margin-bottom:14px;
+  box-shadow:0 4px 12px rgba(243,112,33,.15);
 }
 
 .stihl-category-feature label{
@@ -469,15 +470,23 @@
           <h2>1. Select Tool or Kit</h2>
 
           <div class="stihl-category-feature">
-  <label for="stihl-category">Category</label>
+  <label for="stihl-category">
+  Select Product Category
+</label>
   <select id="stihl-category">
     <option value="">All Categories</option>
   </select>
+
+<div class="stihl-small" style="margin-top:6px;">
+  Start by selecting a product category.
+  </div>            
 </div>
 
 <div class="stihl-controls">
   <div>
-    <label for="stihl-search">Filter Available Tools</label>
+    <label for="stihl-search">
+  Search Models, STIHL IDs, or Keywords
+</label>
     <input id="stihl-search" type="search" placeholder="Enter model, STIHL ID, or keyword to narrow the tool list..." />
   </div>
 </div>
@@ -1046,17 +1055,6 @@ function updateSystemButtonVisibility(){
     systems.map(s => `
       <button type="button" class="stihl-series-btn" data-system="${s}">
         ${s}
-      </button>
-    `).join('');
-}
-function renderCategoryButtons(){
-  const cats = [...new Set(state.tools.map(t => clean(t.Category)).filter(Boolean))].sort();
-
-  $('stihl-category-buttons').innerHTML =
-    `<button type="button" class="stihl-series-btn active" data-category="">All Categories</button>` +
-    cats.map(c => `
-      <button type="button" class="stihl-series-btn" data-category="${escapeHtml(c)}">
-        ${escapeHtml(c)}
       </button>
     `).join('');
 }
