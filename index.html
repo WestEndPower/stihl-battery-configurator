@@ -452,14 +452,13 @@
               <label for="stihl-search">Filter Available Tools</label>
               <input id="stihl-search" type="search" placeholder="Enter model, STIHL ID, or keyword to narrow the tool list..." />
             </div>
-            <div style="display:none">
+            <div>
+  <label for="stihl-category">Category</label>
   <select id="stihl-category">
-    <option value="">All categories</option>
+    <option value="">All Categories</option>
   </select>
 </div>
 </div>
-
-<div class="stihl-series-buttons" id="stihl-category-buttons"></div>
           
 <div class="stihl-series-buttons" id="stihl-power-buttons"></div>          
 
@@ -847,7 +846,6 @@ loadOptionalCSV(DATA_FILES.paymentOptions)
         renderCategories();
 renderPowerButtons();
 renderSystemButtons();
-renderCategoryButtons();
 renderTools();
 renderAllOptions();
 bindEvents();
@@ -902,24 +900,6 @@ document.querySelectorAll('#stihl-system-buttons .stihl-series-btn').forEach(btn
   });
 });
       
-document.querySelectorAll('#stihl-category-buttons .stihl-series-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-
-    document.querySelectorAll('#stihl-category-buttons .stihl-series-btn')
-      .forEach(b => b.classList.remove('active'));
-
-    btn.classList.add('active');
-
-    state.selectedCategoryButton = clean(btn.dataset.category);
-
-    state.selectedTool = null;
-
-    renderTools();
-    renderToolDetails();
-    renderAllOptions();
-    renderKMARuntimeMatrix();
-  });
-});
 $('stihl-tool-select').addEventListener('change', selectTool);
       $('stihl-add-tool').addEventListener('click', addToolToQuote);
       $('stihl-add-battery').addEventListener('click', ()=> addSelected('battery'));
@@ -1003,12 +983,10 @@ function renderCategoryButtons(){
 function renderTools(){
   const q = clean($('stihl-search').value).toLowerCase();
   const cat = clean($('stihl-category').value);
-  const buttonCat = clean(state.selectedCategoryButton);
   const system = clean(state.selectedSystemButton);
   const power = clean(state.selectedPowerButton);
   const list = state.tools.filter(t => {
     if(cat && clean(t.Category) !== cat) return false;
-    if(buttonCat && clean(t.Category) !== buttonCat) return false;
     if(power && clean(t.PowerType) !== power) return false;
 if(system && !clean(t.System).toUpperCase().includes(system)) return false;
 if(q && !toolSearchText(t).includes(q)) return false;
