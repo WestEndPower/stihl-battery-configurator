@@ -1068,8 +1068,7 @@ function renderTools(){
   const list = state.tools.filter(t => {
     if(cat && clean(t.Category) !== cat) return false;
     if(power && clean(t.PowerType) !== power) return false;
-if(system && !clean(t.System).toUpperCase().includes(system)) return false;
-if(q && !toolSearchText(t).includes(q)) return false;
+    if(q && !toolSearchText(t).includes(q)) return false;
     return true;
   });
 
