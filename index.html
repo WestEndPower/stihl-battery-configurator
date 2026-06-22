@@ -1644,8 +1644,8 @@ function renderDeliveryOptions(){
       <select id="stihl-delivery-area">
         <option value="">Select ZIP / Delivery Area</option>
         ${state.delivery.map(row => {
-          const zip = clean(row.Zip || row.ZIP || row.zip);
-          const town = clean(row.Town || row.City || row.Area);
+          const zip = clean(row.ZipCode || row.Zip || row.ZIP || row.zip || row.Lookup);
+          const town = clean(row.DeliveryTown || row.Town || row.City || row.Area);
           const fee = money(row[deliveryGroup]);
 
           if(!zip || !deliveryGroup) return '';
