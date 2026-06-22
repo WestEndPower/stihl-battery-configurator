@@ -2156,7 +2156,6 @@ const list = state.attachments.filter(a => {
 
 $('stihl-attachment-select').innerHTML =
   '<option value="">Choose compatible option</option>' +
-    '</option>' +
     list.map(a => `<option value="${escapeHtml(skuOf(a))}">
       ${escapeHtml(nameOf(a))} — ${fmtMoney(priceOf(a))}
     </option>`).join('');
