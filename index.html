@@ -1639,10 +1639,10 @@ function renderDeliveryOptions(){
 
   if(allowDelivery){
     box.innerHTML = `
-      <label for="stihl-delivery-area">Local Delivery Area</label>
+      <label for="stihl-delivery-area">Deliver To ZIP Code</label>
 
       <select id="stihl-delivery-area">
-        <option value="">Select ZIP / Delivery Area</option>
+        <option value="">Select ZIP Code for Delivery Quote</option>
         ${state.delivery.map(row => {
           const zip = clean(row.ZipCode || row.Zip || row.ZIP || row.zip || row.Lookup);
           const town = clean(row.DeliveryTown || row.Town || row.City || row.Area);
