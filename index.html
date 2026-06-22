@@ -644,7 +644,9 @@
 
 
 <div id="stihl-cart-lines" style="margin-top:12px"></div>
-
+<div id="stihl-delivery-options" style="margin-top:12px;display:none;"></div>
+<input id="stihl-delivery-choice" type="hidden" value="">
+<input id="stihl-delivery-fee" type="hidden" value="0">
           <div class="stihl-line">
             <span>Subtotal</span>
             <strong id="stihl-subtotal">$0.00</strong>
@@ -657,9 +659,6 @@
             <span>Out-the-Door Price</span>
             <strong class="stihl-total" id="stihl-total">$0.00</strong>
           </div>
-<div id="stihl-delivery-options" style="margin-top:12px;display:none;"></div>
-<input id="stihl-delivery-choice" type="hidden" value="">
-<input id="stihl-delivery-fee" type="hidden" value="0">
 <div id="stihl-financing-options" style="margin-top:14px;display:none;"></div>
 <input id="stihl-financing-choice" type="hidden" value="">          
           
@@ -1638,96 +1637,77 @@ function renderDeliveryOptions(){
 
   box.style.display = '';
 
-  box.innerHTML = `
-    <label>Delivery / Pickup Options</label>
+  if(allowDelivery){
+    box.innerHTML = `
+      <label for="stihl-delivery-area">Local Delivery Area</label>
 
-    ${allowDelivery ? `
-      <button class="stihl-btn light"
-              type="button"
-              id="stihl-show-delivery">
-        Local Delivery
-      </button>
-
-      <select id="stihl-delivery-area" style="display:none;margin-top:10px;">
+      <select id="stihl-delivery-area">
         <option value="">Select ZIP / Delivery Area</option>
-        ${state.delivery.map(d => {
-          const zip = clean(d.ZipCode || d.ZIP || d.Zip || d.Lookup);
-          const town = clean(d.DeliveryTown || d.Town || d.City);
-          const fee = money(d[deliveryGroup]);
+        ${state.delivery.map(row => {
+          const zip = clean(row.Zip || row.ZIP || row.zip);
+          const town = clean(row.Town || row.City || row.Area);
+          const fee = money(row[deliveryGroup]);
 
-          if(!zip || !town || !deliveryGroup) return '';
+          if(!zip || !deliveryGroup) return '';
+          if(row[deliveryGroup] === undefined || row[deliveryGroup] === '') return '';
 
           return `
-            <option value="${escapeHtml(zip)}"
-                    data-fee="${fee}"
-                    data-town="${escapeHtml(town)}">
-              ${escapeHtml(zip)} — ${escapeHtml(town)} — ${fee > 0 ? fmtMoney(fee) : 'Included'}
+            <option value="${zip}" data-fee="${fee}" data-town="${escapeHtml(town)}">
+              ${town} ${zip} — ${fee > 0 ? fmtMoney(fee) : 'Included'}
             </option>
           `;
         }).join('')}
       </select>
-    ` : ''}
+    `;
 
-    <div class="stihl-btn-row" style="margin-top:10px;">
-      <button class="stihl-btn"
-        type="button"
-        data-pickup-choice="Pickup in New Milford">
-  📍 Pickup in New Milford
-</button>
+    const select = $('stihl-delivery-area');
 
-<button class="stihl-btn"
-        type="button"
-        data-pickup-choice="Pickup in Danbury">
-  📍 Pickup in Danbury
-</button>
+    if(select){
+      select.addEventListener('change', () => {
+        const opt = select.options[select.selectedIndex];
+        const zip = clean(select.value);
+        const town = clean(opt?.dataset?.town);
+        const fee = money(opt?.dataset?.fee);
+
+        $('stihl-delivery-choice').value =
+          zip ? `Delivery to ${town} ${zip}` : '';
+
+        $('stihl-delivery-fee').value = zip ? fee : 0;
+
+        renderCart();
+      });
+    }
+
+    return;
+  }
+
+  box.innerHTML = `
+    <label>Pickup Options</label>
+
+    <div class="stihl-btn-row">
+      <button class="stihl-btn light" type="button" data-pickup-choice="Pickup in New Milford">
+        Pickup in New Milford
+      </button>
+
+      <button class="stihl-btn light" type="button" data-pickup-choice="Pickup in Danbury">
+        Pickup in Danbury
+      </button>
     </div>
   `;
 
-  const deliveryBtn = $('stihl-show-delivery');
-  const deliverySelect = $('stihl-delivery-area');
-
-  if(deliveryBtn && deliverySelect){
-    deliveryBtn.addEventListener('click', () => {
-      deliverySelect.style.display = '';
-    });
-
-    deliverySelect.addEventListener('change', () => {
-      const opt = deliverySelect.selectedOptions[0];
-      const zip = clean(deliverySelect.value);
-      const town = clean(opt?.dataset.town);
-      const fee = money(opt?.dataset.fee);
-
-      $('stihl-delivery-choice').value =
-  zip ? `Delivery to ${town} ${zip}` : '';
-
-$('stihl-delivery-fee').value = zip ? fee : 0;
-
-box.querySelectorAll('[data-pickup-choice]')
-  .forEach(b => b.classList.remove('selected'));
-
-renderCart();
-    });
-  }
-
   box.querySelectorAll('[data-pickup-choice]').forEach(btn => {
-  btn.addEventListener('click', () => {
+    btn.addEventListener('click', () => {
+      $('stihl-delivery-choice').value = btn.dataset.pickupChoice;
+      $('stihl-delivery-fee').value = 0;
 
-    $('stihl-delivery-choice').value = btn.dataset.pickupChoice;
-$('stihl-delivery-fee').value = 0;
+      box.querySelectorAll('[data-pickup-choice]')
+        .forEach(b => b.classList.remove('selected'));
 
-const deliverySelect = $('stihl-delivery-area');
-if(deliverySelect){
-  deliverySelect.value = '';
-}
+      btn.classList.add('selected');
 
-box.querySelectorAll('[data-pickup-choice]')
-  .forEach(b => b.classList.remove('selected'));
-
-    btn.classList.add('selected');
-
-    renderCart();
+      renderCart();
+    });
   });
-});
 }
 function monthlyPayment(principal, apr, months){
   principal = Number(principal) || 0;
