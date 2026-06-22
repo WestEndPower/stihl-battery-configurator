@@ -1639,26 +1639,40 @@ function renderDeliveryOptions(){
 
   if(allowDelivery){
     box.innerHTML = `
-      <label for="stihl-delivery-area">Deliver To ZIP Code</label>
+  <label for="stihl-delivery-area">Deliver To ZIP Code</label>
 
-      <select id="stihl-delivery-area">
-        <option value="">Select ZIP Code for Delivery Quote</option>
-        ${state.delivery.map(row => {
-          const zip = clean(row.ZipCode || row.Zip || row.ZIP || row.zip || row.Lookup);
-          const town = clean(row.DeliveryTown || row.Town || row.City || row.Area);
-          const fee = money(row[deliveryGroup]);
+  <select id="stihl-delivery-area">
+    <option value="">Select ZIP Code for Delivery Quote</option>
+    ${state.delivery.map(row => {
+      const zip = clean(row.ZipCode || row.Zip || row.ZIP || row.zip || row.Lookup);
+      const town = clean(row.DeliveryTown || row.Town || row.City || row.Area);
+      const fee = money(row[deliveryGroup]);
 
-          if(!zip || !deliveryGroup) return '';
-          if(row[deliveryGroup] === undefined || row[deliveryGroup] === '') return '';
+      if(!zip || !deliveryGroup) return '';
+      if(row[deliveryGroup] === undefined || row[deliveryGroup] === '') return '';
 
-          return `
-  <option value="${zip}" data-fee="${fee}" data-town="${escapeHtml(town)}">
-    ${zip} | ${town}, CT | ${fee > 0 ? fmtMoney(fee) : 'Included'}
-  </option>
+      return `
+        <option value="${zip}" data-fee="${fee}" data-town="${escapeHtml(town)}">
+          ${zip} | ${town}, CT | ${fee > 0 ? fmtMoney(fee) : 'Included'}
+        </option>
+      `;
+    }).join('')}
+  </select>
+
+  <div class="stihl-btn-row" style="margin-top:10px;">
+    <button class="stihl-btn light"
+            type="button"
+            data-pickup-choice="Pickup in New Milford">
+      Pickup in New Milford
+    </button>
+
+    <button class="stihl-btn light"
+            type="button"
+            data-pickup-choice="Pickup in Danbury">
+      Pickup in Danbury
+    </button>
+  </div>
 `;
-        }).join('')}
-      </select>
-    `;
 
     const select = $('stihl-delivery-area');
 
@@ -1673,11 +1687,32 @@ function renderDeliveryOptions(){
           zip ? `Delivery to ${town} ${zip}` : '';
 
         $('stihl-delivery-fee').value = zip ? fee : 0;
-
+        
+        box.querySelectorAll('[data-pickup-choice]')
+  .forEach(b => b.classList.remove('selected'));
+        
         renderCart();
       });
     }
+box.querySelectorAll('[data-pickup-choice]').forEach(btn => {
+  btn.addEventListener('click', () => {
 
+    $('stihl-delivery-choice').value =
+      btn.dataset.pickupChoice;
+
+    $('stihl-delivery-fee').value = 0;
+
+    const select = $('stihl-delivery-area');
+    if(select) select.value = '';
+
+    box.querySelectorAll('[data-pickup-choice]')
+      .forEach(b => b.classList.remove('selected'));
+
+    btn.classList.add('selected');
+
+    renderCart();
+  });
+});
     return;
   }
 
