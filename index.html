@@ -1652,10 +1652,10 @@ function renderDeliveryOptions(){
           if(row[deliveryGroup] === undefined || row[deliveryGroup] === '') return '';
 
           return `
-            <option value="${zip}" data-fee="${fee}" data-town="${escapeHtml(town)}">
-              ${town} ${zip} — ${fee > 0 ? fmtMoney(fee) : 'Included'}
-            </option>
-          `;
+  <option value="${zip}" data-fee="${fee}" data-town="${escapeHtml(town)}">
+    ${zip} | ${town}, CT | ${fee > 0 ? fmtMoney(fee) : 'Included'}
+  </option>
+`;
         }).join('')}
       </select>
     `;
