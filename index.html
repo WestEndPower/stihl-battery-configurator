@@ -559,7 +559,7 @@
 
           <div class="stihl-option-row">
             <div>
-              <label for="stihl-attachment-select">Attachments</label>
+              <label for="stihl-attachment-select">Compatible Accessories & Attachments</label>
               <select id="stihl-attachment-select"><option value="">Choose attachment</option></select>
             </div>
             <div>
@@ -2028,7 +2028,7 @@ function selectTool(){
     hideBatteryInfo ? 'none' : '';
 
   $('stihl-attachment-select').closest('.stihl-option-row').style.display =
-    isKombi ? '' : '';
+  state.selectedTool ? '' : 'none';
 
   renderToolDetails();
   renderAllOptions();
@@ -2139,11 +2139,23 @@ return 'See product notes';
     clean(tool.Category).toLowerCase().includes('kombi')
   );
 
-  const list = isKombi ? state.attachments : [];
+  const model = clean(tool?.Model).toUpperCase();
 
-  $('stihl-attachment-select').innerHTML =
-    '<option value="">' +
-    (isKombi ? 'Choose attachment' : 'Select a KMA powerhead first') +
+const list = state.attachments.filter(a => {
+  const base =
+    clean(a.BaseModel || a.CompatibleModels)
+      .toUpperCase();
+
+  if(!base) return true;
+
+  return base
+    .split('|')
+    .map(x => x.trim())
+    .includes(model);
+});
+
+$('stihl-attachment-select').innerHTML =
+  '<option value="">Choose compatible option</option>' +
     '</option>' +
     list.map(a => `<option value="${escapeHtml(skuOf(a))}">
       ${escapeHtml(nameOf(a))} — ${fmtMoney(priceOf(a))}
