@@ -2490,7 +2490,11 @@ function batteryWeight(code){
     [clean(tool.Spec1Label), clean(tool.Spec1Value)],
     [clean(tool.Spec2Label), clean(tool.Spec2Value)],
     [clean(tool.Spec3Label), clean(tool.Spec3Value)],
-    [clean(tool.Spec4Label), clean(tool.Spec4Value)]
+    [clean(tool.Spec4Label), clean(tool.Spec4Value)],
+    [clean(tool.Spec5Label), clean(tool.Spec5Value)],
+    [clean(tool.Spec6Label), clean(tool.Spec6Value)],
+    [clean(tool.Spec7Label), clean(tool.Spec7Value)],
+    [clean(tool.Spec8Label), clean(tool.Spec8Value)]
   ].filter(([label,value]) => label && value);
 
   if(!specs.length) return '';
