@@ -2884,10 +2884,26 @@ function addRequiredItems(parentItem, parentQty){
   ${escapeHtml(nameOf(line.item))}
 </div>
 
-<div class="stihl-small">
-  ${line.type === 'tool'
-    ? escapeHtml(clean(line.item.StihlID) || skuOf(line.item))
-    : escapeHtml(skuOf(line.item))}
+<<div style="
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:4px;
+  font-size:13px;
+  color:#666;
+">
+  <span>
+    ${line.type === 'tool'
+      ? escapeHtml(clean(line.item.StihlID) || skuOf(line.item))
+      : escapeHtml(skuOf(line.item))}
+  </span>
+
+  <strong style="
+    color:#111;
+    font-size:18px;
+  ">
+    ${line.included ? 'Included' : fmtMoney(ext)}
+  </strong>
 </div>
 
  ${line.qty > 1 ? `<div class="stihl-small">Qty: ${line.qty}</div>` : ''}
