@@ -2140,18 +2140,10 @@ return 'See product notes';
   );
 
   const model = clean(tool?.Model).toUpperCase();
+const sku = skuOf(tool).toUpperCase();
 
 const list = state.attachments.filter(a => {
-  const base =
-    clean(a.BaseModel || a.CompatibleModels)
-      .toUpperCase();
-
-  if(!base) return true;
-
-  return base
-    .split('|')
-    .map(x => x.trim())
-    .includes(model);
+  return isTrue(a[model]) || isTrue(a[sku]);
 });
 
 $('stihl-attachment-select').innerHTML =
