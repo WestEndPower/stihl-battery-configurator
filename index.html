@@ -2772,14 +2772,26 @@ function addRequiredItems(parentItem, parentQty){
   if(!reqSku) continue;
 
   if(reqModel){
-    const selectedModel = clean(state.selectedTool?.Model);
+  const allowedModels = reqModel
+    .split(/[|,;]/)
+    .map(x => tightSku(x))
+    .filter(Boolean);
 
-    if(
-      reqModel.toUpperCase() !== selectedModel.toUpperCase()
-    ){
-      continue;
-    }
+  const selectedValues = [
+    state.selectedTool?.Model,
+    state.selectedTool?.SKU,
+    state.selectedTool?.StihlID,
+    state.selectedTool?.['STIHL ID']
+  ].map(x => tightSku(x));
+
+  const matchesModel = allowedModels.some(m =>
+    selectedValues.includes(m)
+  );
+
+  if(!matchesModel){
+    continue;
   }
+}
 
   const required = findRequiredItem(reqSku);
 
