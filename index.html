@@ -2799,12 +2799,14 @@ function addAccessoryCardToQuote(sku, qty){
 
     <div>
       <div style="font-size:15px;font-weight:900;">
-        Setup not required at customer request.
-      </div>
+  Customer prefers to install this item
+</div>
 
-      <div style="font-size:13px;color:#555;margin-top:2px;">
-        Remove setup / installation charge
-      </div>
+<div style="font-size:13px;color:#555;margin-top:2px;">
+  Remove <strong>${fmtMoney(
+    money(line.item.AssemblyAmount) * line.qty
+  )}</strong> setup / installation charge
+</div>
     </div>
   </label>
 ` : ''}
