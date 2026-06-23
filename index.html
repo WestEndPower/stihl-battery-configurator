@@ -1931,6 +1931,7 @@ async function sendQuoteLead(actionType){
     
    setup: state.cart
   .filter(line =>
+    line.setupSelected &&
     isTrue(line.item?.AssemblyOption) &&
     money(line.item?.AssemblyAmount) > 0
   )
@@ -2754,7 +2755,7 @@ function addAccessoryCardToQuote(sku, qty){
       if(!state.cart.length){
         lines.innerHTML = '<div class="stihl-note">No package selected yet.</div>';
       } else {
-        lines.innerHTML = state.cart.map(line => {
+        lines.innerHTML = state.cart.map((line, idx) => {
           const unit = line.included ? 0 : priceOf(line.item);
           const ext = unit * line.qty;
           return `
@@ -2766,11 +2767,40 @@ function addAccessoryCardToQuote(sku, qty){
               <div class="stihl-line"><span>Qty</span><strong>${line.qty}</strong></div>
               <div class="stihl-line"><span>Unit</span><strong>${line.included ? 'Included' : fmtMoney(unit)}</strong></div>
               <div class="stihl-line"><span>Line Total</span><strong>${fmtMoney(ext)}</strong></div>
+              ${isTrue(line.item.AssemblyOption) && money(line.item.AssemblyAmount) > 0 ? `
+  <label class="stihl-small" style="
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:8px 0;
+    padding:8px;
+    background:#fff8ef;
+    border:1px solid #f3d3b7;
+    border-radius:8px;
+    font-weight:800;
+  ">
+    <input type="checkbox"
+           data-setup-index="${idx}"
+           ${line.setupSelected ? 'checked' : ''}
+           style="width:auto;">
+    Add setup / installation for this item + ${fmtMoney(money(line.item.AssemblyAmount) * line.qty)}
+  </label>
+` : ''}
              ${!line.included ? `<button class="stihl-btn light" type="button" data-remove="${escapeHtml(line.key)}">Remove</button>` : ''}
             </div>
           `;
         }).join('');
         lines.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', () => removeCart(btn.getAttribute('data-remove'))));
+        lines.querySelectorAll('[data-setup-index]').forEach(box => {
+  box.addEventListener('change', () => {
+    const idx = Number(box.getAttribute('data-setup-index'));
+
+    if(state.cart[idx]){
+      state.cart[idx].setupSelected = box.checked;
+      renderCart();
+    }
+  });
+});
      }
 
       const productSubtotal = state.cart.reduce((sum,line)=>
