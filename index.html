@@ -1214,21 +1214,35 @@ ${shouldShowBatteryInfo(t) ? `
 ` : ''}
 `}
 ${(clean(t.WarrantyConsumer) || clean(t.WarrantyProfessional)) ? `
-<div class="stihl-line">
-  <span>Warranty Coverage</span>
-  <strong>
-    ${clean(t.WarrantyConsumer)
-      ? `Consumer: ${escapeHtml(clean(t.WarrantyConsumer))}`
-      : ''}
+<div style="
+  margin-top:10px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  overflow:hidden;
+">
 
-    ${clean(t.WarrantyConsumer) && clean(t.WarrantyProfessional)
-      ? ' | '
-      : ''}
+  <div style="
+    background:#f5f5f5;
+    padding:8px 12px;
+    font-weight:900;
+  ">
+    Warranty Coverage
+  </div>
 
-    ${clean(t.WarrantyProfessional)
-      ? `Professional: ${escapeHtml(clean(t.WarrantyProfessional))}`
-      : ''}
-  </strong>
+  ${clean(t.WarrantyConsumer) ? `
+    <div class="stihl-line">
+      <span>Consumer</span>
+      <strong>${escapeHtml(clean(t.WarrantyConsumer))}</strong>
+    </div>
+  ` : ''}
+
+  ${clean(t.WarrantyProfessional) ? `
+    <div class="stihl-line">
+      <span>Commercial / Professional</span>
+      <strong>${escapeHtml(clean(t.WarrantyProfessional))}</strong>
+    </div>
+  ` : ''}
+
 </div>
 ` : ''}
 
