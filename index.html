@@ -2809,8 +2809,7 @@ function addAccessoryCardToQuote(sku, qty){
           `;
         }).join('');
         lines.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', () => removeCart(btn.getAttribute('data-remove'))));
-      renderFinancingOptions();
-      }
+     }
 
       const productSubtotal = state.cart.reduce((sum,line)=>
   sum + (line.included ? 0 : priceOf(line.item) * line.qty), 0
