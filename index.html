@@ -2758,6 +2758,11 @@ function addAccessoryCardToQuote(sku, qty){
 );
 
 const setup = setupFee();
+      $('stihl-setup-line').style.display =
+  setup > 0 ? '' : 'none';
+
+$('stihl-setup-display').textContent =
+  fmtMoney(setup);
 const delivery = deliveryFee();
 const subtotal = productSubtotal + setup + delivery;
 const tax = subtotal * TAX_RATE;
