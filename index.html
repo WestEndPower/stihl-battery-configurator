@@ -1631,9 +1631,39 @@ function deliveryLabel(){
   return clean($('stihl-delivery-choice')?.value);
 }
 function setupFee(){
-  return money($('stihl-setup-fee')?.value || 0);
-}
+  return state.cart.reduce((sum, line) => {
+    if(!line.item) return sum;
 
+    const amount = money(line.item.AssemblyAmount);
+    const allowed = isTrue(line.item.AssemblyOption);
+
+    if(!allowed || amount <= 0) return sum;
+
+    return sum + (amount * (Number(line.qty) || 1));
+  }, 0);
+}
+function setupDetailHtml(){
+  const rows = state.cart
+    .filter(line =>
+      line.item &&
+      isTrue(line.item.AssemblyOption) &&
+      money(line.item.AssemblyAmount) > 0
+    )
+    .map(line => {
+      const qty = Number(line.qty) || 1;
+      const amount = money(line.item.AssemblyAmount);
+      const total = amount * qty;
+
+      return `
+        <div class="stihl-line">
+          <span>${escapeHtml(nameOf(line.item))} Setup</span>
+          <strong>${fmtMoney(total)}</strong>
+        </div>
+      `;
+    });
+
+  return rows.join('');
+}
 function setupLabel(){
   return clean($('stihl-setup-choice')?.value);
 }
@@ -2760,6 +2790,11 @@ function addAccessoryCardToQuote(sku, qty){
 const setup = setupFee();
       $('stihl-setup-line').style.display =
   setup > 0 ? '' : 'none';
+
+$('stihl-setup-line').innerHTML =
+  setup > 0
+    ? setupDetailHtml()
+    : '<span>Setup / Assembly</span><strong id="stihl-setup-display">$0.00</strong>';
 
 $('stihl-setup-display').textContent =
   fmtMoney(setup);
