@@ -650,10 +650,7 @@
 <div id="stihl-setup-options" style="margin-top:12px;display:none;"></div>
 <input id="stihl-setup-choice" type="hidden" value="">
 <input id="stihl-setup-fee" type="hidden" value="0">
-<div class="stihl-line" id="stihl-setup-line" style="display:none;">
-  <span>Setup / Assembly</span>
-  <strong id="stihl-setup-display">$0.00</strong>
-</div>          
+<div id="stihl-setup-line" style="display:none;"></div>          
           <div class="stihl-line">
             <span>Subtotal</span>
             <strong id="stihl-subtotal">$0.00</strong>
@@ -1656,27 +1653,25 @@ function setupDetailHtml(){
 
       return `
         <div class="stihl-line">
-          <span>${escapeHtml(nameOf(line.item))}</span>
+          <span style="padding-left:15px;">• ${escapeHtml(nameOf(line.item))}</span>
           <strong>${fmtMoney(total)}</strong>
         </div>
       `;
     });
 
-  const totalSetup = setupFee();
-
   return `
-  <div class="stihl-line" style="
-    border-top:2px solid #ddd;
-    padding-top:6px;
-    margin-top:6px;
-    font-weight:900;
-  ">
-    <span>Setup / Installation Charges</span>
-    <strong>${fmtMoney(totalSetup)}</strong>
-  </div>
+    <div class="stihl-line" style="
+      border-top:2px solid #ddd;
+      padding-top:6px;
+      margin-top:6px;
+      font-weight:900;
+    ">
+      <span>Setup / Installation Charges</span>
+      <strong>${fmtMoney(setupFee())}</strong>
+    </div>
 
-  ${rows.join('')}
-`;
+    ${rows.join('')}
+  `;
 }
 function setupLabel(){
   return clean($('stihl-setup-choice')?.value);
