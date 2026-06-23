@@ -2727,23 +2727,96 @@ function addAccessoryCardToQuote(sku, qty){
       renderCart();
     }
 
-    function addItem(type,item,qty,note,included){
-      const key = type + '|' + skuOf(item) + '|' + (included ? 'included' : '');
-      const existing = state.cart.find(x => x.key === key);
-      if(existing) existing.qty += qty;
-      else state.cart.push({
-  key,
-  type,
-  item,
-  qty,
-  note: note || '',
-  included: !!included,
- setupSelected:
-  isTrue(item.AssemblyOption) &&
-  money(item.AssemblyAmount) > 0 &&
-  !included
-});
+    function tightSku(v){
+  return clean(v)
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g,'');
+}
+
+function skuMatches(item, code){
+  const wanted = tightSku(code);
+
+  return [
+    skuOf(item),
+    item.SKUSecondary,
+    item['SKU Secondary'],
+    item.StihlID,
+    item.Model
+  ].some(v => tightSku(v) === wanted);
+}
+
+function findRequiredItem(code){
+  const pools = [
+    { type:'tool', list:state.tools },
+    { type:'attachment', list:state.attachments },
+    { type:'accessory', list:state.accessories },
+    { type:'battery', list:state.batteries },
+    { type:'charger', list:state.chargers }
+  ];
+
+  for(const pool of pools){
+    const found = pool.list.find(item => skuMatches(item, code));
+    if(found) return { type:pool.type, item:found };
+  }
+
+  return null;
+}
+
+function addRequiredItems(parentItem, parentQty){
+  for(let i = 1; i <= 4; i++){
+    const reqSku = clean(parentItem[`RequiredItem${i}`]);
+    const reqQty = Number(clean(parentItem[`RequiredQty${i}`])) || 1;
+
+    if(!reqSku) continue;
+
+    const required = findRequiredItem(reqSku);
+
+    if(required){
+      addItem(
+        required.type,
+        required.item,
+        reqQty * (Number(parentQty) || 1),
+        `Required with ${nameOf(parentItem)}`,
+        false,
+        true
+      );
+    }else{
+      console.warn('Required item not found:', reqSku, 'for', nameOf(parentItem));
     }
+  }
+}
+    
+    function addItem(type,item,qty,note,included,skipRequired){
+  qty = Number(qty) || 1;
+
+  const key = type + '|' + skuOf(item) + '|' + (included ? 'included' : '');
+  const existing = state.cart.find(x => x.key === key);
+
+  if(existing){
+    existing.qty += qty;
+
+    if(note && !existing.note){
+      existing.note = note;
+    }
+  }else{
+    state.cart.push({
+      key,
+      type,
+      item,
+      qty,
+      note: note || '',
+      included: !!included,
+      setupSelected:
+        isTrue(item.AssemblyOption) &&
+        money(item.AssemblyAmount) > 0 &&
+        !included
+    });
+  }
+
+  if(!skipRequired){
+    addRequiredItems(item, qty);
+  }
+}
 
     function removeCart(key){
       state.cart = state.cart.filter(x => x.key !== key);
