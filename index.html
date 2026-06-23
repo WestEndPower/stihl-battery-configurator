@@ -2738,7 +2738,10 @@ function addAccessoryCardToQuote(sku, qty){
   qty,
   note: note || '',
   included: !!included,
-  setupSelected: false
+ setupSelected:
+  isTrue(item.AssemblyOption) &&
+  money(item.AssemblyAmount) > 0 &&
+  !included
 });
     }
 
@@ -2784,53 +2787,36 @@ function addAccessoryCardToQuote(sku, qty){
 </div>
               ${isTrue(line.item.AssemblyOption) && money(line.item.AssemblyAmount) > 0 ? `
   <label class="stihl-setup-checkbox" style="
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin:12px 0;
-  padding:14px;
-  background:#fff8ef;
-  border:3px solid #f37021;
-  border-radius:12px;
-  box-shadow:0 3px 10px rgba(243,112,33,.20);
-  font-weight:900;
-  color:#111;
-">
-    <input type="checkbox"
-       data-setup-index="${idx}"
-       ${line.setupSelected ? 'checked' : ''}
-       style="
-         width:24px;
-         height:24px;
-         cursor:pointer;
-         accent-color:#f37021;
-       ">
-    <div>
-  <div style="
-    font-size:16px;
-    font-weight:900;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:12px 0;
+    padding:12px;
+    background:#f7f7f7;
+    border:2px solid #ddd;
+    border-radius:10px;
+    font-weight:800;
     color:#111;
   ">
-    ADD PROFESSIONAL SETUP / INSTALLATION
-  </div>
+    <input type="checkbox"
+           data-setup-index="${idx}"
+           ${!line.setupSelected ? 'checked' : ''}
+           style="
+             width:22px;
+             height:22px;
+             cursor:pointer;
+           ">
 
-  <div style="
-    font-size:14px;
-    color:#444;
-    margin-top:2px;
-  ">
-    ${escapeHtml(nameOf(line.item))}
-  </div>
+    <div>
+      <div style="font-size:15px;font-weight:900;">
+        Customer prefers to install this item
+      </div>
 
-  <div style="
-    font-size:18px;
-    font-weight:900;
-    color:#c00000;
-    margin-top:4px;
-  ">
-    + ${fmtMoney(money(line.item.AssemblyAmount) * line.qty)}
-  </div>
-</div>
+      <div style="font-size:13px;color:#555;margin-top:2px;">
+        Removes professional setup / installation charge of
+        ${fmtMoney(money(line.item.AssemblyAmount) * line.qty)}
+      </div>
+    </div>
   </label>
 ` : ''}
              ${!line.included ? `<button class="stihl-btn light" type="button" data-remove="${escapeHtml(line.key)}">Remove</button>` : ''}
@@ -2843,7 +2829,7 @@ function addAccessoryCardToQuote(sku, qty){
     const idx = Number(box.getAttribute('data-setup-index'));
 
     if(state.cart[idx]){
-      state.cart[idx].setupSelected = box.checked;
+      state.cart[idx].setupSelected = !box.checked;
       renderCart();
     }
   });
