@@ -1497,6 +1497,14 @@ const customerBlock =
     border-collapse:collapse;
     font-size:14px;
   ">
+  ${setupFee() > 0 ? `
+<tr>
+  <td style="padding:8px 12px;">Setup / Installation Charges</td>
+  <td style="padding:8px 12px;text-align:right;">
+    ${fmtMoney(setupFee())}
+  </td>
+</tr>
+` : ''}
     <tr>
       <td style="padding:8px 12px;">Subtotal</td>
       <td style="padding:8px 12px;text-align:right;">
@@ -1965,7 +1973,19 @@ async function sendQuoteLead(actionType){
       clean($('stihl-zip')?.value)
     ].filter(Boolean).join(', '),
     delivery: deliveryLabel(),
-    setup: setupLabel(),
+    
+   setup: state.cart
+  .filter(line =>
+    isTrue(line.item?.AssemblyOption) &&
+    money(line.item?.AssemblyAmount) > 0
+  )
+  .map(line =>
+    `${nameOf(line.item)} (${line.qty}) = ${fmtMoney(
+      money(line.item.AssemblyAmount) * line.qty
+    )}`
+  )
+  .join(' | '),
+    
     payment: clean($('stihl-financing-choice')?.value),
     notes: clean($('stihl-quote-notes')?.value),
     subtotal: $('stihl-subtotal')?.textContent,
