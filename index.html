@@ -1638,6 +1638,7 @@ function deliveryLabel(){
 function setupFee(){
   return state.cart.reduce((sum, line) => {
     if(!line.item) return sum;
+    if(!line.setupSelected) return sum;
 
     const amount = money(line.item.AssemblyAmount);
     const allowed = isTrue(line.item.AssemblyOption);
@@ -1651,8 +1652,9 @@ function setupDetailHtml(){
   const rows = state.cart
     .filter(line =>
       line.item &&
-      isTrue(line.item.AssemblyOption) &&
-      money(line.item.AssemblyAmount) > 0
+line.setupSelected &&
+isTrue(line.item.AssemblyOption) &&
+money(line.item.AssemblyAmount) > 0
     )
     .map(line => {
       const qty = Number(line.qty) || 1;
@@ -1685,53 +1687,6 @@ function setupLabel(){
   return clean($('stihl-setup-choice')?.value);
 }
 
-function renderSetupOptions(){
-  const box = $('stihl-setup-options');
-
-  if(!box || !state.selectedTool){
-    if(box) box.style.display = 'none';
-    return;
-  }
-
-  const amount = money(state.selectedTool.AssemblyAmount);
-  const allowSetup = isTrue(state.selectedTool.AssemblyOption) && amount > 0;
-
-  if(!allowSetup){
-    box.style.display = 'none';
-    $('stihl-setup-choice').value = '';
-    $('stihl-setup-fee').value = 0;
-    return;
-  }
-
-  box.style.display = '';
-  box.innerHTML = `
-    <label>Setup / Assembly</label>
-
-    <div class="stihl-btn-row">
-      <button class="stihl-btn light" type="button" data-setup-choice="Unassembled / Not Setup" data-setup-fee="0">
-        Unassembled / No Setup
-      </button>
-
-      <button class="stihl-btn light" type="button" data-setup-choice="Assembled / Setup" data-setup-fee="${amount}">
-        Assembled / Setup + ${fmtMoney(amount)}
-      </button>
-    </div>
-  `;
-
-  box.querySelectorAll('[data-setup-choice]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      $('stihl-setup-choice').value = btn.dataset.setupChoice;
-      $('stihl-setup-fee').value = money(btn.dataset.setupFee);
-
-      box.querySelectorAll('[data-setup-choice]')
-        .forEach(b => b.classList.remove('selected'));
-
-      btn.classList.add('selected');
-
-      renderCart();
-    });
-  });
-}
 function renderDeliveryOptions(){
   const box = $('stihl-delivery-options');
 
@@ -2153,8 +2108,7 @@ function selectTool(){
 
   renderToolDetails();
   renderAllOptions();
-  renderSetupOptions();
-renderDeliveryOptions();
+  renderDeliveryOptions();
 renderCart();
 }
 function addToolToQuote(){
