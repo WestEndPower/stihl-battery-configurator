@@ -2733,7 +2733,15 @@ function addAccessoryCardToQuote(sku, qty){
       const key = type + '|' + skuOf(item) + '|' + (included ? 'included' : '');
       const existing = state.cart.find(x => x.key === key);
       if(existing) existing.qty += qty;
-      else state.cart.push({key,type,item,qty,note:note||'',included:!!included});
+      else state.cart.push({
+  key,
+  type,
+  item,
+  qty,
+  note: note || '',
+  included: !!included,
+  setupSelected: false
+});
     }
 
     function removeCart(key){
