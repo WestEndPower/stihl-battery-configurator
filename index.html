@@ -2812,17 +2812,19 @@ function addRequiredItems(parentItem, parentQty){
     }
   }else{
     state.cart.push({
-      key,
-      type,
-      item,
-      qty,
-      note: note || '',
-      included: !!included,
-      setupSelected:
-        isTrue(item.AssemblyOption) &&
-        money(item.AssemblyAmount) > 0 &&
-        !included
-    });
+  key,
+  type,
+  item,
+  qty,
+  note: note || '',
+  included: !!included,
+  requiredItem: !!requiredItem,
+  parentSku: parentSku || '',
+  setupSelected:
+    isTrue(item.AssemblyOption) &&
+    money(item.AssemblyAmount) > 0 &&
+    !included
+});
   }
 
   if(!skipRequired){
@@ -2840,7 +2842,9 @@ function addRequiredItems(parentItem, parentQty){
       if(!state.cart.length){
         lines.innerHTML = '<div class="stihl-note">No package selected yet.</div>';
       } else {
-        lines.innerHTML = state.cart.map((line, idx) => {
+        lines.innerHTML = state.cart
+  .filter(line => !line.requiredItem)
+  .map((line, idx) => {
           const unit = line.included ? 0 : priceOf(line.item);
           const ext = unit * line.qty;
           return `
