@@ -2785,20 +2785,22 @@ function addRequiredItems(parentItem, parentQty){
 
     if(required){
       addItem(
-        required.type,
-        required.item,
-        reqQty * (Number(parentQty) || 1),
-        `Required with ${nameOf(parentItem)}`,
-        false,
-        true
-      );
+  required.type,
+  required.item,
+  reqQty * (Number(parentQty) || 1),
+  '',
+  false,
+  true,
+  true,
+  skuOf(parentItem)
+);
     }else{
       console.warn('Required item not found:', reqSku, 'for', nameOf(parentItem));
     }
   }
 }
     
-    function addItem(type,item,qty,note,included,skipRequired){
+    function addItem(type,item,qty,note,included,skipRequired,requiredItem,parentSku){
   qty = Number(qty) || 1;
 
   const key = type + '|' + skuOf(item) + '|' + (included ? 'included' : '');
@@ -2843,8 +2845,9 @@ function addRequiredItems(parentItem, parentQty){
         lines.innerHTML = '<div class="stihl-note">No package selected yet.</div>';
       } else {
         lines.innerHTML = state.cart
-  .filter(line => !line.requiredItem)
-  .map((line, idx) => {
+  .map((line, cartIndex) => ({ line, cartIndex }))
+  .filter(x => !x.line.requiredItem)
+  .map(({ line, cartIndex }) => {
           const unit = line.included ? 0 : priceOf(line.item);
           const ext = unit * line.qty;
           return `
@@ -2878,7 +2881,7 @@ function addRequiredItems(parentItem, parentQty){
     color:#111;
   ">
     <input type="checkbox"
-           data-setup-index="${idx}"
+           data-setup-index="${cartIndex}"
            ${!line.setupSelected ? 'checked' : ''}
            style="
              width:22px;
