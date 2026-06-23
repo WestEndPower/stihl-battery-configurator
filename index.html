@@ -2769,20 +2769,10 @@ function addAccessoryCardToQuote(sku, qty){
     Qty: ${line.qty}
     &nbsp;&nbsp;|&nbsp;&nbsp;
     Unit: ${line.included ? 'Included' : fmtMoney(unit)}
-    ${line.setupSelected
-      ? `&nbsp;&nbsp;|&nbsp;&nbsp;Setup: ${fmtMoney(
-          money(line.item.AssemblyAmount) * line.qty
-        )}`
-      : ''}
   </span>
 
   <strong>
-    Total: ${line.included ? 'Included' : fmtMoney(
-      ext +
-      (line.setupSelected
-        ? money(line.item.AssemblyAmount) * line.qty
-        : 0)
-    )}
+    Total: ${line.included ? 'Included' : fmtMoney(ext)}
   </strong>
 </div>
               ${isTrue(line.item.AssemblyOption) && money(line.item.AssemblyAmount) > 0 ? `
@@ -2809,12 +2799,11 @@ function addAccessoryCardToQuote(sku, qty){
 
     <div>
       <div style="font-size:15px;font-weight:900;">
-        Customer prefers to install this item
+        Setup not required at customer request.
       </div>
 
       <div style="font-size:13px;color:#555;margin-top:2px;">
-        Removes professional setup / installation charge of
-        ${fmtMoney(money(line.item.AssemblyAmount) * line.qty)}
+        Remove setup / installation charge
       </div>
     </div>
   </label>
