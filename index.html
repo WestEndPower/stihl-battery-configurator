@@ -2764,12 +2764,24 @@ function findRequiredItem(code){
 
 function addRequiredItems(parentItem, parentQty){
   for(let i = 1; i <= 4; i++){
-    const reqSku = clean(parentItem[`RequiredItem${i}`]);
-    const reqQty = Number(clean(parentItem[`RequiredQty${i}`])) || 1;
 
-    if(!reqSku) continue;
+  const reqModel = clean(parentItem[`RequiredModel${i}`]);
+  const reqSku   = clean(parentItem[`RequiredItem${i}`]);
+  const reqQty   = Number(clean(parentItem[`RequiredQty${i}`])) || 1;
 
-    const required = findRequiredItem(reqSku);
+  if(!reqSku) continue;
+
+  if(reqModel){
+    const selectedModel = clean(state.selectedTool?.Model);
+
+    if(
+      reqModel.toUpperCase() !== selectedModel.toUpperCase()
+    ){
+      continue;
+    }
+  }
+
+  const required = findRequiredItem(reqSku);
 
     if(required){
       addItem(
