@@ -2867,8 +2867,13 @@ function addRequiredItems(parentItem, parentQty){
   .map((line, cartIndex) => ({ line, cartIndex }))
   .filter(x => !x.line.requiredItem)
   .map(({ line, cartIndex }) => {
-          const unit = line.included ? 0 : priceOf(line.item);
-          const ext = unit * line.qty;
+  
+  const childTotal = childItems.reduce((sum, c) =>
+    sum + (c.included ? 0 : priceOf(c.item) * c.qty), 0
+  );
+
+  const unit = line.included ? 0 : priceOf(line.item);
+  const ext = (unit * line.qty) + childTotal;
           return `
             <div class="stihl-card">
               <div><strong>${escapeHtml(nameOf(line.item))}</strong></div>
