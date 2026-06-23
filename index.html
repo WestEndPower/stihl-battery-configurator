@@ -2867,7 +2867,11 @@ function addRequiredItems(parentItem, parentQty){
   .map((line, cartIndex) => ({ line, cartIndex }))
   .filter(x => !x.line.requiredItem)
   .map(({ line, cartIndex }) => {
-  
+  const childItems = state.cart.filter(c =>
+    c.requiredItem &&
+    c.parentSku === skuOf(line.item)
+  );
+
   const childTotal = childItems.reduce((sum, c) =>
     sum + (c.included ? 0 : priceOf(c.item) * c.qty), 0
   );
@@ -2879,14 +2883,9 @@ function addRequiredItems(parentItem, parentQty){
               <div><strong>${escapeHtml(nameOf(line.item))}</strong></div>
               <div class="stihl-small">${escapeHtml(line.type.toUpperCase())} | ${line.type === 'tool'
   ? 'STIHL ID: ' + escapeHtml(clean(line.item.StihlID) || skuOf(line.item))
-  : 'SKU: ' + escapeHtml(skuOf(line.item))}</div>
+ : 'SKU: ' + escapeHtml(skuOf(line.item))}</div>
 
 ${(() => {
-  const childItems = state.cart.filter(c =>
-    c.requiredItem &&
-    c.parentSku === skuOf(line.item)
-  );
-
   return childItems.length ? `
     <div style="
       margin-top:8px;
@@ -2904,12 +2903,8 @@ ${(() => {
     </div>
   ` : '';
 })()}
-              <div class="stihl-line">
-  <span>
-    Qty: ${line.qty}
-    &nbsp;&nbsp;|&nbsp;&nbsp;
-    Unit: ${line.included ? 'Included' : fmtMoney(unit)}
-  </span>
+
+<div class="stihl-line">
 
   <strong>
     Total: ${line.included ? 'Included' : fmtMoney(ext)}
