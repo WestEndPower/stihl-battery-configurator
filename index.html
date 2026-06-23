@@ -2835,9 +2835,16 @@ function addRequiredItems(parentItem, parentQty){
 }
 
     function removeCart(key){
-      state.cart = state.cart.filter(x => x.key !== key);
-      renderCart();
-    }
+  const parent = state.cart.find(x => x.key === key);
+  const parentSku = parent ? skuOf(parent.item) : '';
+
+  state.cart = state.cart.filter(x =>
+    x.key !== key &&
+    x.parentSku !== parentSku
+  );
+
+  renderCart();
+}
 
     function renderCart(){
       const lines = $('stihl-cart-lines');
