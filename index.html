@@ -1656,13 +1656,27 @@ function setupDetailHtml(){
 
       return `
         <div class="stihl-line">
-          <span>${escapeHtml(nameOf(line.item))} Setup</span>
+          <span>${escapeHtml(nameOf(line.item))}</span>
           <strong>${fmtMoney(total)}</strong>
         </div>
       `;
     });
 
-  return rows.join('');
+  const totalSetup = setupFee();
+
+  return `
+  <div class="stihl-line" style="
+    border-top:2px solid #ddd;
+    padding-top:6px;
+    margin-top:6px;
+    font-weight:900;
+  ">
+    <span>Setup / Installation Charges</span>
+    <strong>${fmtMoney(totalSetup)}</strong>
+  </div>
+
+  ${rows.join('')}
+`;
 }
 function setupLabel(){
   return clean($('stihl-setup-choice')?.value);
