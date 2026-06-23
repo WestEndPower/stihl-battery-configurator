@@ -2768,22 +2768,54 @@ function addAccessoryCardToQuote(sku, qty){
               <div class="stihl-line"><span>Unit</span><strong>${line.included ? 'Included' : fmtMoney(unit)}</strong></div>
               <div class="stihl-line"><span>Line Total</span><strong>${fmtMoney(ext)}</strong></div>
               ${isTrue(line.item.AssemblyOption) && money(line.item.AssemblyAmount) > 0 ? `
-  <label class="stihl-small" style="
-    display:flex;
-    align-items:center;
-    gap:8px;
-    margin:8px 0;
-    padding:8px;
-    background:#fff8ef;
-    border:1px solid #f3d3b7;
-    border-radius:8px;
-    font-weight:800;
-  ">
+  <label class="stihl-setup-checkbox" style="
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:12px 0;
+  padding:14px;
+  background:#fff8ef;
+  border:3px solid #f37021;
+  border-radius:12px;
+  box-shadow:0 3px 10px rgba(243,112,33,.20);
+  font-weight:900;
+  color:#111;
+">
     <input type="checkbox"
-           data-setup-index="${idx}"
-           ${line.setupSelected ? 'checked' : ''}
-           style="width:auto;">
-    Add setup / installation for this item + ${fmtMoney(money(line.item.AssemblyAmount) * line.qty)}
+       data-setup-index="${idx}"
+       ${line.setupSelected ? 'checked' : ''}
+       style="
+         width:24px;
+         height:24px;
+         cursor:pointer;
+         accent-color:#f37021;
+       ">
+    <div>
+  <div style="
+    font-size:16px;
+    font-weight:900;
+    color:#111;
+  ">
+    ADD PROFESSIONAL SETUP / INSTALLATION
+  </div>
+
+  <div style="
+    font-size:14px;
+    color:#444;
+    margin-top:2px;
+  ">
+    ${escapeHtml(nameOf(line.item))}
+  </div>
+
+  <div style="
+    font-size:18px;
+    font-weight:900;
+    color:#c00000;
+    margin-top:4px;
+  ">
+    + ${fmtMoney(money(line.item.AssemblyAmount) * line.qty)}
+  </div>
+</div>
   </label>
 ` : ''}
              ${!line.included ? `<button class="stihl-btn light" type="button" data-remove="${escapeHtml(line.key)}">Remove</button>` : ''}
