@@ -2855,7 +2855,31 @@ function addRequiredItems(parentItem, parentQty){
               <div><strong>${escapeHtml(nameOf(line.item))}</strong></div>
               <div class="stihl-small">${escapeHtml(line.type.toUpperCase())} | ${line.type === 'tool'
   ? 'STIHL ID: ' + escapeHtml(clean(line.item.StihlID) || skuOf(line.item))
-  : 'SKU: ' + escapeHtml(skuOf(line.item))}${line.note ? ' | ' + escapeHtml(line.note) : ''}</div>
+  : 'SKU: ' + escapeHtml(skuOf(line.item))}</div>
+
+${(() => {
+  const childItems = state.cart.filter(c =>
+    c.requiredItem &&
+    c.parentSku === skuOf(line.item)
+  );
+
+  return childItems.length ? `
+    <div style="
+      margin-top:8px;
+      padding:8px 10px;
+      background:#f8f8f8;
+      border-left:4px solid #f37021;
+      border-radius:8px;
+      font-size:13px;
+    ">
+      <strong>Package Includes:</strong><br>
+      ${childItems.map(c => `
+        ✓ ${escapeHtml(nameOf(c.item))}
+        (${escapeHtml(skuOf(c.item))})
+      `).join('<br>')}
+    </div>
+  ` : '';
+})()}
               <div class="stihl-line">
   <span>
     Qty: ${line.qty}
