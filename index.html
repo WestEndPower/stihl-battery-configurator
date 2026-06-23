@@ -1649,25 +1649,19 @@ function setupFee(){
   }, 0);
 }
 function setupDetailHtml(){
-  const rows = state.cart
-    .filter(line =>
-      line.item &&
-line.setupSelected &&
-isTrue(line.item.AssemblyOption) &&
-money(line.item.AssemblyAmount) > 0
-    )
-    .map(line => {
-      const qty = Number(line.qty) || 1;
-      const amount = money(line.item.AssemblyAmount);
-      const total = amount * qty;
 
-      return `
-        <div class="stihl-line">
-          <span style="padding-left:15px;">• ${escapeHtml(nameOf(line.item))}</span>
-          <strong>${fmtMoney(total)}</strong>
-        </div>
-      `;
-    });
+  return `
+    <div class="stihl-line" style="
+      border-top:2px solid #ddd;
+      padding-top:6px;
+      margin-top:6px;
+      font-weight:900;
+    ">
+      <span>Setup / Installation Charges</span>
+      <strong>${fmtMoney(setupFee())}</strong>
+    </div>
+  `;
+}
 
   return `
     <div class="stihl-line" style="
