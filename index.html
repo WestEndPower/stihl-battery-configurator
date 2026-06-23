@@ -2126,6 +2126,11 @@ return 'See product notes';
     function renderAttachmentOptions(){
 
   const tool = state.selectedTool;
+      if(!tool){
+  $('stihl-attachment-select').innerHTML =
+    '<option value="">Select a tool first</option>';
+  return;
+}
 
   function tight(v){
     return clean(v).toUpperCase().replace(/[^A-Z0-9]/g,'');
