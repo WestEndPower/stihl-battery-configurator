@@ -1649,6 +1649,18 @@ function setupFee(){
   }, 0);
 }
 function setupDetailHtml(){
+  return `
+    <div class="stihl-line" style="
+      border-top:2px solid #ddd;
+      padding-top:6px;
+      margin-top:6px;
+      font-weight:900;
+    ">
+      <span>Setup / Installation Charges</span>
+      <strong>${fmtMoney(setupFee())}</strong>
+    </div>
+  `;
+}
 
 function setupLabel(){
   return clean($('stihl-setup-choice')?.value);
