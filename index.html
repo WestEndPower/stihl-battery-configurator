@@ -2880,10 +2880,17 @@ function addRequiredItems(parentItem, parentQty){
   const ext = (unit * line.qty) + childTotal;
           return `
             <div class="stihl-card">
-              <div><strong>${escapeHtml(nameOf(line.item))}</strong></div>
-              <div class="stihl-small">${escapeHtml(line.type.toUpperCase())} | ${line.type === 'tool'
-  ? 'STIHL ID: ' + escapeHtml(clean(line.item.StihlID) || skuOf(line.item))
- : 'SKU: ' + escapeHtml(skuOf(line.item))}</div>
+              <div style="font-weight:900;">
+  ${escapeHtml(nameOf(line.item))}
+</div>
+
+<div class="stihl-small">
+  ${line.type === 'tool'
+    ? escapeHtml(clean(line.item.StihlID) || skuOf(line.item))
+    : escapeHtml(skuOf(line.item))}
+</div>
+
+ ${line.qty > 1 ? `<div class="stihl-small">Qty: ${line.qty}</div>` : ''}
 
 ${(() => {
   return childItems.length ? `
@@ -2895,7 +2902,7 @@ ${(() => {
       border-radius:8px;
       font-size:13px;
     ">
-      <strong>Package Includes:</strong><br>
+      <strong>Includes:</strong><br>
       ${childItems.map(c => `
         ✓ ${escapeHtml(nameOf(c.item))}
         (${escapeHtml(skuOf(c.item))})
@@ -2904,10 +2911,17 @@ ${(() => {
   ` : '';
 })()}
 
-<div class="stihl-line">
-
-  <strong>
-    Total: ${line.included ? 'Included' : fmtMoney(ext)}
+<div style="
+  margin-top:10px;
+  padding-top:8px;
+  border-top:1px solid #e5e5e5;
+  text-align:right;
+">
+  <strong style="
+    font-size:18px;
+    color:#111;
+  ">
+    ${line.included ? 'Included' : fmtMoney(ext)}
   </strong>
 </div>
               ${isTrue(line.item.AssemblyOption) && money(line.item.AssemblyAmount) > 0 ? `
