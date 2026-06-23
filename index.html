@@ -2794,10 +2794,7 @@ const setup = setupFee();
 $('stihl-setup-line').innerHTML =
   setup > 0
     ? setupDetailHtml()
-    : '<span>Setup / Assembly</span><strong id="stihl-setup-display">$0.00</strong>';
-
-$('stihl-setup-display').textContent =
-  fmtMoney(setup);
+    : '<span>Setup / Assembly</span><strong>$0.00</strong>';
 const delivery = deliveryFee();
 const subtotal = productSubtotal + setup + delivery;
 const tax = subtotal * TAX_RATE;
