@@ -2761,9 +2761,27 @@ function addAccessoryCardToQuote(sku, qty){
               <div class="stihl-small">${escapeHtml(line.type.toUpperCase())} | ${line.type === 'tool'
   ? 'STIHL ID: ' + escapeHtml(clean(line.item.StihlID) || skuOf(line.item))
   : 'SKU: ' + escapeHtml(skuOf(line.item))}${line.note ? ' | ' + escapeHtml(line.note) : ''}</div>
-              <div class="stihl-line"><span>Qty</span><strong>${line.qty}</strong></div>
-              <div class="stihl-line"><span>Unit</span><strong>${line.included ? 'Included' : fmtMoney(unit)}</strong></div>
-              <div class="stihl-line"><span>Line Total</span><strong>${fmtMoney(ext)}</strong></div>
+              <div class="stihl-line">
+  <span>
+    Qty: ${line.qty}
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    Unit: ${line.included ? 'Included' : fmtMoney(unit)}
+    ${line.setupSelected
+      ? `&nbsp;&nbsp;|&nbsp;&nbsp;Setup: ${fmtMoney(
+          money(line.item.AssemblyAmount) * line.qty
+        )}`
+      : ''}
+  </span>
+
+  <strong>
+    Total: ${line.included ? 'Included' : fmtMoney(
+      ext +
+      (line.setupSelected
+        ? money(line.item.AssemblyAmount) * line.qty
+        : 0)
+    )}
+  </strong>
+</div>
               ${isTrue(line.item.AssemblyOption) && money(line.item.AssemblyAmount) > 0 ? `
   <label class="stihl-setup-checkbox" style="
   display:flex;
