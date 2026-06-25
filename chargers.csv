@@ -1,0 +1,8 @@
+﻿SKU,StihlID,Voltage,ChargerName,Badge,ComponentType,MSRP,SalePrice,SortOrder,ImageURL,ProductURL,ShippingWeight,BoxLength,BoxWidth,BoxHeight
+AL1,EA03 430 2502,36,AL1 Charger,STANDARD CHARGER,Charger,64.99,64.99,1,,,,,,
+AL5,EA03 430 5702,36,AL5 Battery Charger,FAST CHARGER,Charger,74.99,74.99,2,,,,,,
+AL5-2,EA11 430 5702,36,AL5-2 High Speed Charger,MULTI-CHARGER,Charger,106.99,106.99,3,,,,,,
+AL101,4850 430 2522,36,AL101 Charger,STANDARD CHARGER,Charger,64.99,64.99,4,,,,,,
+AL301,EA09 430 5502,36,AL301 Rapid Charger with Cooling Fan,RAPID CHARGER,Charger,117.99,117.99,5,,,,,,
+AL501,EA09 430 5702,36,AL501 High-Speed Charger with Cooling Fan,HIGH-SPEED CHARGER,Charger,192.99,192.99,6,,,,,,
+AL301-4,EA04 430 5502,36,AL301-4 Multi-Charger,MULTI-CHARGER,Charger,374.99,374.99,7,,,,,,
