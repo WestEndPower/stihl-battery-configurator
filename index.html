@@ -817,7 +817,7 @@ body.dealer-mode .dealer-only{
   <label for="stihl-deposit-option">Deposit / Down Payment</label>
 
   <select id="stihl-deposit-option">
-    <option value="500">Default $500 Deposit</option>
+    <option value="0">Default $0 Deposit</option>
     <option value="10pct">10% Deposit</option>
     <option value="20pct">20% Deposit</option>
     <option value="custom">Custom Deposit Amount</option>
@@ -826,12 +826,12 @@ body.dealer-mode .dealer-only{
 
 <div id="stihl-custom-deposit-wrap" style="display:none;margin-top:10px;">
   <label for="stihl-custom-deposit">Custom Deposit Amount</label>
-  <input id="stihl-custom-deposit" type="number" min="0" step="0.01" value="500">
+  <input id="stihl-custom-deposit" type="number" min="0" step="0.01" value="0">
 </div>
 
 <div class="stihl-line" style="margin-top:10px;">
   <span>Amount Due Today</span>
-  <strong id="stihl-deposit-display">$500.00</strong>
+  <strong id="stihl-deposit-display">$0.00</strong>
 </div>
 
 <div class="stihl-line">
@@ -2057,7 +2057,7 @@ function selectedDepositAmount(total){
   const option = clean($('stihl-deposit-option')?.value || '500');
   const custom = money($('stihl-custom-deposit')?.value || 0);
 
-  let deposit = 500;
+  let deposit = 0;
 
   if(option === '10pct'){
     deposit = total * 0.10;
