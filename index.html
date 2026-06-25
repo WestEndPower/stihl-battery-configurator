@@ -665,10 +665,6 @@ body.dealer-mode .dealer-only{
         <section class="stihl-panel stihl-summary" id="stihl-quote-summary-panel">
           <h2>Quote Summary</h2>
 
-<div class="dealer-only">
-
-<!-- everything below goes here -->
-
           <div>
             <div>
   <label for="stihl-customer-name">Customer</label>
@@ -746,6 +742,32 @@ body.dealer-mode .dealer-only{
             <span>Out-the-Door Price</span>
             <strong class="stihl-total" id="stihl-total">$0.00</strong>
           </div>
+          <div class="dealer-only" style="
+  margin-top:14px;
+  border:2px solid #1f7a3a;
+  border-radius:10px;
+  padding:12px;
+  background:#f3fbf5;
+">
+
+  <h3 style="margin-top:0;">Dealer Tools</h3>
+
+  <div class="stihl-line">
+    <span>Dealer Mode</span>
+    <strong>Active</strong>
+  </div>
+
+  <div class="stihl-line">
+    <span>Internal Pricing</span>
+    <strong>Coming Soon</strong>
+  </div>
+
+  <div class="stihl-line">
+    <span>Discounts / Rebates / Freight</span>
+    <strong>Coming Soon</strong>
+  </div>
+
+</div>
 <div id="stihl-financing-options" style="margin-top:14px;display:none;"></div>
 <input id="stihl-financing-choice" type="hidden" value="">          
           
@@ -757,7 +779,6 @@ body.dealer-mode .dealer-only{
 <button class="stihl-btn danger" id="stihl-clear" type="button">Clear</button>
 
           </div>
-</div>
 
           <p class="stihl-small">Prices, compatibility, availability, promotions, and estimated run times should be verified before final sale.</p>
         </section>
@@ -3155,8 +3176,86 @@ renderCart();
     function escapeHtml(str){
       return clean(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
     }
+/* ==========================
+   Dealer Mode
+========================== */
 
-    window.addEventListener('DOMContentLoaded', init);
+const DEALER_PASSWORD = "WestEnd123";
+
+function dealerMode(on){
+
+  document.body.classList.toggle("dealer-mode", on);
+  sessionStorage.setItem("dealerMode", on ? "1" : "0");
+
+  const btn = $("dealerModeBtn");
+
+  if(btn){
+    btn.textContent = on ? "🔓 Dealer Mode Active" : "🔒 Dealer Mode";
+    btn.classList.toggle("active", on);
+  }
+
+}
+
+function openDealer(){
+
+  $("dealerModeModal").style.display = "flex";
+  $("dealerPasswordInput").value = "";
+  $("dealerLoginMessage").textContent = "";
+  $("dealerPasswordInput").focus();
+
+}
+
+function closeDealer(){
+
+  $("dealerModeModal").style.display = "none";
+
+}
+
+function unlockDealer(){
+
+  if($("dealerPasswordInput").value === DEALER_PASSWORD){
+
+    dealerMode(true);
+    closeDealer();
+
+  }else{
+
+    $("dealerLoginMessage").textContent = "Incorrect password.";
+
+  }
+
+}
+
+function bindDealerMode(){
+
+  dealerMode(sessionStorage.getItem("dealerMode") === "1");
+
+  $("dealerModeBtn").addEventListener("click", function(){
+
+    if(document.body.classList.contains("dealer-mode")){
+      dealerMode(false);
+    }else{
+      openDealer();
+    }
+
+  });
+
+  $("dealerUnlockBtn").addEventListener("click", unlockDealer);
+
+  $("dealerPasswordInput").addEventListener("keydown", function(e){
+    if(e.key === "Enter") unlockDealer();
+    if(e.key === "Escape") closeDealer();
+  });
+
+  $("dealerModeModal").addEventListener("click", function(e){
+    if(e.target === $("dealerModeModal")) closeDealer();
+  });
+
+}
+    window.addEventListener('DOMContentLoaded', function(){
+  bindDealerMode();
+  init();
+});
   })();
   </script>
   <!-- =========================================================
