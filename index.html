@@ -319,7 +319,53 @@
     .stihl-error{background:#fff0f0;border-left:5px solid var(--stihl-red);padding:12px;margin:12px 0;border-radius:8px}
     .stihl-success{background:#effaf2;border-left:5px solid var(--stihl-green);padding:12px;margin:12px 0;border-radius:8px}
     .stihl-hide{display:none!important}
-    @media(max-width:850px){
+
+/* ===== Dealer Mode ===== */
+
+.dealer-only{
+  display:none !important;
+}
+
+body.dealer-mode .dealer-only{
+  display:block !important;
+}
+
+.stihl-dealer-btn{
+  position:fixed;
+  top:12px;
+  right:12px;
+  z-index:9999;
+  background:#111;
+  color:#fff;
+  border:0;
+  border-radius:8px;
+  padding:10px 14px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.stihl-dealer-btn.active{
+  background:#1f7a3a;
+}
+
+.stihl-dealer-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:10000;
+  align-items:center;
+  justify-content:center;
+}
+
+.stihl-dealer-box{
+  background:#fff;
+  width:340px;
+  border-radius:10px;
+  padding:20px;
+}
+
+@media(max-width:850px){
       .stihl-grid,.stihl-controls,.stihl-option-row{grid-template-columns:1fr}
       .stihl-summary{position:static}
     }
@@ -442,6 +488,39 @@
   ========================================================== -->
 </head>
 <body>
+  <button
+    id="dealerModeBtn"
+    class="stihl-dealer-btn"
+    type="button">
+    🔒 Dealer Mode
+</button>
+
+<div id="dealerModeModal" class="stihl-dealer-modal">
+
+    <div class="stihl-dealer-box">
+
+        <h3>Dealer Mode</h3>
+
+        <p>Enter dealer password.</p>
+
+        <input
+            id="dealerPasswordInput"
+            type="password">
+
+        <div
+            id="dealerLoginMessage"
+            style="color:#b00020;margin-bottom:12px;">
+        </div>
+
+        <button
+            id="dealerUnlockBtn"
+            class="stihl-btn">
+            Unlock
+        </button>
+
+    </div>
+
+</div>
   <!-- =========================================================
        SECTION START: STIHL BATTERY CONFIGURATOR HERO
        Search ID: stihl-configurator-hero
@@ -650,7 +729,9 @@
 <div id="stihl-setup-options" style="margin-top:12px;display:none;"></div>
 <input id="stihl-setup-choice" type="hidden" value="">
 <input id="stihl-setup-fee" type="hidden" value="0">
-<div id="stihl-setup-line" style="display:none;"></div>          
+<div id="stihl-setup-line" style="display:none;"></div>
+<div id="stihl-discount-line" style="display:none;"></div>
+          <div id="stihl-warranty-line" style="display:none;"></div>
           <div class="stihl-line">
             <span>Subtotal</span>
             <strong id="stihl-subtotal">$0.00</strong>
@@ -663,6 +744,107 @@
             <span>Out-the-Door Price</span>
             <strong class="stihl-total" id="stihl-total">$0.00</strong>
           </div>
+          <div class="dealer-only" id="stihl-dealer-pricing-panel" style="
+  margin-top:14px;
+  border:2px solid #1f7a3a;
+  border-radius:12px;
+  padding:14px;
+  background:#f3fbf5;
+">
+
+  <h3 style="margin:0 0 10px;">Dealer Pricing</h3>
+
+  <div class="stihl-line">
+    <span>Dealer Mode</span>
+    <strong>Active</strong>
+  </div>
+
+  <div style="margin-top:12px;">
+    <label for="stihl-dealer-discount">Customer Discount</label>
+    <select id="stihl-dealer-discount">
+      <option value="0">No Discount</option>
+      <option value="1">1% Discount</option>
+      <option value="2">2% Discount</option>
+      <option value="3">3% Discount</option>
+      <option value="4">4% Discount</option>
+      <option value="5">5% Discount</option>
+      <option value="custom">Custom Dollar Discount</option>
+    </select>
+  </div>
+
+  <div id="stihl-custom-discount-wrap" style="display:none;margin-top:10px;">
+    <label for="stihl-custom-discount">Custom Discount Amount</label>
+    <input id="stihl-custom-discount" type="number" min="0" step="0.01" value="0">
+  </div>
+
+  <div class="stihl-line" style="margin-top:10px;">
+    <span>Discount Amount</span>
+    <strong id="stihl-discount-display">$0.00</strong>
+  </div>
+
+  <div class="stihl-line">
+    <span>Payment Program</span>
+    <strong>Coming Soon</strong>
+  </div>
+
+  <div class="stihl-line">
+    <span>Rebate</span>
+    <strong>Coming Soon</strong>
+  </div>
+
+  <div style="margin-top:12px;">
+  <label for="stihl-warranty-option">Extended Warranty</label>
+
+  <select id="stihl-warranty-option">
+    <option value="0">No Extended Warranty</option>
+    <option value="0">1 Year Extended Warranty</option>
+    <option value="0">2 Year Extended Warranty</option>
+    <option value="custom">Custom Warranty Amount</option>
+</select>
+</div>
+
+<div id="stihl-custom-warranty-wrap" style="display:none;margin-top:10px;">
+  <label for="stihl-custom-warranty">Custom Warranty Amount</label>
+  <input id="stihl-custom-warranty" type="number" min="0" step="0.01" value="0">
+</div>
+
+<div class="stihl-line" style="margin-top:10px;">
+  <span>Warranty Amount</span>
+  <strong id="stihl-warranty-display">$0.00</strong>
+</div>
+
+  <div style="margin-top:12px;">
+  <label for="stihl-deposit-option">Deposit / Down Payment</label>
+
+  <select id="stihl-deposit-option">
+    <option value="0">Default $0 Deposit</option>
+    <option value="10pct">10% Deposit</option>
+    <option value="20pct">20% Deposit</option>
+    <option value="custom">Custom Deposit Amount</option>
+  </select>
+</div>
+
+<div id="stihl-custom-deposit-wrap" style="display:none;margin-top:10px;">
+  <label for="stihl-custom-deposit">Custom Deposit Amount</label>
+  <input id="stihl-custom-deposit" type="number" min="0" step="0.01" value="0">
+</div>
+
+<div class="stihl-line" style="margin-top:10px;">
+  <span>Amount Due Today</span>
+  <strong id="stihl-deposit-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Balance Due</span>
+  <strong id="stihl-balance-display">$0.00</strong>
+</div>
+
+  <div class="stihl-line">
+    <span>Freight / Surcharge</span>
+    <strong>Coming Soon</strong>
+  </div>
+
+</div>
 <div id="stihl-financing-options" style="margin-top:14px;display:none;"></div>
 <input id="stihl-financing-choice" type="hidden" value="">          
           
@@ -1015,6 +1197,64 @@ $('stihl-customer-email').addEventListener('blur', () => {
     renderCart();
   });
 });
+
+
+/* ---------- Dealer Discount ---------- */
+
+['stihl-dealer-discount','stihl-custom-discount'].forEach(id => {
+
+  const el = $(id);
+
+  if(!el) return;
+
+  function updateDealerDiscount(){
+
+    const wrap = $('stihl-custom-discount-wrap');
+
+    if(wrap){
+      wrap.style.display =
+        clean($('stihl-dealer-discount').value) === 'custom'
+          ? ''
+          : 'none';
+    }
+
+    renderCart();
+
+  }
+
+  el.addEventListener('change', updateDealerDiscount);
+  el.addEventListener('input', updateDealerDiscount);
+
+});
+
+/* ---------- Extended Warranty ---------- */
+
+['stihl-warranty-option','stihl-custom-warranty'].forEach(id => {
+
+  const el = $(id);
+
+  if(!el) return;
+
+  function updateWarranty(){
+
+    const wrap = $('stihl-custom-warranty-wrap');
+
+    if(wrap){
+      wrap.style.display =
+        clean($('stihl-warranty-option').value) === 'custom'
+          ? ''
+          : 'none';
+    }
+
+    renderCart();
+
+  }
+
+  el.addEventListener('change', updateWarranty);
+  el.addEventListener('input', updateWarranty);
+
+});
+
       
 }
 
@@ -1811,7 +2051,52 @@ function monthlyPayment(principal, apr, months){
   const r = apr / 100 / 12;
   return principal * r / (1 - Math.pow(1 + r, -months));
 }
+function selectedDepositAmount(total){
+  total = Number(total) || 0;
 
+  const option = clean($('stihl-deposit-option')?.value || '500');
+  const custom = money($('stihl-custom-deposit')?.value || 0);
+
+  let deposit = 0;
+
+  if(option === '10pct'){
+    deposit = total * 0.10;
+  }else if(option === '20pct'){
+    deposit = total * 0.20;
+  }else if(option === 'custom'){
+    deposit = custom;
+  }else{
+    deposit = money(option);
+  }
+
+  if(total > 0){
+    deposit = Math.min(deposit, total);
+  }
+
+  return Math.max(deposit, 0);
+}
+
+function renderDepositSummary(total){
+  const deposit = selectedDepositAmount(total);
+  const balance = Math.max((Number(total) || 0) - deposit, 0);
+
+  if($('stihl-deposit-display')){
+    $('stihl-deposit-display').textContent = fmtMoney(deposit);
+  }
+
+  if($('stihl-balance-display')){
+    $('stihl-balance-display').textContent = fmtMoney(balance);
+  }
+
+  const wrap = $('stihl-custom-deposit-wrap');
+
+  if(wrap){
+    wrap.style.display =
+      clean($('stihl-deposit-option')?.value) === 'custom'
+        ? ''
+        : 'none';
+  }
+}
 function currentQuoteTotal(){
   const txt = clean($('stihl-total')?.textContent).replace(/[$,]/g,'');
   return Number(txt) || 0;
@@ -1853,7 +2138,7 @@ function financingApplies(program){
     configurator: 'STIHL Equipment Package Builder',
     type: type,
     total: total,
-    depositAmount: 500,
+    depositAmount: selectedDepositAmount(total),
 
     customerName: clean($('stihl-customer-name')?.value),
     customerEmail: clean($('stihl-customer-email')?.value),
@@ -1921,6 +2206,12 @@ async function sendQuoteLead(actionType){
       clean($('stihl-zip')?.value)
     ].filter(Boolean).join(', '),
     delivery: deliveryLabel(),
+    dealerDiscount: dealerDiscountLabel(),
+dealerDiscountAmount: $('stihl-discount-display')?.textContent || '$0.00',
+depositAmount: $('stihl-deposit-display')?.textContent || '$500.00',
+balanceDue: $('stihl-balance-display')?.textContent || '$0.00', 
+    extendedWarranty: warrantyLabel(),
+extendedWarrantyAmount: $('stihl-warranty-display')?.textContent || '$0.00',
     
    setup: state.cart
   .filter(line =>
@@ -2857,7 +3148,63 @@ function addRequiredItems(parentItem, parentQty){
 
   renderCart();
 }
+function warrantyAmount(){
+  const option = clean($('stihl-warranty-option')?.value || '0');
+  const custom = money($('stihl-custom-warranty')?.value || 0);
 
+  if(option === 'custom'){
+    return Math.max(custom, 0);
+  }
+
+  return Math.max(money(option), 0);
+}
+
+function warrantyLabel(){
+  const option = $('stihl-warranty-option');
+  if(!option) return '';
+
+  const value = clean(option.value);
+
+  if(value === 'custom'){
+    return 'Custom Extended Warranty';
+  }
+
+  if(value === '0'){
+    return '';
+  }
+
+  return option.options[option.selectedIndex]?.text || 'Extended Warranty';
+}    
+    
+function dealerDiscountAmount(baseSubtotal){
+  const discountSelect = $('stihl-dealer-discount');
+  const customInput = $('stihl-custom-discount');
+
+  if(!discountSelect) return 0;
+
+  const val = clean(discountSelect.value);
+
+  if(val === 'custom'){
+    return Math.min(money(customInput?.value || 0), baseSubtotal);
+  }
+
+  const pct = Number(val) || 0;
+  return Math.min(baseSubtotal * (pct / 100), baseSubtotal);
+}
+
+function dealerDiscountLabel(){
+  const discountSelect = $('stihl-dealer-discount');
+
+  if(!discountSelect) return '';
+
+  const val = clean(discountSelect.value);
+
+  if(val === 'custom'){
+    return 'Custom Dealer Discount';
+  }
+
+  return val && val !== '0' ? `${val}% Dealer Discount` : '';
+}
     function renderCart(){
       const lines = $('stihl-cart-lines');
       if(!state.cart.length){
@@ -2884,7 +3231,7 @@ function addRequiredItems(parentItem, parentQty){
   ${escapeHtml(nameOf(line.item))}
 </div>
 
-<<div style="
+<div style="
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -3005,13 +3352,59 @@ $('stihl-setup-line').innerHTML =
     ? setupDetailHtml()
     : '<span>Setup / Assembly</span><strong>$0.00</strong>';
 const delivery = deliveryFee();
-const subtotal = productSubtotal + setup + delivery;
+const warranty = warrantyAmount();
+const grossSubtotal = productSubtotal + setup + delivery + warranty;
+const discount = dealerDiscountAmount(grossSubtotal);
+const subtotal = Math.max(grossSubtotal - discount, 0);
+      const warrantyLine = $('stihl-warranty-line');
+
+if(warrantyLine){
+
+  warrantyLine.style.display = warranty > 0 ? '' : 'none';
+
+  warrantyLine.innerHTML = warranty > 0
+    ? `
+      <div class="stihl-line">
+        <span>${escapeHtml(warrantyLabel())}</span>
+        <strong>${fmtMoney(warranty)}</strong>
+      </div>
+    `
+    : '';
+
+}
+
+const warrantyDisplay = $('stihl-warranty-display');
+
+if(warrantyDisplay){
+  warrantyDisplay.textContent = fmtMoney(warranty);
+}
 const tax = subtotal * TAX_RATE;
+
+const discountLine = $('stihl-discount-line');
+
+if(discountLine){
+  discountLine.style.display = discount > 0 ? '' : 'none';
+  discountLine.innerHTML = discount > 0
+    ? `
+      <div class="stihl-line">
+        <span>${escapeHtml(dealerDiscountLabel())}</span>
+        <strong>-${fmtMoney(discount)}</strong>
+      </div>
+    `
+    : '';
+}
+
+const discountDisplay = $('stihl-discount-display');
+
+if(discountDisplay){
+  discountDisplay.textContent = fmtMoney(discount);
+}
 
 $('stihl-subtotal').textContent = fmtMoney(subtotal);
 $('stihl-tax').textContent = fmtMoney(tax);
 $('stihl-total').textContent = fmtMoney(subtotal + tax);
-
+renderDepositSummary(subtotal + tax);
+      
       renderFinancingOptions();
     }
 
@@ -3071,8 +3464,86 @@ renderCart();
     function escapeHtml(str){
       return clean(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
     }
+/* ==========================
+   Dealer Mode
+========================== */
 
-    window.addEventListener('DOMContentLoaded', init);
+const DEALER_PASSWORD = "NMWEPE265";
+
+function dealerMode(on){
+
+  document.body.classList.toggle("dealer-mode", on);
+  sessionStorage.setItem("dealerMode", on ? "1" : "0");
+
+  const btn = $("dealerModeBtn");
+
+  if(btn){
+    btn.textContent = on ? "🔓 Dealer Mode Active" : "🔒 Dealer Mode";
+    btn.classList.toggle("active", on);
+  }
+
+}
+
+function openDealer(){
+
+  $("dealerModeModal").style.display = "flex";
+  $("dealerPasswordInput").value = "";
+  $("dealerLoginMessage").textContent = "";
+  $("dealerPasswordInput").focus();
+
+}
+
+function closeDealer(){
+
+  $("dealerModeModal").style.display = "none";
+
+}
+
+function unlockDealer(){
+
+  if($("dealerPasswordInput").value === DEALER_PASSWORD){
+
+    dealerMode(true);
+    closeDealer();
+
+  }else{
+
+    $("dealerLoginMessage").textContent = "Incorrect password.";
+
+  }
+
+}
+
+function bindDealerMode(){
+
+  dealerMode(sessionStorage.getItem("dealerMode") === "1");
+
+  $("dealerModeBtn").addEventListener("click", function(){
+
+    if(document.body.classList.contains("dealer-mode")){
+      dealerMode(false);
+    }else{
+      openDealer();
+    }
+
+  });
+
+  $("dealerUnlockBtn").addEventListener("click", unlockDealer);
+
+  $("dealerPasswordInput").addEventListener("keydown", function(e){
+    if(e.key === "Enter") unlockDealer();
+    if(e.key === "Escape") closeDealer();
+  });
+
+  $("dealerModeModal").addEventListener("click", function(e){
+    if(e.target === $("dealerModeModal")) closeDealer();
+  });
+
+}
+    window.addEventListener('DOMContentLoaded', function(){
+  bindDealerMode();
+  init();
+});
   })();
   </script>
   <!-- =========================================================
