@@ -1254,7 +1254,18 @@ $('stihl-customer-email').addEventListener('blur', () => {
   el.addEventListener('input', updateDeposit);
 
 });
+/* ---------- Deposit / Down Payment ---------- */
 
+['stihl-deposit-option','stihl-custom-deposit'].forEach(id => {
+
+    ...
+
+    el.addEventListener('change', updateDeposit);
+    el.addEventListener('input', updateDeposit);
+
+});
+
+      
 }
 
     function renderCategories(){
