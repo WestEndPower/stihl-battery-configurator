@@ -729,7 +729,8 @@ body.dealer-mode .dealer-only{
 <div id="stihl-setup-options" style="margin-top:12px;display:none;"></div>
 <input id="stihl-setup-choice" type="hidden" value="">
 <input id="stihl-setup-fee" type="hidden" value="0">
-<div id="stihl-setup-line" style="display:none;"></div>          
+<div id="stihl-setup-line" style="display:none;"></div>
+<div id="stihl-discount-line" style="display:none;"></div>          
           <div class="stihl-line">
             <span>Subtotal</span>
             <strong id="stihl-subtotal">$0.00</strong>
@@ -757,10 +758,29 @@ body.dealer-mode .dealer-only{
     <strong>Active</strong>
   </div>
 
-  <div class="stihl-line">
-    <span>Internal Pricing</span>
-    <strong>Coming Soon</strong>
-  </div>
+  <div style="margin-top:10px;">
+  <label for="stihl-dealer-discount">Dealer Discount</label>
+
+  <select id="stihl-dealer-discount">
+    <option value="0">No Discount</option>
+    <option value="1">1% Discount</option>
+    <option value="2">2% Discount</option>
+    <option value="3">3% Discount</option>
+    <option value="4">4% Discount</option>
+    <option value="5">5% Discount</option>
+    <option value="custom">Custom Dollar Discount</option>
+  </select>
+</div>
+
+<div id="stihl-custom-discount-wrap" style="display:none;margin-top:10px;">
+  <label for="stihl-custom-discount">Custom Discount Amount</label>
+  <input id="stihl-custom-discount" type="number" min="0" step="0.01" value="0">
+</div>
+
+<div class="stihl-line">
+  <span>Discount Amount</span>
+  <strong id="stihl-discount-display">$0.00</strong>
+</div>
 
   <div class="stihl-line">
     <span>Discounts / Rebates / Freight</span>
@@ -1120,7 +1140,37 @@ $('stihl-customer-email').addEventListener('blur', () => {
     renderCart();
   });
 });
-      
+
+
+/* ---------- Dealer Discount ---------- */
+
+['stihl-dealer-discount','stihl-custom-discount'].forEach(id => {
+
+  const el = $(id);
+
+  if(!el) return;
+
+  function updateDealerDiscount(){
+
+    const wrap = $('stihl-custom-discount-wrap');
+
+    if(wrap){
+      wrap.style.display =
+        clean($('stihl-dealer-discount').value) === 'custom'
+          ? ''
+          : 'none';
+    }
+
+    renderCart();
+
+  }
+
+  el.addEventListener('change', updateDealerDiscount);
+  el.addEventListener('input', updateDealerDiscount);
+
+});
+
+
 }
 
     function renderCategories(){
@@ -2026,6 +2076,8 @@ async function sendQuoteLead(actionType){
       clean($('stihl-zip')?.value)
     ].filter(Boolean).join(', '),
     delivery: deliveryLabel(),
+    dealerDiscount: dealerDiscountLabel(),
+dealerDiscountAmount: $('stihl-discount-display')?.textContent || '$0.00',
     
    setup: state.cart
   .filter(line =>
@@ -2962,7 +3014,35 @@ function addRequiredItems(parentItem, parentQty){
 
   renderCart();
 }
+function dealerDiscountAmount(baseSubtotal){
+  const discountSelect = $('stihl-dealer-discount');
+  const customInput = $('stihl-custom-discount');
 
+  if(!discountSelect) return 0;
+
+  const val = clean(discountSelect.value);
+
+  if(val === 'custom'){
+    return Math.min(money(customInput?.value || 0), baseSubtotal);
+  }
+
+  const pct = Number(val) || 0;
+  return Math.min(baseSubtotal * (pct / 100), baseSubtotal);
+}
+
+function dealerDiscountLabel(){
+  const discountSelect = $('stihl-dealer-discount');
+
+  if(!discountSelect) return '';
+
+  const val = clean(discountSelect.value);
+
+  if(val === 'custom'){
+    return 'Custom Dealer Discount';
+  }
+
+  return val && val !== '0' ? `${val}% Dealer Discount` : '';
+}
     function renderCart(){
       const lines = $('stihl-cart-lines');
       if(!state.cart.length){
@@ -3110,8 +3190,30 @@ $('stihl-setup-line').innerHTML =
     ? setupDetailHtml()
     : '<span>Setup / Assembly</span><strong>$0.00</strong>';
 const delivery = deliveryFee();
-const subtotal = productSubtotal + setup + delivery;
+const grossSubtotal = productSubtotal + setup + delivery;
+const discount = dealerDiscountAmount(grossSubtotal);
+const subtotal = Math.max(grossSubtotal - discount, 0);
 const tax = subtotal * TAX_RATE;
+
+const discountLine = $('stihl-discount-line');
+
+if(discountLine){
+  discountLine.style.display = discount > 0 ? '' : 'none';
+  discountLine.innerHTML = discount > 0
+    ? `
+      <div class="stihl-line">
+        <span>${escapeHtml(dealerDiscountLabel())}</span>
+        <strong>-${fmtMoney(discount)}</strong>
+      </div>
+    `
+    : '';
+}
+
+const discountDisplay = $('stihl-discount-display');
+
+if(discountDisplay){
+  discountDisplay.textContent = fmtMoney(discount);
+}
 
 $('stihl-subtotal').textContent = fmtMoney(subtotal);
 $('stihl-tax').textContent = fmtMoney(tax);
