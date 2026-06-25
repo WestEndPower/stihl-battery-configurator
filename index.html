@@ -1227,14 +1227,31 @@ $('stihl-customer-email').addEventListener('blur', () => {
 
 });
 
-/* ---------- Deposit / Down Payment ---------- */
+/* ---------- Extended Warranty ---------- */
 
-['stihl-deposit-option','stihl-custom-deposit'].forEach(id => {
+['stihl-warranty-option','stihl-custom-warranty'].forEach(id => {
 
-    ...
+  const el = $(id);
 
-    el.addEventListener('change', updateDeposit);
-    el.addEventListener('input', updateDeposit);
+  if(!el) return;
+
+  function updateWarranty(){
+
+    const wrap = $('stihl-custom-warranty-wrap');
+
+    if(wrap){
+      wrap.style.display =
+        clean($('stihl-warranty-option').value) === 'custom'
+          ? ''
+          : 'none';
+    }
+
+    renderCart();
+
+  }
+
+  el.addEventListener('change', updateWarranty);
+  el.addEventListener('input', updateWarranty);
 
 });
 
