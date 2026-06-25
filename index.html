@@ -797,9 +797,27 @@ body.dealer-mode .dealer-only{
   </div>
 
   <div class="stihl-line">
-    <span>Deposit / Down Payment</span>
-    <strong>Coming Soon</strong>
-  </div>
+    <option value="500">Default $500 Deposit</option>
+    <option value="10pct">10% Deposit</option>
+    <option value="20pct">20% Deposit</option>
+    <option value="custom">Custom Deposit Amount</option>
+  </select>
+</div>
+
+<div id="stihl-custom-deposit-wrap" style="display:none;margin-top:10px;">
+  <label for="stihl-custom-deposit">Custom Deposit Amount</label>
+  <input id="stihl-custom-deposit" type="number" min="0" step="0.01" value="500">
+</div>
+
+<div class="stihl-line" style="margin-top:10px;">
+  <span>Amount Due Today</span>
+  <strong id="stihl-deposit-display">$500.00</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Balance Due</span>
+  <strong id="stihl-balance-display">$0.00</strong>
+</div>
 
   <div class="stihl-line">
     <span>Freight / Surcharge</span>
@@ -1163,19 +1181,25 @@ $('stihl-customer-email').addEventListener('blur', () => {
 
 /* ---------- Dealer Discount ---------- */
 
-['stihl-dealer-discount','stihl-custom-discount'].forEach(id => {
+...existing dealer discount code...
+
+});
+
+/* ---------- Deposit / Down Payment ---------- */
+
+['stihl-deposit-option','stihl-custom-deposit'].forEach(id => {
 
   const el = $(id);
 
   if(!el) return;
 
-  function updateDealerDiscount(){
+  function updateDeposit(){
 
-    const wrap = $('stihl-custom-discount-wrap');
+    const wrap = $('stihl-custom-deposit-wrap');
 
     if(wrap){
       wrap.style.display =
-        clean($('stihl-dealer-discount').value) === 'custom'
+        clean($('stihl-deposit-option').value) === 'custom'
           ? ''
           : 'none';
     }
@@ -1184,11 +1208,10 @@ $('stihl-customer-email').addEventListener('blur', () => {
 
   }
 
-  el.addEventListener('change', updateDealerDiscount);
-  el.addEventListener('input', updateDealerDiscount);
+  el.addEventListener('change', updateDeposit);
+  el.addEventListener('input', updateDeposit);
 
 });
-
 
 }
 
@@ -1985,7 +2008,52 @@ function monthlyPayment(principal, apr, months){
   const r = apr / 100 / 12;
   return principal * r / (1 - Math.pow(1 + r, -months));
 }
+function selectedDepositAmount(total){
+  total = Number(total) || 0;
 
+  const option = clean($('stihl-deposit-option')?.value || '500');
+  const custom = money($('stihl-custom-deposit')?.value || 0);
+
+  let deposit = 500;
+
+  if(option === '10pct'){
+    deposit = total * 0.10;
+  }else if(option === '20pct'){
+    deposit = total * 0.20;
+  }else if(option === 'custom'){
+    deposit = custom;
+  }else{
+    deposit = money(option);
+  }
+
+  if(total > 0){
+    deposit = Math.min(deposit, total);
+  }
+
+  return Math.max(deposit, 0);
+}
+
+function renderDepositSummary(total){
+  const deposit = selectedDepositAmount(total);
+  const balance = Math.max((Number(total) || 0) - deposit, 0);
+
+  if($('stihl-deposit-display')){
+    $('stihl-deposit-display').textContent = fmtMoney(deposit);
+  }
+
+  if($('stihl-balance-display')){
+    $('stihl-balance-display').textContent = fmtMoney(balance);
+  }
+
+  const wrap = $('stihl-custom-deposit-wrap');
+
+  if(wrap){
+    wrap.style.display =
+      clean($('stihl-deposit-option')?.value) === 'custom'
+        ? ''
+        : 'none';
+  }
+}
 function currentQuoteTotal(){
   const txt = clean($('stihl-total')?.textContent).replace(/[$,]/g,'');
   return Number(txt) || 0;
@@ -2027,7 +2095,7 @@ function financingApplies(program){
     configurator: 'STIHL Equipment Package Builder',
     type: type,
     total: total,
-    depositAmount: 500,
+    depositAmount: selectedDepositAmount(total),
 
     customerName: clean($('stihl-customer-name')?.value),
     customerEmail: clean($('stihl-customer-email')?.value),
@@ -2097,6 +2165,8 @@ async function sendQuoteLead(actionType){
     delivery: deliveryLabel(),
     dealerDiscount: dealerDiscountLabel(),
 dealerDiscountAmount: $('stihl-discount-display')?.textContent || '$0.00',
+depositAmount: $('stihl-deposit-display')?.textContent || '$500.00',
+balanceDue: $('stihl-balance-display')?.textContent || '$0.00',    
     
    setup: state.cart
   .filter(line =>
@@ -3237,7 +3307,8 @@ if(discountDisplay){
 $('stihl-subtotal').textContent = fmtMoney(subtotal);
 $('stihl-tax').textContent = fmtMoney(tax);
 $('stihl-total').textContent = fmtMoney(subtotal + tax);
-
+renderDepositSummary(subtotal + tax);
+      
       renderFinancingOptions();
     }
 
