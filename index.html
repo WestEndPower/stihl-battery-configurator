@@ -730,7 +730,8 @@ body.dealer-mode .dealer-only{
 <input id="stihl-setup-choice" type="hidden" value="">
 <input id="stihl-setup-fee" type="hidden" value="0">
 <div id="stihl-setup-line" style="display:none;"></div>
-<div id="stihl-discount-line" style="display:none;"></div>          
+<div id="stihl-discount-line" style="display:none;"></div>
+          <div id="stihl-warranty-line" style="display:none;"></div>
           <div class="stihl-line">
             <span>Subtotal</span>
             <strong id="stihl-subtotal">$0.00</strong>
@@ -791,10 +792,26 @@ body.dealer-mode .dealer-only{
     <strong>Coming Soon</strong>
   </div>
 
-  <div class="stihl-line">
-    <span>Extended Warranty</span>
-    <strong>Coming Soon</strong>
-  </div>
+  <div style="margin-top:12px;">
+  <label for="stihl-warranty-option">Extended Warranty</label>
+
+  <select id="stihl-warranty-option">
+    <option value="0">No Extended Warranty</option>
+    <option value="99">1 Year Extended Warranty - $99</option>
+    <option value="149">2 Year Extended Warranty - $149</option>
+    <option value="custom">Custom Warranty Amount</option>
+  </select>
+</div>
+
+<div id="stihl-custom-warranty-wrap" style="display:none;margin-top:10px;">
+  <label for="stihl-custom-warranty">Custom Warranty Amount</label>
+  <input id="stihl-custom-warranty" type="number" min="0" step="0.01" value="0">
+</div>
+
+<div class="stihl-line" style="margin-top:10px;">
+  <span>Warranty Amount</span>
+  <strong id="stihl-warranty-display">$0.00</strong>
+</div>
 
   <div style="margin-top:12px;">
   <label for="stihl-deposit-option">Deposit / Down Payment</label>
@@ -2191,7 +2208,9 @@ async function sendQuoteLead(actionType){
     dealerDiscount: dealerDiscountLabel(),
 dealerDiscountAmount: $('stihl-discount-display')?.textContent || '$0.00',
 depositAmount: $('stihl-deposit-display')?.textContent || '$500.00',
-balanceDue: $('stihl-balance-display')?.textContent || '$0.00',    
+balanceDue: $('stihl-balance-display')?.textContent || '$0.00', 
+    extendedWarranty: warrantyLabel(),
+extendedWarrantyAmount: $('stihl-warranty-display')?.textContent || '$0.00',
     
    setup: state.cart
   .filter(line =>
@@ -3128,6 +3147,34 @@ function addRequiredItems(parentItem, parentQty){
 
   renderCart();
 }
+function warrantyAmount(){
+  const option = clean($('stihl-warranty-option')?.value || '0');
+  const custom = money($('stihl-custom-warranty')?.value || 0);
+
+  if(option === 'custom'){
+    return Math.max(custom, 0);
+  }
+
+  return Math.max(money(option), 0);
+}
+
+function warrantyLabel(){
+  const option = $('stihl-warranty-option');
+  if(!option) return '';
+
+  const value = clean(option.value);
+
+  if(value === 'custom'){
+    return 'Custom Extended Warranty';
+  }
+
+  if(value === '0'){
+    return '';
+  }
+
+  return option.options[option.selectedIndex]?.text || 'Extended Warranty';
+}    
+    
 function dealerDiscountAmount(baseSubtotal){
   const discountSelect = $('stihl-dealer-discount');
   const customInput = $('stihl-custom-discount');
@@ -3304,9 +3351,32 @@ $('stihl-setup-line').innerHTML =
     ? setupDetailHtml()
     : '<span>Setup / Assembly</span><strong>$0.00</strong>';
 const delivery = deliveryFee();
-const grossSubtotal = productSubtotal + setup + delivery;
+const warranty = warrantyAmount();
+const grossSubtotal = productSubtotal + setup + delivery + warranty;
 const discount = dealerDiscountAmount(grossSubtotal);
 const subtotal = Math.max(grossSubtotal - discount, 0);
+      const warrantyLine = $('stihl-warranty-line');
+
+if(warrantyLine){
+
+  warrantyLine.style.display = warranty > 0 ? '' : 'none';
+
+  warrantyLine.innerHTML = warranty > 0
+    ? `
+      <div class="stihl-line">
+        <span>${escapeHtml(warrantyLabel())}</span>
+        <strong>${fmtMoney(warranty)}</strong>
+      </div>
+    `
+    : '';
+
+}
+
+const warrantyDisplay = $('stihl-warranty-display');
+
+if(warrantyDisplay){
+  warrantyDisplay.textContent = fmtMoney(warranty);
+}
 const tax = subtotal * TAX_RATE;
 
 const discountLine = $('stihl-discount-line');
