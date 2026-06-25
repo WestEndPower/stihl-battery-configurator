@@ -743,47 +743,66 @@ body.dealer-mode .dealer-only{
             <span>Out-the-Door Price</span>
             <strong class="stihl-total" id="stihl-total">$0.00</strong>
           </div>
-          <div class="dealer-only" style="
+          <div class="dealer-only" id="stihl-dealer-pricing-panel" style="
   margin-top:14px;
   border:2px solid #1f7a3a;
-  border-radius:10px;
-  padding:12px;
+  border-radius:12px;
+  padding:14px;
   background:#f3fbf5;
 ">
 
-  <h3 style="margin-top:0;">Dealer Tools</h3>
+  <h3 style="margin:0 0 10px;">Dealer Pricing</h3>
 
   <div class="stihl-line">
     <span>Dealer Mode</span>
     <strong>Active</strong>
   </div>
 
-  <div style="margin-top:10px;">
-  <label for="stihl-dealer-discount">Dealer Discount</label>
+  <div style="margin-top:12px;">
+    <label for="stihl-dealer-discount">Customer Discount</label>
+    <select id="stihl-dealer-discount">
+      <option value="0">No Discount</option>
+      <option value="1">1% Discount</option>
+      <option value="2">2% Discount</option>
+      <option value="3">3% Discount</option>
+      <option value="4">4% Discount</option>
+      <option value="5">5% Discount</option>
+      <option value="custom">Custom Dollar Discount</option>
+    </select>
+  </div>
 
-  <select id="stihl-dealer-discount">
-    <option value="0">No Discount</option>
-    <option value="1">1% Discount</option>
-    <option value="2">2% Discount</option>
-    <option value="3">3% Discount</option>
-    <option value="4">4% Discount</option>
-    <option value="5">5% Discount</option>
-    <option value="custom">Custom Dollar Discount</option>
-  </select>
-</div>
+  <div id="stihl-custom-discount-wrap" style="display:none;margin-top:10px;">
+    <label for="stihl-custom-discount">Custom Discount Amount</label>
+    <input id="stihl-custom-discount" type="number" min="0" step="0.01" value="0">
+  </div>
 
-<div id="stihl-custom-discount-wrap" style="display:none;margin-top:10px;">
-  <label for="stihl-custom-discount">Custom Discount Amount</label>
-  <input id="stihl-custom-discount" type="number" min="0" step="0.01" value="0">
-</div>
-
-<div class="stihl-line">
-  <span>Discount Amount</span>
-  <strong id="stihl-discount-display">$0.00</strong>
-</div>
+  <div class="stihl-line" style="margin-top:10px;">
+    <span>Discount Amount</span>
+    <strong id="stihl-discount-display">$0.00</strong>
+  </div>
 
   <div class="stihl-line">
-    <span>Discounts / Rebates / Freight</span>
+    <span>Payment Program</span>
+    <strong>Coming Soon</strong>
+  </div>
+
+  <div class="stihl-line">
+    <span>Rebate</span>
+    <strong>Coming Soon</strong>
+  </div>
+
+  <div class="stihl-line">
+    <span>Extended Warranty</span>
+    <strong>Coming Soon</strong>
+  </div>
+
+  <div class="stihl-line">
+    <span>Deposit / Down Payment</span>
+    <strong>Coming Soon</strong>
+  </div>
+
+  <div class="stihl-line">
+    <span>Freight / Surcharge</span>
     <strong>Coming Soon</strong>
   </div>
 
@@ -3069,7 +3088,7 @@ function dealerDiscountLabel(){
   ${escapeHtml(nameOf(line.item))}
 </div>
 
-<<div style="
+<div style="
   display:flex;
   justify-content:space-between;
   align-items:center;
