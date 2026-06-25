@@ -319,7 +319,53 @@
     .stihl-error{background:#fff0f0;border-left:5px solid var(--stihl-red);padding:12px;margin:12px 0;border-radius:8px}
     .stihl-success{background:#effaf2;border-left:5px solid var(--stihl-green);padding:12px;margin:12px 0;border-radius:8px}
     .stihl-hide{display:none!important}
-    @media(max-width:850px){
+
+/* ===== Dealer Mode ===== */
+
+.dealer-only{
+  display:none !important;
+}
+
+body.dealer-mode .dealer-only{
+  display:block !important;
+}
+
+.stihl-dealer-btn{
+  position:fixed;
+  top:12px;
+  right:12px;
+  z-index:9999;
+  background:#111;
+  color:#fff;
+  border:0;
+  border-radius:8px;
+  padding:10px 14px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.stihl-dealer-btn.active{
+  background:#1f7a3a;
+}
+
+.stihl-dealer-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:10000;
+  align-items:center;
+  justify-content:center;
+}
+
+.stihl-dealer-box{
+  background:#fff;
+  width:340px;
+  border-radius:10px;
+  padding:20px;
+}
+
+@media(max-width:850px){
       .stihl-grid,.stihl-controls,.stihl-option-row{grid-template-columns:1fr}
       .stihl-summary{position:static}
     }
@@ -442,6 +488,39 @@
   ========================================================== -->
 </head>
 <body>
+  <button
+    id="dealerModeBtn"
+    class="stihl-dealer-btn"
+    type="button">
+    🔒 Dealer Mode
+</button>
+
+<div id="dealerModeModal" class="stihl-dealer-modal">
+
+    <div class="stihl-dealer-box">
+
+        <h3>Dealer Mode</h3>
+
+        <p>Enter dealer password.</p>
+
+        <input
+            id="dealerPasswordInput"
+            type="password">
+
+        <div
+            id="dealerLoginMessage"
+            style="color:#b00020;margin-bottom:12px;">
+        </div>
+
+        <button
+            id="dealerUnlockBtn"
+            class="stihl-btn">
+            Unlock
+        </button>
+
+    </div>
+
+</div>
   <!-- =========================================================
        SECTION START: STIHL BATTERY CONFIGURATOR HERO
        Search ID: stihl-configurator-hero
@@ -586,6 +665,10 @@
         <section class="stihl-panel stihl-summary" id="stihl-quote-summary-panel">
           <h2>Quote Summary</h2>
 
+<div class="dealer-only">
+
+<!-- everything below goes here -->
+
           <div>
             <div>
   <label for="stihl-customer-name">Customer</label>
@@ -674,6 +757,7 @@
 <button class="stihl-btn danger" id="stihl-clear" type="button">Clear</button>
 
           </div>
+</div>
 
           <p class="stihl-small">Prices, compatibility, availability, promotions, and estimated run times should be verified before final sale.</p>
         </section>
