@@ -796,7 +796,10 @@ body.dealer-mode .dealer-only{
     <strong>Coming Soon</strong>
   </div>
 
-  <div class="stihl-line">
+  <div style="margin-top:12px;">
+  <label for="stihl-deposit-option">Deposit / Down Payment</label>
+
+  <select id="stihl-deposit-option">
     <option value="500">Default $500 Deposit</option>
     <option value="10pct">10% Deposit</option>
     <option value="20pct">20% Deposit</option>
@@ -1181,7 +1184,29 @@ $('stihl-customer-email').addEventListener('blur', () => {
 
 /* ---------- Dealer Discount ---------- */
 
-...existing dealer discount code...
+['stihl-dealer-discount','stihl-custom-discount'].forEach(id => {
+
+  const el = $(id);
+
+  if(!el) return;
+
+  function updateDealerDiscount(){
+
+    const wrap = $('stihl-custom-discount-wrap');
+
+    if(wrap){
+      wrap.style.display =
+        clean($('stihl-dealer-discount').value) === 'custom'
+          ? ''
+          : 'none';
+    }
+
+    renderCart();
+
+  }
+
+  el.addEventListener('change', updateDealerDiscount);
+  el.addEventListener('input', updateDealerDiscount);
 
 });
 
