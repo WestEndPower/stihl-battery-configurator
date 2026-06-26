@@ -904,6 +904,11 @@ body.dealer-mode .dealer-only{
 </div>
 
 <div class="stihl-line">
+  <span>Recommended Program</span>
+  <strong id="stihl-recommended-finance-display">None</strong>
+</div>
+
+<div class="stihl-line">
   <span>Freight / Surcharge</span>
   <strong>Coming Soon</strong>
 </div>
@@ -2131,12 +2136,16 @@ function financeAnalysis(program, amountFinanced){
 
   if(!program) return null;
 
-  const payment =
-    monthlyPayment(
-      amountFinanced,
-      money(program.APR),
-      Number(clean(program.TermMonths))
-    );
+  const financedPrincipal =
+  amountFinanced +
+  money(program.ApplicationFee);
+
+const payment =
+  monthlyPayment(
+    financedPrincipal,
+    money(program.APR),
+    Number(clean(program.TermMonths))
+  );
 
   const fee =
     amountFinanced *
@@ -2157,20 +2166,77 @@ function bestFinanceProgram(amountFinanced){
 
   if(!eligible.length) return null;
 
+  const target = targetMarginPercent();
+  const subtotalNumber = money($('stihl-subtotal')?.textContent);
+  const dealerCost = dealerCostAmount();
+  const dealerRebate = dealerRebateAmount();
+
   const ranked =
     eligible
-      .map(p => financeAnalysis(p, amountFinanced))
-      .sort((a,b)=>{
+      .map(p => {
+        const analysis = financeAnalysis(p, amountFinanced);
 
-        if(a.payment !== b.payment){
+        const grossProfit =
+          subtotalNumber +
+          dealerRebate -
+          dealerCost;
+
+        const netProfit =
+  grossProfit -
+  analysis.fee;
+
+        const netMargin =
+          subtotalNumber > 0
+            ? (netProfit / subtotalNumber) * 100
+            : 0;
+
+        return {
+          ...analysis,
+          netProfit,
+          netMargin,
+          meetsTarget: netMargin >= target
+        };
+      })
+      .sort((a,b) => {
+
+        const priorityA = Number(clean(a.program.RecommendedPriority)) || 0;
+        const priorityB = Number(clean(b.program.RecommendedPriority)) || 0;
+
+        if(priorityA !== priorityB){
+          return priorityB - priorityA;
+        }
+
+        if(a.meetsTarget !== b.meetsTarget){
+          return a.meetsTarget ? -1 : 1;
+        }
+
+        if(a.meetsTarget && b.meetsTarget){
           return a.payment - b.payment;
         }
 
-        return a.fee - b.fee;
+        return b.netMargin - a.netMargin;
 
       });
 
   return ranked[0];
+}
+
+function financeRecommendationText(result){
+
+  if(!result) return 'None';
+
+  const label = clean(result.program.Label);
+  const priority = Number(clean(result.program.RecommendedPriority)) || 0;
+
+  if(result.meetsTarget && priority > 0){
+    return `${label} • ${fmtMoney(result.payment)}/mo • Meets Target`;
+  }
+
+  if(result.meetsTarget){
+    return `${label} • ${fmtMoney(result.payment)}/mo • Lowest Payment`;
+  }
+
+  return `${label} • ${fmtMoney(result.payment)}/mo • Below Target`;
 }
 
 function downPaymentForProgram(program, total){
@@ -2515,9 +2581,28 @@ function renderFinancingOptions(){
     }
 
     const sorted = [...programs].sort((a,b) => {
-      if(sort === 'rate') return money(a.APR) - money(b.APR);
-      return programPayment(a) - programPayment(b);
-    });
+
+  const advA = isTrue(a.Advertised) ? 0 : 1;
+  const advB = isTrue(b.Advertised) ? 0 : 1;
+
+  if(advA !== advB){
+    return advA - advB;
+  }
+
+  const sortA = Number(clean(a.AdvertisedSort)) || 9999;
+  const sortB = Number(clean(b.AdvertisedSort)) || 9999;
+
+  if(sortA !== sortB){
+    return sortA - sortB;
+  }
+
+  if(sort === 'rate'){
+    return money(a.APR) - money(b.APR);
+  }
+
+  return programPayment(a) - programPayment(b);
+
+});
 
     $('stihl-financing-select').innerHTML =
       '<option value="">Choose financing option</option>' +
@@ -3809,8 +3894,7 @@ const grossMargin =
 
 const netProfit =
   grossProfit -
-  paymentFee -
-  applicationFee;
+  paymentFee;
 
 const netMargin =
   subtotal > 0
@@ -3962,6 +4046,14 @@ if($('stihl-net-margin-display')){
 if($('stihl-target-margin-display')){
   $('stihl-target-margin-display').textContent =
     marginStatus(netMargin);
+}
+
+const recommendedFinance =
+  bestFinanceProgram(amountFinanced);
+
+if($('stihl-recommended-finance-display')){
+  $('stihl-recommended-finance-display').textContent =
+    financeRecommendationText(recommendedFinance);
 }
 
 if($('stihl-customer-adjustment-display')){
