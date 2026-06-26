@@ -600,6 +600,7 @@ body.dealer-mode .dealer-only{
 </div>
 
           <div id="stihl-tool-details"></div>
+          <div id="stihl-promotion-public"></div>
         </section>
         <!-- =========================================================
              SECTION END: TOOL PICKER
@@ -732,6 +733,7 @@ body.dealer-mode .dealer-only{
 <div id="stihl-setup-line" style="display:none;"></div>
 <div id="stihl-discount-line" style="display:none;"></div>
           <div id="stihl-warranty-line" style="display:none;"></div>
+          <div id="stihl-rebate-line" style="display:none;"></div>
           <div class="stihl-line">
             <span>Subtotal</span>
             <strong id="stihl-subtotal">$0.00</strong>
@@ -783,14 +785,36 @@ body.dealer-mode .dealer-only{
   </div>
 
   <div class="stihl-line">
-    <span>Payment Program</span>
-    <strong>Coming Soon</strong>
-  </div>
+  <span>Payment Program</span>
+  <strong id="stihl-payment-program-display">None Selected</strong>
+</div>
 
+<div class="stihl-line">
+  <span>Dealer Finance Cost</span>
+  <strong id="stihl-payment-fee-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Customer Adjustment</span>
+  <strong id="stihl-customer-adjustment-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Application Fee</span>
+  <strong id="stihl-application-fee-display">$0.00</strong>
+</div>
+  
   <div class="stihl-line">
-    <span>Rebate</span>
-    <strong>Coming Soon</strong>
-  </div>
+  <span>Customer Rebate</span>
+  <strong id="stihl-rebate-display">$0.00</strong>
+</div>
+
+<div class="stihl-line dealer-only">
+  <span>Dealer Reimbursement</span>
+  <strong id="stihl-dealer-rebate-display">$0.00</strong>
+</div>
+
+<div class="stihl-small" id="stihl-rebate-description" style="margin-top:6px;"></div>
 
   <div style="margin-top:12px;">
   <label for="stihl-warranty-option">Extended Warranty</label>
@@ -839,10 +863,50 @@ body.dealer-mode .dealer-only{
   <strong id="stihl-balance-display">$0.00</strong>
 </div>
 
-  <div class="stihl-line">
-    <span>Freight / Surcharge</span>
-    <strong>Coming Soon</strong>
-  </div>
+<div class="stihl-line">
+  <span>Amount Financed</span>
+  <strong id="stihl-amount-financed-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Estimated Monthly Payment</span>
+  <strong id="stihl-monthly-payment-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Dealer Cost</span>
+  <strong id="stihl-dealer-cost-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Gross Profit</span>
+  <strong id="stihl-gross-profit-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Gross Margin</span>
+  <strong id="stihl-gross-margin-display">0.0%</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Net Profit</span>
+  <strong id="stihl-net-profit-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Net Margin</span>
+  <strong id="stihl-net-margin-display">0.0%</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Target Margin</span>
+  <strong id="stihl-target-margin-display">Not Set</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Freight / Surcharge</span>
+  <strong>Coming Soon</strong>
+</div>
 
 </div>
 <div id="stihl-financing-options" style="margin-top:14px;display:none;"></div>
@@ -1488,51 +1552,6 @@ ${(clean(t.WarrantyConsumer) || clean(t.WarrantyProfessional)) ? `
 
 ${renderProductSpecs(t)}
 
-${clean(t.PromoTitle) ? `
-<div style="
-  margin-top:10px;
-  background:#fff8ef;
-  border:1px solid #f3d3b7;
-  border-left:5px solid #f37021;
-  border-radius:8px;
-  padding:10px 12px;
-">
-  <div style="
-  font-weight:900;
-  color:#f37021;
-  margin-bottom:6px;
-  font-size:15px;
-">
-  Current STIHL Promotion — ${escapeHtml(clean(t.PromoTitle))}
-</div>
-  ${clean(t.PromoDescription) ? `
-    <div style="margin-top:5px;">
-      ${escapeHtml(clean(t.PromoDescription))}
-    </div>
-  ` : ''}
-
-  ${clean(t.PromoValue) || clean(t.PromoEndDate) ? `
-  <div style="
-  margin-top:6px;
-  font-weight:800;
-  color:#f37021;
-">
-    ${clean(t.PromoValue)
-      ? `${fmtMoney(money(t.PromoValue))} Value`
-      : ''}
-
-    ${clean(t.PromoValue) && clean(t.PromoEndDate)
-      ? ' • '
-      : ''}
-
-    ${clean(t.PromoEndDate)
-      ? `Ends ${escapeHtml(clean(t.PromoEndDate))}`
-      : ''}
-  </div>
-` : ''}
-
-</div>
-` : ''}
 ${shouldShowBatteryInfo(t) ? renderWeightOptions(t) : ''}
 
 ${clean(t.SpecialText)
@@ -2040,6 +2059,62 @@ box.querySelectorAll('[data-pickup-choice]').forEach(btn => {
     });
   });
 }
+
+function selectedPaymentProgram(){
+
+  const id = clean($('stihl-financing-choice')?.value);
+
+  if(!id) return null;
+
+  return state.paymentOptions.find(p =>
+    clean(p.PaymentOptionID) === id ||
+    clean(p.Label) === id
+  ) || null;
+
+}
+
+function paymentDealerFeeAmount(base){
+
+  const p = selectedPaymentProgram();
+
+  if(!p) return 0;
+
+  return (Number(base) || 0) *
+         (money(p.DealerFeePercent) / 100);
+
+}
+
+function customerAdjustmentAmount(base){
+
+  const p = selectedPaymentProgram();
+
+  if(!p) return 0;
+
+  return (Number(base) || 0) *
+         (money(p.CustomerAdjustmentPercent) / 100);
+
+}
+
+function paymentApplicationFee(){
+
+  const p = selectedPaymentProgram();
+
+  if(!p) return 0;
+
+  return money(p.ApplicationFee);
+
+}
+
+function paymentProgramLabel(){
+
+  const p = selectedPaymentProgram();
+
+  if(!p) return 'None Selected';
+
+  return clean(p.Label) || clean(p.PaymentOptionID);
+
+}
+
 function monthlyPayment(principal, apr, months){
   principal = Number(principal) || 0;
   apr = Number(apr) || 0;
@@ -2051,13 +2126,101 @@ function monthlyPayment(principal, apr, months){
   const r = apr / 100 / 12;
   return principal * r / (1 - Math.pow(1 + r, -months));
 }
+
+function financeAnalysis(program, amountFinanced){
+
+  if(!program) return null;
+
+  const payment =
+    monthlyPayment(
+      amountFinanced,
+      money(program.APR),
+      Number(clean(program.TermMonths))
+    );
+
+  const fee =
+    amountFinanced *
+    (money(program.DealerFeePercent)/100);
+
+  return {
+    program,
+    payment,
+    fee
+  };
+}
+
+function bestFinanceProgram(amountFinanced){
+
+  const eligible =
+    state.paymentOptions
+      .filter(financingApplies);
+
+  if(!eligible.length) return null;
+
+  const ranked =
+    eligible
+      .map(p => financeAnalysis(p, amountFinanced))
+      .sort((a,b)=>{
+
+        if(a.payment !== b.payment){
+          return a.payment - b.payment;
+        }
+
+        return a.fee - b.fee;
+
+      });
+
+  return ranked[0];
+}
+
+function downPaymentForProgram(program, total){
+
+  total = Number(total) || 0;
+
+  if(!program || total <= 0) return 0;
+
+  const type = clean(program.DefaultDownPaymentType).toUpperCase();
+  const value = money(program.DefaultDownPaymentValue);
+
+  let down = 0;
+
+  if(type === 'PERCENT'){
+    down = total * (value / 100);
+  }else if(type === 'AMOUNT'){
+    down = value;
+  }
+
+  const min = money(program.MinDownPayment);
+  const max = money(program.MaximumDownPayment);
+
+  if(min > 0){
+    down = Math.max(down, min);
+  }
+
+  if(max > 0){
+    down = Math.min(down, max);
+  }
+
+  return Math.min(Math.max(down, 0), total);
+}
+
+function programDefaultDownPayment(total){
+
+  const p = selectedPaymentProgram();
+
+  if(!p) return 0;
+
+  return downPaymentForProgram(p, total);
+
+}
+
 function selectedDepositAmount(total){
   total = Number(total) || 0;
 
   const option = clean($('stihl-deposit-option')?.value || '500');
   const custom = money($('stihl-custom-deposit')?.value || 0);
 
-  let deposit = 0;
+  let deposit = programDefaultDownPayment(total);
 
   if(option === '10pct'){
     deposit = total * 0.10;
@@ -2065,9 +2228,9 @@ function selectedDepositAmount(total){
     deposit = total * 0.20;
   }else if(option === 'custom'){
     deposit = custom;
-  }else{
-    deposit = money(option);
-  }
+  }else if(option !== '0'){
+  deposit = money(option);
+}
 
   if(total > 0){
     deposit = Math.min(deposit, total);
@@ -2209,10 +2372,24 @@ async function sendQuoteLead(actionType){
     dealerDiscount: dealerDiscountLabel(),
 dealerDiscountAmount: $('stihl-discount-display')?.textContent || '$0.00',
 depositAmount: $('stihl-deposit-display')?.textContent || '$500.00',
-balanceDue: $('stihl-balance-display')?.textContent || '$0.00', 
+balanceDue: $('stihl-balance-display')?.textContent || '$0.00',
+paymentProgram: paymentProgramLabel(),
+
+dealerPaymentFee:
+  $('stihl-payment-fee-display')?.textContent || '$0.00',
+
+customerPaymentAdjustment:
+  $('stihl-customer-adjustment-display')?.textContent || '$0.00',
+
+applicationFee:
+  $('stihl-application-fee-display')?.textContent || '$0.00',
+
     extendedWarranty: warrantyLabel(),
 extendedWarrantyAmount: $('stihl-warranty-display')?.textContent || '$0.00',
-    
+   customerRebateAmount: $('stihl-rebate-display')?.textContent || '$0.00',
+dealerRebateAmount: $('stihl-dealer-rebate-display')?.textContent || '$0.00',
+rebateDescription: rebateDescription(),
+rebateEndDate: rebateEndDate(), 
    setup: state.cart
   .filter(line =>
     line.setupSelected &&
@@ -2255,6 +2432,7 @@ extendedWarrantyAmount: $('stihl-warranty-display')?.textContent || '$0.00',
 
 function renderFinancingOptions(){
   const box = $('stihl-financing-options');
+
   if(!box || !state.selectedTool){
     if(box) box.style.display = 'none';
     return;
@@ -2268,17 +2446,17 @@ function renderFinancingOptions(){
     return;
   }
 
-box.style.display = '';
+  box.style.display = '';
 
   box.innerHTML = `
     <label>Payment Options</label>
 
-<select id="stihl-financing-sort" style="margin-bottom:8px;">
-  <option value="">Select Payment Option</option>
-  <option value="payment">Financing - Lowest Payment</option>
-  <option value="rate">Financing - Lowest APR</option>
-  <option value="creditcard">Credit Card Payment</option>
-</select>
+    <select id="stihl-financing-sort" style="margin-bottom:8px;">
+      <option value="">Select Payment Option</option>
+      <option value="payment">Financing - Lowest Payment</option>
+      <option value="rate">Financing - Lowest APR</option>
+      <option value="creditcard">Credit Card Payment</option>
+    </select>
 
     <select id="stihl-financing-select">
       <option value="">Choose financing option</option>
@@ -2288,29 +2466,57 @@ box.style.display = '';
   `;
 
   function programPayment(p){
-    const principal = amount + money(p.ApplicationFee);
-    return monthlyPayment(principal, money(p.APR), Number(clean(p.TermMonths)));
-  }
 
+  const customerAdj =
+    amount * (money(p.CustomerAdjustmentPercent) / 100);
+
+  const appFee =
+    money(p.ApplicationFee);
+
+  const down =
+    downPaymentForProgram(p, amount);
+
+  const principal =
+    Math.max(amount + customerAdj + appFee - down, 0);
+
+  return monthlyPayment(
+    principal,
+    money(p.APR),
+    Number(clean(p.TermMonths))
+  );
+}
   function fillFinanceSelect(){
     const sort = clean($('stihl-financing-sort').value);
+
     $('stihl-financing-choice').value = '';
-$('stihl-financing-detail').innerHTML = '';
+    $('stihl-financing-detail').innerHTML = '';
+
     if(sort === 'creditcard'){
-  $('stihl-financing-select').innerHTML =
-    '<option value="creditcard">Credit Card Payment</option>';
+      const credit = programs.find(p =>
+        clean(p.Type).toLowerCase() === 'creditcard' ||
+        clean(p.PaymentOptionID).toLowerCase().includes('credit') ||
+        clean(p.Label).toLowerCase().includes('credit')
+      );
 
-  $('stihl-financing-choice').value = 'Credit Card Payment';
-  $('stihl-financing-detail').innerHTML =
-    '<strong>Credit Card Payment</strong><br>Customer will pay by credit card.';
+      if(credit){
+        $('stihl-financing-select').innerHTML =
+          `<option value="0">${escapeHtml(clean(credit.Label))}</option>`;
 
-  return;
-}
+        $('stihl-financing-select').dataset.programs =
+          JSON.stringify([credit]);
+      }else{
+        $('stihl-financing-select').innerHTML =
+          '<option value="">No credit card option found</option>';
+
+        $('stihl-financing-select').dataset.programs = '[]';
+      }
+
+      return;
+    }
 
     const sorted = [...programs].sort((a,b) => {
       if(sort === 'rate') return money(a.APR) - money(b.APR);
-if(sort === 'creditcard') return 0;
-return programPayment(a) - programPayment(b);
+      return programPayment(a) - programPayment(b);
     });
 
     $('stihl-financing-select').innerHTML =
@@ -2323,6 +2529,7 @@ return programPayment(a) - programPayment(b);
 
     $('stihl-financing-select').dataset.programs =
       JSON.stringify(sorted);
+
   }
 
   fillFinanceSelect();
@@ -2337,11 +2544,14 @@ return programPayment(a) - programPayment(b);
     if(!p){
       $('stihl-financing-choice').value = '';
       $('stihl-financing-detail').innerHTML = '';
+      renderCart();
       return;
     }
 
     const payment = programPayment(p);
-    $('stihl-financing-choice').value = clean(p.Label);
+
+    $('stihl-financing-choice').value =
+      clean(p.PaymentOptionID) || clean(p.Label);
 
     $('stihl-financing-detail').innerHTML = `
       <strong>${escapeHtml(clean(p.Label))}</strong><br>
@@ -2350,13 +2560,15 @@ return programPayment(a) - programPayment(b);
       Est. Payment: <strong>${fmtMoney(payment)}/mo</strong>
       ${clean(p.CreditApplicationURL) ? `
         <br><a class="stihl-btn stihl-finance-btn"
-       href="${escapeHtml(clean(p.CreditApplicationURL))}"
-       target="_blank"
-       rel="noopener">
-  ✓ Apply for Financing
-</a>
+           href="${escapeHtml(clean(p.CreditApplicationURL))}"
+           target="_blank"
+           rel="noopener">
+          ✓ Apply for Financing
+        </a>
       ` : ''}
     `;
+
+    renderCart();
   });
 }
     
@@ -3148,6 +3360,208 @@ function addRequiredItems(parentItem, parentQty){
 
   renderCart();
 }
+function parseRebateDate(value, endOfDay=false){
+  const raw = clean(value);
+
+  if(!raw) return null;
+
+  const date = new Date(raw);
+
+  if(isNaN(date)) return null;
+
+  if(endOfDay){
+    date.setHours(23,59,59,999);
+  }else{
+    date.setHours(0,0,0,0);
+  }
+
+  return date;
+}
+
+function rebateIsActive(item){
+  if(!item) return false;
+
+  const amount =
+    money(item.CustomerRebateAmount) ||
+    money(item.MfgRebateToDealer);
+
+  if(amount <= 0) return false;
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const start = parseRebateDate(item.RebateStartDate);
+  const end = parseRebateDate(item.RebateEndDate, true);
+
+  if(start && today < start) return false;
+  if(end && today > end) return false;
+
+  return true;
+}
+
+function customerRebateAmount(){
+  return state.cart.reduce((sum, line) => {
+    if(!line.item || !rebateIsActive(line.item)) return sum;
+
+    return sum + (money(line.item.CustomerRebateAmount) * (Number(line.qty) || 1));
+  }, 0);
+}
+
+function targetMarginPercent(){
+  const tool = state.selectedTool;
+
+  if(!tool) return 15;
+
+  return (
+    money(tool.TargetMarginPercent) ||
+    money(tool.MinimumMarginPercent) ||
+    15
+  );
+}
+
+function marginStatus(netMargin){
+  const target = targetMarginPercent();
+
+  if(netMargin >= target + 5){
+    return `🟢 Strong (${netMargin.toFixed(1)}% / Target ${target.toFixed(1)}%)`;
+  }
+
+  if(netMargin >= target){
+    return `🟡 Acceptable (${netMargin.toFixed(1)}% / Target ${target.toFixed(1)}%)`;
+  }
+
+  return `🔴 Below Target (${netMargin.toFixed(1)}% / Target ${target.toFixed(1)}%)`;
+}
+
+function dealerCostAmount(){
+  return state.cart.reduce((sum, line) => {
+    if(!line.item || line.included) return sum;
+
+    const cost =
+      money(line.item.DealerCost) ||
+      money(line.item.dealercost) ||
+      money(line.item['Dealer Cost']) ||
+      money(line.item.Cost) ||
+      money(line.item.NetCost);
+
+    return sum + (cost * (Number(line.qty) || 1));
+  }, 0);
+}
+
+function dealerRebateAmount(){
+  return state.cart.reduce((sum, line) => {
+    if(!line.item || !rebateIsActive(line.item)) return sum;
+
+    return sum + (money(line.item.MfgRebateToDealer) * (Number(line.qty) || 1));
+  }, 0);
+}
+
+function rebateDescription(){
+  const descriptions = state.cart
+    .filter(line => line.item && rebateIsActive(line.item))
+    .map(line => clean(line.item.RebateDescription))
+    .filter(Boolean);
+
+  return [...new Set(descriptions)].join(' | ');
+}
+
+function rebateEndDate(){
+  const dates = state.cart
+    .filter(line => line.item && rebateIsActive(line.item))
+    .map(line => clean(line.item.RebateEndDate))
+    .filter(Boolean);
+
+  return [...new Set(dates)].join(' | ');
+}
+function renderPromotionPublic(){
+  const box = $('stihl-promotion-public');
+
+  if(!box) return;
+
+  const tool = state.selectedTool;
+  const rebate = customerRebateAmount();
+  const desc = rebateDescription();
+  const end = rebateEndDate();
+
+  if(!tool && rebate <= 0){
+    box.innerHTML = '';
+    return;
+  }
+
+  const promoTitle = clean(tool?.PromoTitle);
+  const promoDescription = clean(tool?.PromoDescription);
+  const promoValue = money(tool?.PromoValue);
+  const promoEnd = clean(tool?.PromoEndDate);
+
+  const hasPromo =
+    promoTitle ||
+    promoDescription ||
+    promoValue > 0 ||
+    rebate > 0;
+
+  if(!hasPromo){
+    box.innerHTML = '';
+    return;
+  }
+
+  box.innerHTML = `
+    <div class="stihl-note" style="
+      border-left:6px solid #f37021;
+      background:#fff8ef;
+    ">
+      <div style="
+        font-size:18px;
+        font-weight:900;
+        color:#c00000;
+        margin-bottom:6px;
+      ">
+        🔥 Current Factory Promotion
+      </div>
+
+      ${promoTitle ? `
+        <div style="font-size:16px;font-weight:900;">
+          ${escapeHtml(promoTitle)}
+        </div>
+      ` : ''}
+
+      ${promoDescription ? `
+        <div style="margin-top:5px;">
+          ${escapeHtml(promoDescription)}
+        </div>
+      ` : ''}
+
+      ${rebate > 0 ? `
+        <div style="
+          margin-top:8px;
+          font-size:20px;
+          font-weight:900;
+          color:#c00000;
+        ">
+          Save ${fmtMoney(rebate)}
+        </div>
+      ` : ''}
+
+      ${desc ? `
+        <div style="margin-top:4px;font-weight:800;">
+          ${escapeHtml(desc)}
+        </div>
+      ` : ''}
+
+      ${promoValue > 0 ? `
+        <div style="margin-top:6px;font-weight:900;color:#f37021;">
+          ${fmtMoney(promoValue)} Value
+        </div>
+      ` : ''}
+
+      ${(end || promoEnd) ? `
+        <div style="margin-top:6px;font-size:13px;font-weight:800;">
+          Offer Ends: ${escapeHtml(end || promoEnd)}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
 function warrantyAmount(){
   const option = clean($('stihl-warranty-option')?.value || '0');
   const custom = money($('stihl-custom-warranty')?.value || 0);
@@ -3353,9 +3767,56 @@ $('stihl-setup-line').innerHTML =
     : '<span>Setup / Assembly</span><strong>$0.00</strong>';
 const delivery = deliveryFee();
 const warranty = warrantyAmount();
+const rebate = customerRebateAmount();
 const grossSubtotal = productSubtotal + setup + delivery + warranty;
 const discount = dealerDiscountAmount(grossSubtotal);
-const subtotal = Math.max(grossSubtotal - discount, 0);
+
+const customerAdjustment =
+  customerAdjustmentAmount(grossSubtotal);
+
+const applicationFee =
+  paymentApplicationFee();
+
+const subtotal = Math.max(
+  grossSubtotal
+  - discount
+  - rebate
+  + customerAdjustment,
+  0
+);
+
+const tax = subtotal * TAX_RATE;
+
+const amountFinanced =
+  subtotal +
+  tax -
+  selectedDepositAmount(subtotal + tax);
+
+const paymentFee =
+  paymentDealerFeeAmount(amountFinanced);
+
+const dealerCost = dealerCostAmount();
+
+const grossProfit =
+  subtotal +
+  dealerRebateAmount() -
+  dealerCost;
+
+const grossMargin =
+  subtotal > 0
+    ? (grossProfit / subtotal) * 100
+    : 0;
+
+const netProfit =
+  grossProfit -
+  paymentFee -
+  applicationFee;
+
+const netMargin =
+  subtotal > 0
+    ? (netProfit / subtotal) * 100
+    : 0;  
+
       const warrantyLine = $('stihl-warranty-line');
 
 if(warrantyLine){
@@ -3378,7 +3839,47 @@ const warrantyDisplay = $('stihl-warranty-display');
 if(warrantyDisplay){
   warrantyDisplay.textContent = fmtMoney(warranty);
 }
-const tax = subtotal * TAX_RATE;
+
+const rebateLine = $('stihl-rebate-line');
+
+if(rebateLine){
+  rebateLine.style.display = rebate > 0 ? '' : 'none';
+
+  rebateLine.innerHTML = rebate > 0
+    ? `
+      <div class="stihl-line">
+        <span>Factory Instant Rebate</span>
+        <strong>-${fmtMoney(rebate)}</strong>
+      </div>
+    `
+    : '';
+}
+
+if($('stihl-rebate-display')){
+  $('stihl-rebate-display').textContent = fmtMoney(rebate);
+}
+
+if($('stihl-dealer-rebate-display')){
+  $('stihl-dealer-rebate-display').textContent = fmtMoney(dealerRebateAmount());
+}
+
+if($('stihl-rebate-description')){
+  const desc = rebateDescription();
+  const end = rebateEndDate();
+
+  $('stihl-rebate-description').innerHTML = desc
+    ? `
+      <div style="margin-top:6px;">
+        <strong>${escapeHtml(desc)}</strong>
+        ${end ? `<br>Offer Ends: ${escapeHtml(end)}` : ''}
+        <br>
+        <span class="dealer-only">
+          Dealer Reimbursement: ${fmtMoney(dealerRebateAmount())}
+        </span>
+      </div>
+    `
+    : '';
+}
 
 const discountLine = $('stihl-discount-line');
 
@@ -3400,12 +3901,89 @@ if(discountDisplay){
   discountDisplay.textContent = fmtMoney(discount);
 }
 
+if($('stihl-payment-program-display')){
+  $('stihl-payment-program-display').textContent =
+    paymentProgramLabel();
+}
+
+if($('stihl-payment-fee-display')){
+  $('stihl-payment-fee-display').textContent =
+    fmtMoney(paymentFee);
+}
+
+if($('stihl-amount-financed-display')){
+  $('stihl-amount-financed-display').textContent =
+    fmtMoney(amountFinanced);
+}
+
+const selectedProgram = selectedPaymentProgram();
+
+const monthly =
+  selectedProgram
+    ? monthlyPayment(
+        amountFinanced,
+        money(selectedProgram.APR),
+        Number(clean(selectedProgram.TermMonths))
+      )
+    : 0;
+
+if($('stihl-monthly-payment-display')){
+  $('stihl-monthly-payment-display').textContent =
+    selectedProgram
+      ? `${fmtMoney(monthly)}/mo`
+      : '$0.00';
+}
+
+if($('stihl-dealer-cost-display')){
+  $('stihl-dealer-cost-display').textContent =
+    fmtMoney(dealerCost);
+}
+
+if($('stihl-gross-profit-display')){
+  $('stihl-gross-profit-display').textContent =
+    fmtMoney(grossProfit);
+}
+
+if($('stihl-gross-margin-display')){
+  $('stihl-gross-margin-display').textContent =
+    grossMargin.toFixed(1) + '%';
+}
+
+if($('stihl-net-profit-display')){
+  $('stihl-net-profit-display').textContent =
+    fmtMoney(netProfit);
+}
+
+if($('stihl-net-margin-display')){
+  $('stihl-net-margin-display').textContent =
+    netMargin.toFixed(1) + '%';
+}
+
+if($('stihl-target-margin-display')){
+  $('stihl-target-margin-display').textContent =
+    marginStatus(netMargin);
+}
+
+if($('stihl-customer-adjustment-display')){
+  $('stihl-customer-adjustment-display').textContent =
+    fmtMoney(customerAdjustment);
+}
+
+if($('stihl-application-fee-display')){
+  $('stihl-application-fee-display').textContent =
+    fmtMoney(applicationFee);
+}
+
 $('stihl-subtotal').textContent = fmtMoney(subtotal);
 $('stihl-tax').textContent = fmtMoney(tax);
 $('stihl-total').textContent = fmtMoney(subtotal + tax);
+
 renderDepositSummary(subtotal + tax);
-      
-      renderFinancingOptions();
+
+renderPromotionPublic();
+
+renderFinancingOptions();
+
     }
 
     function copyQuote(){
