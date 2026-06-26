@@ -869,6 +869,11 @@ body.dealer-mode .dealer-only{
 </div>
 
 <div class="stihl-line">
+  <span>Principal Financed</span>
+  <strong id="stihl-principal-financed-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
   <span>Estimated Monthly Payment</span>
   <strong id="stihl-monthly-payment-display">$0.00</strong>
 </div>
@@ -901,6 +906,31 @@ body.dealer-mode .dealer-only{
 <div class="stihl-line">
   <span>Target Margin</span>
   <strong id="stihl-target-margin-display">Not Set</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Minimum Selling Price</span>
+  <strong id="stihl-min-selling-price-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Approval Status</span>
+  <strong id="stihl-approval-status-display">Not Checked</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Profit Meter</span>
+  <strong id="stihl-profit-meter-display">Not Rated</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Negotiation Available</span>
+  <strong id="stihl-negotiation-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Suggested Counter Offer</span>
+  <strong id="stihl-counter-offer-display">$0.00</strong>
 </div>
 
 <div class="stihl-line">
@@ -2136,16 +2166,16 @@ function financeAnalysis(program, amountFinanced){
 
   if(!program) return null;
 
-  const financedPrincipal =
-  amountFinanced +
-  money(program.ApplicationFee);
+  const principalFinanced =
+    amountFinanced +
+    money(program.ApplicationFee);
 
-const payment =
-  monthlyPayment(
-    financedPrincipal,
-    money(program.APR),
-    Number(clean(program.TermMonths))
-  );
+  const payment =
+    monthlyPayment(
+      principalFinanced,
+      money(program.APR),
+      Number(clean(program.TermMonths))
+    );
 
   const fee =
     amountFinanced *
@@ -2154,7 +2184,8 @@ const payment =
   return {
     program,
     payment,
-    fee
+    fee,
+    principalFinanced
   };
 }
 
@@ -3518,6 +3549,79 @@ function marginStatus(netMargin){
   return `🔴 Below Target (${netMargin.toFixed(1)}% / Target ${target.toFixed(1)}%)`;
 }
 
+function minimumSellingPrice(){
+  const cost = dealerCostAmount();
+  const target = targetMarginPercent() / 100;
+  const reimbursement = dealerRebateAmount();
+
+  if(cost <= 0) return 0;
+  if(target >= 1) return cost;
+
+  return Math.max(
+    (cost - reimbursement) / (1 - target),
+    0
+  );
+}
+
+function negotiationAvailable(){
+
+  const subtotal =
+    money($('stihl-subtotal')?.textContent);
+
+  return Math.max(
+    subtotal - minimumSellingPrice(),
+    0
+  );
+
+}
+
+function suggestedCounterOffer(){
+
+  const subtotal =
+    money($('stihl-subtotal')?.textContent);
+
+  const available =
+    negotiationAvailable();
+
+  return subtotal - (available / 2);
+
+}
+function approvalStatus(netMargin){
+  const target = targetMarginPercent();
+
+  if(netMargin >= target){
+    return '✓ Approved';
+  }
+
+  if(netMargin >= target - 3){
+    return '⚠ Manager Review';
+  }
+
+  return '✖ Below Minimum';
+}
+
+function profitMeter(netMargin){
+  const target = targetMarginPercent();
+
+  if(netMargin >= target + 7){
+    return '★★★★★ Excellent';
+  }
+
+  if(netMargin >= target + 4){
+    return '★★★★ Strong';
+  }
+
+  if(netMargin >= target){
+    return '★★★ Acceptable';
+  }
+
+  if(netMargin >= target - 3){
+    return '★★ Manager Review';
+  }
+
+  return '★ Below Minimum';
+}
+
 function dealerCostAmount(){
   return state.cart.reduce((sum, line) => {
     if(!line.item || line.included) return sum;
@@ -3877,6 +3981,10 @@ const amountFinanced =
   tax -
   selectedDepositAmount(subtotal + tax);
 
+  const principalFinanced =
+  amountFinanced +
+  applicationFee;
+
 const paymentFee =
   paymentDealerFeeAmount(amountFinanced);
 
@@ -4000,12 +4108,17 @@ if($('stihl-amount-financed-display')){
     fmtMoney(amountFinanced);
 }
 
+if($('stihl-principal-financed-display')){
+  $('stihl-principal-financed-display').textContent =
+    fmtMoney(principalFinanced);
+}
+
 const selectedProgram = selectedPaymentProgram();
 
 const monthly =
   selectedProgram
     ? monthlyPayment(
-        amountFinanced,
+        principalFinanced,
         money(selectedProgram.APR),
         Number(clean(selectedProgram.TermMonths))
       )
@@ -4046,6 +4159,31 @@ if($('stihl-net-margin-display')){
 if($('stihl-target-margin-display')){
   $('stihl-target-margin-display').textContent =
     marginStatus(netMargin);
+}
+
+if($('stihl-min-selling-price-display')){
+  $('stihl-min-selling-price-display').textContent =
+    fmtMoney(minimumSellingPrice());
+}
+
+if($('stihl-approval-status-display')){
+  $('stihl-approval-status-display').textContent =
+    approvalStatus(netMargin);
+}
+
+if($('stihl-profit-meter-display')){
+  $('stihl-profit-meter-display').textContent =
+    profitMeter(netMargin);
+}
+
+if($('stihl-negotiation-display')){
+  $('stihl-negotiation-display').textContent =
+    fmtMoney(negotiationAvailable());
+}
+
+if($('stihl-counter-offer-display')){
+  $('stihl-counter-offer-display').textContent =
+    fmtMoney(suggestedCounterOffer());
 }
 
 const recommendedFinance =
