@@ -2815,37 +2815,75 @@ return 'See product notes';
     function renderAttachmentOptions(){
 
   const tool = state.selectedTool;
-      if(!tool){
-  $('stihl-attachment-select').innerHTML =
-    '<option value="">Select a tool first</option>';
-  return;
-}
+
+  if(!tool){
+    $('stihl-attachment-select').innerHTML =
+      '<option value="">Select a tool first</option>';
+    return;
+  }
 
   function tight(v){
     return clean(v).toUpperCase().replace(/[^A-Z0-9]/g,'');
   }
 
-  const isKombi = tool && (
-    tight(skuOf(tool)).startsWith('KM') ||
-    tight(clean(tool.Model)).startsWith('KM') ||
+  const toolKeys = [
+    skuOf(tool),
+    clean(tool.Model),
+    clean(tool.StihlID),
+    clean(tool.Name)
+  ].map(tight).filter(Boolean);
+
+  const isKombi = toolKeys.some(k =>
+    k.startsWith('KMA') ||
+    k.startsWith('KM')
+  ) ||
     clean(tool.SubCategory).toLowerCase().includes('kombi') ||
     clean(tool.Type).toLowerCase().includes('kombi') ||
-    clean(tool.Category).toLowerCase().includes('kombi')
-  );
+    clean(tool.Category).toLowerCase().includes('kombi');
 
-  const model = clean(tool?.Model).toUpperCase();
-const sku = skuOf(tool).toUpperCase();
+  const list = state.attachments.filter(a => {
 
-const list = state.attachments.filter(a => {
-  return isTrue(a[model]) || isTrue(a[sku]);
-});
+    const attachmentKeys = Object.keys(a);
 
-$('stihl-attachment-select').innerHTML =
-  '<option value="">Choose compatible option</option>' +
+    const directMatch = attachmentKeys.some(key => {
+      const keyTight = tight(key);
+
+      return toolKeys.some(toolKey =>
+        keyTight &&
+        isTrue(a[key]) &&
+        (
+          keyTight === toolKey ||
+          toolKey.startsWith(keyTight) ||
+          keyTight.startsWith(toolKey)
+        )
+      );
+    });
+
+    if(directMatch) return true;
+
+    if(isKombi){
+      return attachmentKeys.some(key => {
+        const keyTight = tight(key);
+
+        return isTrue(a[key]) &&
+          toolKeys.some(toolKey =>
+            toolKey.startsWith(keyTight) ||
+            keyTight.startsWith(toolKey)
+          );
+      });
+    }
+
+    return false;
+
+  });
+
+  $('stihl-attachment-select').innerHTML =
+    '<option value="">Choose compatible option</option>' +
     list.map(a => `<option value="${escapeHtml(skuOf(a))}">
       ${escapeHtml(nameOf(a))} — ${fmtMoney(priceOf(a))}
     </option>`).join('');
 }
+
 function renderKMARuntimeMatrix(){
   const box = $('stihl-kma-runtime-matrix');
   if(!box) return;
