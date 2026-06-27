@@ -1,16 +1,16 @@
-﻿SKU,SKUSecondary,SortOrder,Description,MSRP,SalePrice,ItemType,RequiredModel1,RequiredItem1,RequiredQty1,RequiredModel2,RequiredItem2,RequiredQty2,RequiredModel3,RequiredItem3,RequiredQty3,RequiredModel4,RequiredItem4,RequiredQty4,AssemblyOption,AssemblyAmount,Active,BGA30,BGA50,BGA60,BGA86,BGA160,BGA200,BGA250,BGA300,BRA200,BRA280,BRA500,BRA600,FSA57,FSA60R,FSA80R,FSA120R,FSA135R,GTA26,GTA30,GTA40,KMA80R,KMA120R,KMA135R,KMA200R,RMA765V,ImageURL
-0000 792 9164,0000-792-9164,1,Bar Scabbard,9.59,9.59,Accessory,,,,,,,,,,,,,T,$0.00,T,,,,,,,,,,,,,,,,,,T,,,,,,,,images/0000-792-9164.jpg
-0782 516 8501,0782-516-8501,2,Lubricating Oil,9.99,9.99,Accessory,,,,,,,,,,,,,T,$0.00,T,,,,,,,,,,,,,,,,,,T,,,,,,,,images/0782-516-8501.jpg
-3007 003 0101,3007-003-0101,3,Guide Bar,22.99,22.99,Accessory,,,,,,,,,,,,,T,$0.00,T,,,,,,,,,,,,,,,,,,T,,,,,,,,images/3007-003-0101.jpg
-3008 000 0202,3008-000-0202,4,Guide Bar,27.99,27.99,Accessory,,,,,,,,,,,,,T,$0.00,T,,,,,,,,,,,,,,,,,,,T,T,,,,,,images/3008-000-0202.jpg
-3008 000 0203,3008-000-0203,5,Guide Bar,33.99,33.99,Accessory,,,,,,,,,,,,,T,$0.00,T,,,,,,,,,,,,,,,,,,,,T,,,,,,images/3008-000-0203.jpg
-3670 005 0028,3670-005-0028,6,Saw Chain,17.99,17.99,Accessory,,,,,,,,,,,,,T,$0.00,T,,,,,,,,,,,,,,,,,,T,,,,,,,,images/3670-005-0028.jpg
-3670 005 0038,3670-005-0038,7,Saw Chain,18.99,18.99,Accessory,,,,,,,,,,,,,T,$0.00,T,,,,,,,,,,,,,,,,,,,T,T,,,,,,images/3670-005-0038.jpg
-4002 710 2169,4002-710-2169,8,AutoCut C 26-2,43.99,43.99,Accessory,,,,,,,,,,,,,T,$0.00,T,,,,,,,,,,,,,,,T,T,T,,,,,,,,,images/4002-710-2169.jpg
-4520 602 0900,4520-602-0900,9,Not Found,Not Found,Not Found,Accessory,,,,,,,,,,,,,T,$0.00,T,,,,T,T,T,T,T,T,T,T,T,,,,T,T,,,,T,T,T,T,T,images/4520-602-0900.jpg
-4850 602 0900,4850-602-0900,10,Not Found,Not Found,Not Found,Accessory,,,,,,,,,,,,,T,$0.00,T,,,,T,T,T,T,T,T,T,T,T,,,,T,T,,,,T,T,T,T,T,images/4850-602-0900.jpg
-4866 701 8301,4866-701-8301,11,Flat Straight Nozzle,14.99,14.99,Accessory,,,,,,,,,,,,,T,$0.00,T,T,,,T,T,,,T,T,,,T,,,,,,,,,,,,,,images/4866-701-8301.jpg
-6909 400 4301,6909-400-4301,12,AP Battery Adapter,213.99,213.99,Accessory,,,,,,,,,,,,,T,$0.00,T,,,,,,,,T,,,,,,,,,,,,,,,,,T,images/6909-400-4301.jpg
-EA08 430 7901,EA08-430-7901,13,CM12 Charging Circuit,1289.99,1289.99,Accessory,,,,,,,,,,,,,T,$0.00,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,,,,T,T,T,T,T,images/EA08-430-7901.jpg
-GA01 490 1700,GA01-490-1700,14,Holster,32.99,32.99,Accessory,,,,,,,,,,,,,T,$0.00,T,,,,,,,,,,,,,,,,,,T,,,,,,,,images/GA01-490-1700.jpg
-GA01 820 5001,GA01-820-5001,15,GTA26 - 5' Extension,95.99,95.99,Accessory,,,,,,,,,,,,,T,$0.00,T,,,,,,,,,,,,,,,,,,T,,,,,,,,images/GA01-820-5001.jpg
+﻿SortOrder,SKU,SKUSecondary,StihlID,Model,Name,Description,Category,SubCategory,Active,MSRP,SalePrice,DealerCost,InventoryStatus,ItemType,Featured,Badge,RequiredModel1,RequiredItem1,RequiredQty1,RequiredModel2,RequiredItem2,RequiredQty2,RequiredModel3,RequiredItem3,RequiredQty3,RequiredModel4,RequiredItem4,RequiredQty4,AssemblyOption,AssemblyAmount,ShippingWeight,BoxLength,BoxWidth,BoxHeight,Oversize,FreightClass,ShipsAlone,BGA30,BGA50,BGA60,BGA86,BGA160,BGA200,BGA250,BGA300,BRA200,BRA280,BRA500,BRA600,FSA57,FSA60R,FSA80R,FSA120R,FSA135R,GTA26,GTA30,GTA40,KMA80R,KMA120R,KMA135R,KMA200R,RMA765V,ImageURL,ProductURL
+1,0000 792 9164,0000-792-9164,,,,Bar Scabbard,,,T,9.59,9.59,4.79,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,,images/0000-792-9164.jpg,
+2,0782 516 8501,0782-516-8501,,,,Lubricating Oil,,,T,9.99,9.99,6.09,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,,images/0782-516-8501.jpg,
+3,3007 003 0101,3007-003-0101,,,,Guide Bar,,,T,22.99,22.99,13.41,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,,images/3007-003-0101.jpg,
+4,3008 000 0202,3008-000-0202,,,,Guide Bar,,,T,27.99,27.99,16.46,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,,,,,,,,,,,,,,,,,,,T,T,,,,,,images/3008-000-0202.jpg,
+5,3008 000 0203,3008-000-0203,,,,Guide Bar,,,T,33.99,33.99,20.12,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,images/3008-000-0203.jpg,
+6,3670 005 0028,3670-005-0028,,,,Saw Chain,,,T,17.99,17.99,10.25,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,,images/3670-005-0028.jpg,
+7,3670 005 0038,3670-005-0038,,,,Saw Chain,,,T,18.99,18.99,9.68,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,,,,,,,,,,,,,,,,,,,T,T,,,,,,images/3670-005-0038.jpg,
+8,4002 710 2169,4002-710-2169,,,,AutoCut C 26-2,,,T,43.99,43.99,28.39,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,,,,,,,,,,,,,,,T,T,T,,,,,,,,,images/4002-710-2169.jpg,
+9,4520 602 0900,4520-602-0900,,,,Not Found,,,T,Not Found,Not Found,Not Found,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,,,,T,T,T,T,T,T,T,T,T,,,,T,T,,,,T,T,T,T,T,images/4520-602-0900.jpg,
+10,4850 602 0900,4850-602-0900,,,,Not Found,,,T,Not Found,Not Found,Not Found,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,,,,T,T,T,T,T,T,T,T,T,,,,T,T,,,,T,T,T,T,T,images/4850-602-0900.jpg,
+11,4866 701 8301,4866-701-8301,,,,Flat Straight Nozzle,,,T,14.99,14.99,9.22,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,T,,,T,T,,,T,T,,,T,,,,,,,,,,,,,,images/4866-701-8301.jpg,
+12,6909 400 4301,6909-400-4301,,,,AP Battery Adapter,,,T,213.99,213.99,162.63,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,,,,,,,,T,,,,,,,,,,,,,,,,,T,images/6909-400-4301.jpg,
+13,EA08 430 7901,EA08-430-7901,,,,CM12 Charging Circuit,,,T,1289.99,1289.99,980.39,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,,,,T,T,T,T,T,images/EA08-430-7901.jpg,
+14,GA01 490 1700,GA01-490-1700,,,,Holster,,,T,32.99,32.99,25.07,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,,images/GA01-490-1700.jpg,
+15,GA01 820 5001,GA01-820-5001,,,,GTA26 - 5' Extension,,,T,95.99,95.99,72.95,,Accessory,,,,,,,,,,,,,,,T,$0.00,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,,images/GA01-820-5001.jpg,
