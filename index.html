@@ -666,11 +666,23 @@ body.dealer-mode .dealer-only{
         <section class="stihl-panel stihl-summary" id="stihl-quote-summary-panel">
           <h2>Quote Summary</h2>
 
-          <div>
-            <div>
-  <label for="stihl-customer-name">Customer</label>
-  <input id="stihl-customer-name" placeholder="Customer name" />
+<div style="margin-bottom:12px;">
+  <label for="stihl-salesperson">Prepared By</label>
+
+  <select id="stihl-salesperson">
+    <option value="">Select Salesperson</option>
+    <option value="John">John</option>
+    <option value="Chris">Chris</option>
+    <option value="New Milford Sales">New Milford Sales</option>
+    <option value="Danbury Sales">Danbury Sales</option>
+  </select>
 </div>
+
+<div>
+  <div>
+    <label for="stihl-customer-name">Customer</label>
+    <input id="stihl-customer-name" placeholder="Customer name" />
+  </div>
 
 <div style="margin-top:10px">
   <label for="stihl-business-name">Business Name</label>
@@ -807,14 +819,16 @@ body.dealer-mode .dealer-only{
 <div id="stihl-setup-options" style="margin-top:12px;display:none;"></div>
 <input id="stihl-setup-choice" type="hidden" value="">
 <input id="stihl-setup-fee" type="hidden" value="0">
-<div id="stihl-setup-line" style="display:none;"></div>
+          <div id="stihl-setup-line" style="display:none;"></div>
 <div id="stihl-discount-line" style="display:none;"></div>
-          <div id="stihl-warranty-line" style="display:none;"></div>
-          <div id="stihl-rebate-line" style="display:none;"></div>
-          <div class="stihl-line">
-            <span>Subtotal</span>
-            <strong id="stihl-subtotal">$0.00</strong>
-          </div>
+<div id="stihl-warranty-line" style="display:none;"></div>
+<div id="stihl-rebate-line" style="display:none;"></div>
+<div id="stihl-trade-line" style="display:none;"></div>
+
+<div class="stihl-line">
+  <span>Subtotal</span>
+  <strong id="stihl-subtotal">$0.00</strong>
+</div>
           <div class="stihl-line">
             <span>Estimated CT Sales Tax</span>
             <strong id="stihl-tax">$0.00</strong>
@@ -1122,8 +1136,75 @@ cart: []
       const n = Number(clean(v).replace(/[$,]/g,''));
       return isFinite(n) ? n : 0;
     }
-    function fmtMoney(n){ return '$' + (Number(n)||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
-    function createQuoteNumber(brand){
+    function fmtMoney(n){
+  return '$' + (Number(n)||0).toLocaleString(undefined,{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  });
+}
+
+function fileToEmailAttachment(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const result = String(reader.result || '');
+      const base64 = result.split(',')[1] || '';
+
+      resolve({
+        filename: file.name || 'trade-photo.jpg',
+        content: base64
+      });
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function fileToEmailAttachment(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const result = String(reader.result || '');
+      const base64 = result.split(',')[1] || '';
+
+      resolve({
+        filename: file.name || 'trade-photo.jpg',
+        content: base64,
+        dataUrl: result
+      });
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function fileToDataUrl(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+
+    reader.readAsDataURL(file);
+  });
+}
+
+function fileToDataUrl(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+
+    reader.readAsDataURL(file);
+  });
+}
+
+function createQuoteNumber(brand){
   const d = new Date();
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2,'0');
@@ -1504,6 +1585,7 @@ $('stihl-tool-select').addEventListener('change', selectTool);
       $('stihl-email-quote').addEventListener('click', emailQuote);
       $('stihl-clear').addEventListener('click', clearAll);
       [
+  'stihl-salesperson',
   'stihl-customer-name',
   'stihl-business-name',
   'stihl-customer-contact',
@@ -1515,6 +1597,73 @@ $('stihl-tool-select').addEventListener('change', selectTool);
   'stihl-customer-email',
   'stihl-quote-notes'
 ].forEach(id => $(id).addEventListener('input', renderCart));
+
+/* ---------- Trade-In Module ---------- */
+
+const tradeEnabled = $('stihl-trade-enabled');
+const tradeFields = $('stihl-trade-fields');
+const tradePhotos = $('stihl-trade-photos');
+const tradePreview = $('stihl-trade-photo-preview');
+
+if(tradeEnabled && tradeFields){
+  tradeEnabled.addEventListener('change', () => {
+    tradeFields.style.display =
+      clean(tradeEnabled.value) === 'yes'
+        ? ''
+        : 'none';
+
+    renderCart();
+  });
+}
+
+if(tradePhotos && tradePreview){
+  tradePhotos.addEventListener('change', () => {
+    const files = Array.from(tradePhotos.files || []).slice(0, 8);
+
+    tradePreview.innerHTML = files.map(file => {
+      const url = URL.createObjectURL(file);
+
+      return `
+        <div style="
+          border:1px solid #ddd;
+          border-radius:8px;
+          overflow:hidden;
+          background:#f7f7f7;
+          height:80px;
+        ">
+          <img src="${url}"
+               alt="Trade-in photo"
+               style="
+                 width:100%;
+                 height:100%;
+                 object-fit:cover;
+               ">
+        </div>
+      `;
+    }).join('');
+
+    if((tradePhotos.files || []).length > 8){
+      alert('Maximum 8 trade-in photos. Only the first 8 will be shown.');
+    }
+  });
+}
+
+[
+  'stihl-trade-year',
+  'stihl-trade-make',
+  'stihl-trade-model',
+  'stihl-trade-hours',
+  'stihl-trade-condition',
+  'stihl-trade-serial',
+  'stihl-trade-notes',
+  'stihl-trade-allowance'
+].forEach(id => {
+  const el = $(id);
+  if(el){
+    el.addEventListener('input', renderCart);
+    el.addEventListener('change', renderCart);
+  }
+});
 
 function titleCaseInput(el){
   el.value = clean(el.value)
@@ -1793,11 +1942,11 @@ ${renderAvailability(t)}
   Print Price Tag
 </button>
 
-    ${clean(t.KitBattery) ? `
+    ${clean(t.KitBattery) && clean(t.KitBattery) !== '0' ? `
 <div class="stihl-line">
   <span>Includes</span>
   <strong>
-    ${clean(t.KitBattery)
+    ${clean(t.KitBattery) && clean(t.KitBattery) !== '0'
       ? (
           Number(clean(t.KitBatteryQty) || 1) > 1
             ? `(${clean(t.KitBatteryQty)}) ${escapeHtml(clean(t.KitBattery))} Batteries`
@@ -1864,7 +2013,7 @@ ${renderProductSpecs(t)}
 
 ${shouldShowBatteryInfo(t) ? renderWeightOptions(t) : ''}
 
-${clean(t.SpecialText)
+${clean(t.SpecialText) && clean(t.SpecialText) !== '0'
   ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}</div>`
   : ''}
 
@@ -1894,7 +2043,10 @@ function renderAvailability(item){
 
   const nm = isTrue(item.QtyNewMilford);
   const db = isTrue(item.QtyDanbury);
-  const note = clean(item.AvailabilityNote);
+  const note =
+  clean(item.AvailabilityNote) === '0'
+    ? ''
+    : clean(item.AvailabilityNote);
 
   const stores = [];
 
@@ -1975,6 +2127,7 @@ async function printSalesSheet(){
   
   const quoteNumber = createQuoteNumber('STIHL');
 const quoteDate = new Date().toLocaleDateString();
+const salesperson = clean($('stihl-salesperson')?.value);
 const customerName = clean($('stihl-customer-name').value);
 const businessName = clean($('stihl-business-name').value);
 
@@ -2022,6 +2175,132 @@ const customerBlock =
 `
 : '';
   
+const tradeInfo =
+  clean($('stihl-trade-enabled')?.value) === 'yes'
+    ? {
+        year: clean($('stihl-trade-year')?.value),
+        make: clean($('stihl-trade-make')?.value),
+        model: clean($('stihl-trade-model')?.value),
+        hours: clean($('stihl-trade-hours')?.value),
+        condition: clean($('stihl-trade-condition')?.value),
+        serial: clean($('stihl-trade-serial')?.value),
+        notes: clean($('stihl-trade-notes')?.value),
+        allowance: tradeAllowance(),
+        allPhotoCount: Array.from($('stihl-trade-photos')?.files || []).length,
+
+photos: await Promise.all(
+  Array.from($('stihl-trade-photos')?.files || [])
+    .slice(0, 4)
+    .map(fileToDataUrl)
+)
+      }
+    : null;
+
+    const tradePhotoHtml =
+  tradeInfo && tradeInfo.photos.length
+    ? `
+      <div style="
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:8px;
+        padding:12px;
+      ">
+        ${tradeInfo.photos.map(src => `
+          <div style="
+            border:1px solid #ddd;
+            border-radius:6px;
+            overflow:hidden;
+            height:90px;
+          ">
+            <img src="${src}"
+                 style="width:100%;height:100%;object-fit:cover;">
+          </div>
+        `).join('')}
+      </div>
+
+      ${tradeInfo.allPhotoCount > 4 ? `
+        <div style="
+          padding:0 12px 12px;
+          font-size:12px;
+          color:#555;
+          font-style:italic;
+        ">
+          Additional trade photos have been received and are attached to the quote.
+        </div>
+      ` : ''}
+    `
+    : '';
+
+const tradeBlock = tradeInfo
+  ? `
+    <div style="
+      margin-top:20px;
+      border:2px solid #1f7a3a;
+      border-radius:10px;
+      overflow:hidden;
+    ">
+      <div style="
+        background:#1f7a3a;
+        color:#fff;
+        padding:10px 14px;
+        font-size:18px;
+        font-weight:900;
+      ">
+        Trade-In Information
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        ${tradeInfo.year || tradeInfo.make || tradeInfo.model ? `
+          <tr>
+            <td style="padding:8px 12px;width:35%;font-weight:700;">Trade-In</td>
+            <td style="padding:8px 12px;">
+              ${escapeHtml([tradeInfo.year, tradeInfo.make, tradeInfo.model].filter(Boolean).join(' '))}
+            </td>
+          </tr>
+        ` : ''}
+
+        ${tradeInfo.hours ? `
+          <tr>
+            <td style="padding:8px 12px;font-weight:700;">Hours</td>
+            <td style="padding:8px 12px;">${escapeHtml(tradeInfo.hours)}</td>
+          </tr>
+        ` : ''}
+
+        ${tradeInfo.condition ? `
+          <tr>
+            <td style="padding:8px 12px;font-weight:700;">Condition</td>
+            <td style="padding:8px 12px;">${escapeHtml(tradeInfo.condition)}</td>
+          </tr>
+        ` : ''}
+
+        ${tradeInfo.serial ? `
+          <tr>
+            <td style="padding:8px 12px;font-weight:700;">Serial Number</td>
+            <td style="padding:8px 12px;">${escapeHtml(tradeInfo.serial)}</td>
+          </tr>
+        ` : ''}
+
+        ${tradeInfo.notes ? `
+          <tr>
+            <td style="padding:8px 12px;font-weight:700;">Notes</td>
+            <td style="padding:8px 12px;">${escapeHtml(tradeInfo.notes)}</td>
+          </tr>
+        ` : ''}
+
+        ${tradeInfo.allowance > 0 ? `
+          <tr style="background:#f3fbf5;font-weight:900;">
+            <td style="padding:8px 12px;">Trade Allowance</td>
+            <td style="padding:8px 12px;">-${fmtMoney(tradeInfo.allowance)}</td>
+          </tr>
+        ` : ''}
+      </table>
+
+      ${tradePhotoHtml}
+
+    </div>
+  `
+  : '';
+
   const quoteItems = state.cart.map(line => {
   const msrp = money(line.item.MSRP);
   const sale = money(line.item.SalePrice);
@@ -2072,7 +2351,7 @@ const customerBlock =
 ">
 
   <div>
-    Prepared by West End Power Equipment • Family Owned Since 1951
+    Prepared by ${salesperson ? escapeHtml(salesperson) : 'West End Power Equipment'} • Family Owned Since 1951
   </div>
 
   <div>
@@ -2122,6 +2401,8 @@ const customerBlock =
   </table>
 
 </div>
+
+${tradeBlock}
 
 <div style="
   margin-top:20px;
@@ -2296,6 +2577,17 @@ function setupFee(){
     return sum + (amount * (Number(line.qty) || 1));
   }, 0);
 }
+
+function tradeAllowance(){
+
+  if(clean($('stihl-trade-enabled')?.value) !== 'yes'){
+    return 0;
+  }
+
+  return money($('stihl-trade-allowance')?.value || 0);
+
+}
+
 function setupDetailHtml(){
   return `
     <div class="stihl-line" style="
@@ -2794,11 +3086,34 @@ async function sendQuoteLead(actionType){
     configurator: 'STIHL',
     source: 'STIHL Configurator',
     action: actionType || 'Confirm Price & Availability',
+
+    salesperson: clean($('stihl-salesperson')?.value),
+
     customer: clean($('stihl-customer-name')?.value),
-    business: clean($('stihl-business-name')?.value),
-    phone: clean($('stihl-customer-contact')?.value),
-    altPhone: clean($('stihl-alt-phone')?.value),
-    email: clean($('stihl-customer-email')?.value),
+business: clean($('stihl-business-name')?.value),
+phone: clean($('stihl-customer-contact')?.value),
+altPhone: clean($('stihl-alt-phone')?.value),
+email: clean($('stihl-customer-email')?.value),
+
+trade: clean($('stihl-trade-enabled')?.value) === 'yes'
+  ? {
+      year: clean($('stihl-trade-year')?.value),
+      make: clean($('stihl-trade-make')?.value),
+      model: clean($('stihl-trade-model')?.value),
+      hours: clean($('stihl-trade-hours')?.value),
+      condition: clean($('stihl-trade-condition')?.value),
+      serial: clean($('stihl-trade-serial')?.value),
+      notes: clean($('stihl-trade-notes')?.value),
+      allowance: tradeAllowance(),
+      photoCount: Array.from($('stihl-trade-photos')?.files || []).length,
+
+photos: await Promise.all(
+  Array.from($('stihl-trade-photos')?.files || [])
+    .slice(0, 8)
+    .map(fileToEmailAttachment)
+)
+    }
+  : null,
     address: [
       clean($('stihl-street-address')?.value),
       clean($('stihl-city')?.value),
@@ -4439,14 +4754,21 @@ const subtotal = Math.max(
   0
 );
 
-const tax = subtotal * TAX_RATE;
+const trade = tradeAllowance();
+
+const taxableSubtotal = Math.max(
+  subtotal - trade,
+  0
+);
+
+const tax = taxableSubtotal * TAX_RATE;
 
 const amountFinanced =
-  subtotal +
+  taxableSubtotal +
   tax -
-  selectedDepositAmount(subtotal + tax);
+  selectedDepositAmount(taxableSubtotal + tax);
 
-  const principalFinanced =
+const principalFinanced =
   amountFinanced +
   applicationFee;
 
@@ -4676,11 +4998,53 @@ if($('stihl-application-fee-display')){
     fmtMoney(paymentApplicationFee());
 }
 
-const finalSubtotal = dealer.subtotal + setupFee() + deliveryFee() + warrantyAmount() - customerRebateAmount();
+const finalSubtotal = Math.max(
+  dealer.subtotal +
+  setupFee() +
+  deliveryFee() +
+  warrantyAmount() -
+  customerRebateAmount() -
+  trade,
+  0
+);
+
 const finalTax = finalSubtotal * TAX_RATE;
 const finalTotal = finalSubtotal + finalTax;
 
+/* ---------- Trade Allowance Line ---------- */
+
+if($('stihl-trade-line')){
+
+  $('stihl-trade-line').style.display =
+    trade > 0 ? '' : 'none';
+
+  $('stihl-trade-line').innerHTML =
+    trade > 0
+      ? `
+          <div class="stihl-line">
+            <span>Trade Allowance</span>
+            <strong>-${fmtMoney(trade)}</strong>
+          </div>
+        `
+      : '';
+
+}
+
 $('stihl-subtotal').textContent = fmtMoney(finalSubtotal);
+$('stihl-tax').textContent = fmtMoney(finalTax);
+$('stihl-total').textContent = fmtMoney(finalTotal);
+
+if($('stihl-trade-line')){
+  $('stihl-trade-line').style.display = trade > 0 ? '' : 'none';
+
+  $('stihl-trade-line').innerHTML = trade > 0
+    ? `<div class="stihl-line">
+         <span>Trade Allowance</span>
+         <strong>-${fmtMoney(trade)}</strong>
+       </div>`
+    : '';
+}
+
 $('stihl-tax').textContent = fmtMoney(finalTax);
 $('stihl-total').textContent = fmtMoney(finalTotal);
 
