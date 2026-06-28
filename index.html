@@ -721,7 +721,84 @@ body.dealer-mode .dealer-only{
             <textarea id="stihl-quote-notes" placeholder="Optional quote notes"></textarea>
 </div>
 
+<div class="stihl-card" id="stihl-trade-card">
+  <h3>Trade-In</h3>
 
+  <label for="stihl-trade-enabled">Trade-In Included?</label>
+  <select id="stihl-trade-enabled">
+    <option value="">No Trade-In</option>
+    <option value="yes">Yes - Add Trade-In</option>
+  </select>
+
+  <div id="stihl-trade-fields" style="display:none;margin-top:12px;">
+
+    <div style="display:grid;grid-template-columns:90px 1fr;gap:10px;">
+      <div>
+        <label for="stihl-trade-year">Year</label>
+        <input id="stihl-trade-year" placeholder="2021">
+      </div>
+
+      <div>
+        <label for="stihl-trade-make">Make</label>
+        <input id="stihl-trade-make" placeholder="Ferris, Toro, STIHL, etc.">
+      </div>
+    </div>
+
+    <div style="margin-top:10px;">
+      <label for="stihl-trade-model">Model</label>
+      <input id="stihl-trade-model" placeholder="Model">
+    </div>
+
+    <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div>
+        <label for="stihl-trade-hours">Hours</label>
+        <input id="stihl-trade-hours" type="number" min="0" step="1" placeholder="Hours">
+      </div>
+
+      <div>
+        <label for="stihl-trade-condition">Condition</label>
+        <select id="stihl-trade-condition">
+          <option value="">Select Condition</option>
+          <option value="Excellent">Excellent</option>
+          <option value="Good">Good</option>
+          <option value="Fair">Fair</option>
+          <option value="Poor">Poor</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:10px;">
+      <label for="stihl-trade-serial">Serial Number</label>
+      <input id="stihl-trade-serial" placeholder="Serial number">
+    </div>
+
+    <div style="margin-top:10px;">
+      <label for="stihl-trade-notes">Trade-In Notes / Known Issues</label>
+      <textarea id="stihl-trade-notes" placeholder="Condition, issues, attachments, service history, etc."></textarea>
+    </div>
+
+    <div style="margin-top:10px;">
+      <label for="stihl-trade-photos">Trade-In Photos</label>
+      <input id="stihl-trade-photos"
+             type="file"
+             accept="image/*"
+             multiple>
+      <div class="stihl-small">
+        Add up to 8 photos. On mobile, this can open the camera.
+      </div>
+    </div>
+
+    <div id="stihl-trade-photo-preview"
+         style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:8px;margin-top:10px;">
+    </div>
+
+    <div style="margin-top:10px;">
+      <label for="stihl-trade-allowance">Trade Allowance</label>
+      <input id="stihl-trade-allowance" type="number" min="0" step="0.01" value="0">
+    </div>
+
+  </div>
+</div>
 
 <div id="stihl-cart-lines" style="margin-top:12px"></div>         
 <div id="stihl-delivery-options" style="margin-top:12px;display:none;"></div>
@@ -1702,11 +1779,13 @@ box.innerHTML = `
     
 ${renderKitSavings(t)}
 
-    <button class="stihl-btn secondary"
-            id="stihl-sales-sheet"
-            type="button">
-      Print Sales Sheet / Save PDF
-    </button>
+${renderAvailability(t)}
+
+<button class="stihl-btn secondary"
+        id="stihl-sales-sheet"
+        type="button">
+  Print Sales Sheet / Save PDF
+</button>
     
     <button class="stihl-btn light"
         id="stihl-price-tag"
@@ -1805,6 +1884,71 @@ const priceTagBtn = document.getElementById('stihl-price-tag');
 if(priceTagBtn){
   priceTagBtn.addEventListener('click', printPriceTag);
 }
+}
+
+function renderAvailability(item){
+
+  if(!item || !isTrue(item.DisplayAvailability)){
+    return '';
+  }
+
+  const nm = isTrue(item.QtyNewMilford);
+  const db = isTrue(item.QtyDanbury);
+  const note = clean(item.AvailabilityNote);
+
+  const stores = [];
+
+  if(nm){
+    stores.push(`
+      <a class="stihl-store-link"
+         href="https://www.google.com/maps/search/?api=1&query=West+End+Power+Equipment+265+Danbury+Road+New+Milford+CT+06776"
+         target="_blank"
+         rel="noopener"
+         data-tooltip="West End Power Equipment&#10;265 Danbury Road&#10;New Milford, CT 06776&#10;&#10;Sales • Parts • Service&#10;&#10;Click for directions">
+         New Milford
+      </a>
+    `);
+  }
+
+  if(db){
+    stores.push(`
+      <a class="stihl-store-link"
+        href="https://www.google.com/maps/search/?api=1&query=West+End+Power+Equipment+56+Beaver+Brook+Road+Danbury+CT+06810"
+         target="_blank"
+         rel="noopener"
+         data-tooltip="West End Power Equipment&#10;56 Beaver Brook Road&#10;Danbury, CT 06810&#10;&#10;Sales • Parts • Service&#10;&#10;Click for directions">
+         Danbury
+      </a>
+    `);
+  }
+
+  if(!stores.length){
+    return '';
+  }
+
+  return `
+    <div class="stihl-card"
+         style="border:2px solid #1f7a3a;
+                background:#f3fbf5;
+                margin-top:12px;">
+
+      <div style="
+          font-size:18px;
+          font-weight:900;
+          color:#1f7a3a;
+          margin-bottom:8px;">
+        ✓ Currently In Stock In:
+        ${stores.join(' & ')}
+      </div>
+
+      ${note ? `
+        <div class="stihl-small">
+          ${escapeHtml(note)}
+        </div>
+      ` : ''}
+
+    </div>
+  `;
 }
 
 async function printSalesSheet(){
