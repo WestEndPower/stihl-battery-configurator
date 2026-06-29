@@ -837,6 +837,22 @@ body.dealer-mode .dealer-only{
             <span>Out-the-Door Price</span>
             <strong class="stihl-total" id="stihl-total">$0.00</strong>
           </div>
+
+          <div style="margin-top:12px;">
+  <label for="stihl-deposit-option">Customer Down Payment</label>
+  <select id="stihl-deposit-option">
+    <option value="0">No Down Payment</option>
+    <option value="10pct">10% Down Payment</option>
+    <option value="20pct">20% Down Payment</option>
+    <option value="custom">Custom Down Payment Amount</option>
+  </select>
+</div>
+
+<div id="stihl-custom-deposit-wrap" style="display:none;margin-top:10px;">
+  <label for="stihl-custom-deposit">Custom Down Payment Amount</label>
+  <input id="stihl-custom-deposit" type="number" min="0" step="0.01" value="0">
+</div>
+
           <div class="dealer-only" id="stihl-dealer-pricing-panel" style="
   margin-top:14px;
   border:2px solid #1f7a3a;
@@ -938,46 +954,7 @@ body.dealer-mode .dealer-only{
 
 <hr>
 
-<h3>Warranty / Deposit</h3>
 
-<div style="margin-top:12px;">
-  <label for="stihl-warranty-option">Extended Warranty</label>
-  <select id="stihl-warranty-option">
-    <option value="0">No Extended Warranty</option>
-    <option value="0">1 Year Extended Warranty</option>
-    <option value="0">2 Year Extended Warranty</option>
-    <option value="custom">Custom Warranty Amount</option>
-  </select>
-</div>
-
-<div id="stihl-custom-warranty-wrap" style="display:none;margin-top:10px;">
-  <label for="stihl-custom-warranty">Custom Warranty Amount</label>
-  <input id="stihl-custom-warranty" type="number" min="0" step="0.01" value="0">
-</div>
-
-<div class="stihl-line">
-  <span>Warranty Amount</span>
-  <strong id="stihl-warranty-display">$0.00</strong>
-</div>
-
-<div style="margin-top:12px;">
-  <label for="stihl-deposit-option">Deposit / Down Payment</label>
-  <select id="stihl-deposit-option">
-    <option value="0">Default $0 Deposit</option>
-    <option value="10pct">10% Deposit</option>
-    <option value="20pct">20% Deposit</option>
-    <option value="custom">Custom Deposit Amount</option>
-  </select>
-</div>
-
-<div id="stihl-custom-deposit-wrap" style="display:none;margin-top:10px;">
-  <label for="stihl-custom-deposit">Custom Deposit Amount</label>
-  <input id="stihl-custom-deposit" type="number" min="0" step="0.01" value="0">
-</div>
-
-<hr>
-
-<h3>Profitability</h3>
 
 <div class="stihl-line">
   <span>Dealer Cost</span>
@@ -1168,37 +1145,6 @@ function fileToEmailAttachment(file){
     };
 
     reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-function fileToEmailAttachment(file){
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      const result = String(reader.result || '');
-      const base64 = result.split(',')[1] || '';
-
-      resolve({
-        filename: file.name || 'trade-photo.jpg',
-        content: base64,
-        dataUrl: result
-      });
-    };
-
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-function fileToDataUrl(file){
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-
     reader.readAsDataURL(file);
   });
 }
@@ -1815,7 +1761,33 @@ $('stihl-customer-email').addEventListener('blur', () => {
 
 });
 
-      
+/* ---------- Deposit / Down Payment ---------- */
+
+['stihl-deposit-option','stihl-custom-deposit'].forEach(id => {
+
+  const el = $(id);
+
+  if(!el) return;
+
+  function updateDeposit(){
+
+    const wrap = $('stihl-custom-deposit-wrap');
+
+    if(wrap){
+      wrap.style.display =
+        clean($('stihl-deposit-option').value) === 'custom'
+          ? ''
+          : 'none';
+    }
+
+    renderCart();
+
+  }
+
+  el.addEventListener('change', updateDeposit);
+  el.addEventListener('input', updateDeposit);
+
+});      
 }
 
     function renderCategories(){
@@ -2785,7 +2757,11 @@ function paymentDealerFeeAmount(base){
 
   if(!p) return 0;
 
-  return (Number(base) || 0) *
+  const total = currentQuoteTotal();
+  const downPayment = selectedDepositAmount(total);
+  const amountFinanced = Math.max(total - downPayment, 0);
+
+  return amountFinanced *
          (money(p.DealerFeePercent) / 100);
 
 }
@@ -2796,7 +2772,11 @@ function customerAdjustmentAmount(base){
 
   if(!p) return 0;
 
-  return (Number(base) || 0) *
+  const total = currentQuoteTotal();
+  const downPayment = selectedDepositAmount(total);
+  const amountFinanced = Math.max(total - downPayment, 0);
+
+  return amountFinanced *
          (money(p.CustomerAdjustmentPercent) / 100);
 
 }
@@ -4940,6 +4920,44 @@ if($('stihl-principal-financed-display')){
 }
 
 const selectedProgram = selectedPaymentProgram();
+
+const selectedProgram = selectedPaymentProgram();
+
+const monthly =
+  selectedProgram
+    ? monthlyPayment(
+        principalFinanced,
+        money(selectedProgram.APR),
+        Number(clean(selectedProgram.TermMonths))
+      )
+    : 0;
+
+if($('stihl-deposit-display')){
+  $('stihl-deposit-display').textContent =
+    fmtMoney(selectedDepositAmount(taxableSubtotal + tax));
+}
+
+if($('stihl-balance-display')){
+  $('stihl-balance-display').textContent =
+    fmtMoney(amountFinanced);
+}
+
+if($('stihl-customer-adjustment-display')){
+  $('stihl-customer-adjustment-display').textContent =
+    fmtMoney(customerAdjustment);
+}
+
+if($('stihl-application-fee-display')){
+  $('stihl-application-fee-display').textContent =
+    fmtMoney(applicationFee);
+}
+
+if($('stihl-monthly-payment-display')){
+  $('stihl-monthly-payment-display').textContent =
+    selectedProgram
+      ? `${fmtMoney(monthly)}/mo`
+      : '$0.00';
+}
 
 const monthly =
   selectedProgram
