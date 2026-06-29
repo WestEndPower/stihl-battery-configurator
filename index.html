@@ -985,6 +985,16 @@ body.dealer-mode .dealer-only{
 </div>
 
 <div class="stihl-line">
+  <span>Advertising Fee</span>
+  <strong id="stihl-advertising-fee-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
+  <span>True Dealer Cost</span>
+  <strong id="stihl-true-dealer-cost-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
   <span>Gross Profit</span>
   <strong id="stihl-gross-profit-display">$0.00</strong>
 </div>
@@ -1291,8 +1301,21 @@ function lineDealerCost(line){
   return cost * qty;
 }
 
+function lineAdvertisingFee(line){
+  if(!line || !line.item) return 0;
+
+  const qty = Number(line.qty) || 1;
+  const fee = money(line.item.AdvertisingFee);
+
+  return fee * qty;
+}
+
+function lineTrueDealerCost(line){
+  return lineDealerCost(line) + lineAdvertisingFee(line);
+}
+
 function lineGrossProfit(line){
-  return lineTotal(line) - lineDealerCost(line);
+  return lineTotal(line) - lineTrueDealerCost(line);
 }
 
 function lineGrossMargin(line){
@@ -1312,6 +1335,18 @@ function cartLineDiscountTotal(){
 function cartLineDealerCostTotal(){
   return state.cart.reduce((sum,line) =>
     sum + lineDealerCost(line), 0
+  );
+}
+
+function cartAdvertisingFeeTotal(){
+  return state.cart.reduce((sum,line) =>
+    sum + lineAdvertisingFee(line), 0
+  );
+}
+
+function cartTrueDealerCostTotal(){
+  return state.cart.reduce((sum,line) =>
+    sum + lineTrueDealerCost(line), 0
   );
 }
 
@@ -1338,6 +1373,8 @@ function dealerEngine(){
   );
 
   const dealerCost = cartLineDealerCostTotal();
+  const advertisingFee = cartAdvertisingFeeTotal();
+  const trueDealerCost = cartTrueDealerCostTotal();
   const lineDiscounts = cartLineDiscountTotal();
   const customerRebate = customerRebateAmount();
   const dealerRebate = dealerRebateAmount();
@@ -1346,7 +1383,7 @@ function dealerEngine(){
   subtotal -
   customerRebate +
   dealerRebate -
-  dealerCost;
+  trueDealerCost;
 
   const grossMargin =
     subtotal > 0
@@ -1367,6 +1404,8 @@ function dealerEngine(){
   return {
     subtotal,
     dealerCost,
+    advertisingFee,
+trueDealerCost,
     lineDiscounts,
     customerRebate,
     dealerRebate,
@@ -4923,6 +4962,16 @@ const dealer = dealerEngine();
 if($('stihl-dealer-cost-display')){
   $('stihl-dealer-cost-display').textContent =
     fmtMoney(dealer.dealerCost);
+}
+
+if($('stihl-advertising-fee-display')){
+  $('stihl-advertising-fee-display').textContent =
+    fmtMoney(dealer.advertisingFee);
+}
+
+if($('stihl-true-dealer-cost-display')){
+  $('stihl-true-dealer-cost-display').textContent =
+    fmtMoney(dealer.trueDealerCost);
 }
 
 if($('stihl-gross-profit-display')){
