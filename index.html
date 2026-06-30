@@ -2921,6 +2921,27 @@ function financeRecommendationText(result){
   return `${label} • ${fmtMoney(result.payment)}/mo • Below Target`;
 }
 
+function minimumDownForProgram(program, total){
+
+  total = Number(total) || 0;
+
+  if(!program || total <= 0) return 0;
+
+  const raw = clean(program.MinimumDown);
+
+  if(!raw) return 0;
+
+  let down = 0;
+
+  if(raw.includes('%')){
+    down = total * (money(raw) / 100);
+  }else{
+    down = money(raw);
+  }
+
+  return Math.min(Math.max(down, 0), total);
+}
+
 function downPaymentForProgram(program, total){
 
   total = Number(total) || 0;
@@ -2938,15 +2959,10 @@ function downPaymentForProgram(program, total){
     down = value;
   }
 
-  const min = money(program.MinDownPayment);
-  const max = money(program.MaximumDownPayment);
+  const minimumDown = minimumDownForProgram(program, total);
 
-  if(min > 0){
-    down = Math.max(down, min);
-  }
-
-  if(max > 0){
-    down = Math.min(down, max);
+  if(minimumDown > 0){
+    down = Math.max(down, minimumDown);
   }
 
   return Math.min(Math.max(down, 0), total);
@@ -2965,7 +2981,7 @@ function programDefaultDownPayment(total){
 function selectedDepositAmount(total){
   total = Number(total) || 0;
 
-  const option = clean($('stihl-deposit-option')?.value || '500');
+  const option = clean($('stihl-deposit-option')?.value || '0');
   const custom = money($('stihl-custom-deposit')?.value || 0);
 
   let deposit = programDefaultDownPayment(total);
@@ -2984,7 +3000,11 @@ function selectedDepositAmount(total){
     deposit = Math.min(deposit, total);
   }
 
-  return Math.max(deposit, 0);
+  const requiredMinimum = programDefaultDownPayment(total);
+
+deposit = Math.max(deposit, requiredMinimum);
+
+return Math.max(deposit, 0);
 }
 
 function renderDepositSummary(total){
