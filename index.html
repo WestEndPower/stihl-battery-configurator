@@ -4941,8 +4941,6 @@ if($('stihl-principal-financed-display')){
 
 const selectedProgram = selectedPaymentProgram();
 
-const selectedProgram = selectedPaymentProgram();
-
 const monthly =
   selectedProgram
     ? monthlyPayment(
@@ -4971,22 +4969,6 @@ if($('stihl-application-fee-display')){
   $('stihl-application-fee-display').textContent =
     fmtMoney(applicationFee);
 }
-
-if($('stihl-monthly-payment-display')){
-  $('stihl-monthly-payment-display').textContent =
-    selectedProgram
-      ? `${fmtMoney(monthly)}/mo`
-      : '$0.00';
-}
-
-const monthly =
-  selectedProgram
-    ? monthlyPayment(
-        principalFinanced,
-        money(selectedProgram.APR),
-        Number(clean(selectedProgram.TermMonths))
-      )
-    : 0;
 
 if($('stihl-monthly-payment-display')){
   $('stihl-monthly-payment-display').textContent =
