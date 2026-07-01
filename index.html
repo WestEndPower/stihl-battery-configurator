@@ -101,9 +101,9 @@
 
 .stihl-btn-row .stihl-btn{
   flex:1 1 0;
-  min-height:52px;
-  font-size:16px;
-  font-weight:900;
+  min-height:44px;
+  font-size:14px;
+  font-weight:800;
 }
   .stihl-series-buttons{
   display:flex;
@@ -222,7 +222,14 @@
     .stihl-badge.green{background:var(--stihl-green);color:#fff}
     .stihl-badge.red{background:var(--stihl-red);color:#fff}
     .stihl-small{font-size:13px;color:#666}
-    .stihl-product-title{font-size:20px;font-weight:900;margin-bottom:5px}
+    .stihl-product-title{
+  font-size:18px;
+  font-weight:900;
+  text-align:center;
+  margin:0 0 8px;
+  line-height:1.15;
+  white-space:nowrap;
+}
     .stihl-price{font-size:22px;font-weight:900}
   .stihl-sale-price{
   font-size:34px;
@@ -310,7 +317,22 @@
 .stihl-weight-table th{
   background:#f5f5f5;
   font-weight:700;
-}  
+}
+
+.stihl-kit-battery-col{
+  border-left:2px solid #222 !important;
+  border-right:2px solid #222 !important;
+  font-weight:900 !important;
+}
+
+.stihl-kit-battery-top{
+  border-top:2px solid #222 !important;
+}
+
+.stihl-kit-battery-bottom{
+  border-bottom:2px solid #222 !important;
+}
+
   .stihl-table tr:nth-child(even) td{background:#fafafa}
   .stihl-kma-table thead th{
   position:sticky;
@@ -729,14 +751,14 @@ body.dealer-mode .dealer-only{
 ">
   <span>Out-the-Door Price</span>
   <strong
-    class="stihl-total"
-    id="stihl-total"
-    style="
+  class="stihl-total"
+  id="stihl-total"
+  style="
       font-size:22px;
       font-weight:900;
-      color:#f37021;
-    "
-  >
+      color:#c00000;
+  "
+>
     $0.00
   </strong>
 </div>
@@ -747,7 +769,9 @@ body.dealer-mode .dealer-only{
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
     <div>
-      <label for="stihl-credit-payment">Credit Card</label>
+      <label for="stihl-credit-payment" style="color:var(--stihl-orange);font-weight:900;">
+  Credit Card
+</label>
       <input id="stihl-credit-payment"
        type="text"
        value="$0.00"
@@ -759,7 +783,9 @@ body.dealer-mode .dealer-only{
     </div>
 
     <div>
-      <label for="stihl-cash-payment">Cash</label>
+      <label for="stihl-cash-payment" style="color:var(--stihl-orange);font-weight:900;">
+  Cash
+</label>
       <input id="stihl-cash-payment"
        type="text"
        value="$0.00"
@@ -772,7 +798,9 @@ body.dealer-mode .dealer-only{
   </div>
 
   <div style="margin-top:12px;">
-    <label for="stihl-financing-select">Financing</label>
+    <label for="stihl-financing-select" style="color:var(--stihl-orange);font-weight:900;">
+  Financing
+</label>
     <select id="stihl-financing-select">
       <option value="">Select Financing Program</option>
     </select>
@@ -799,14 +827,29 @@ body.dealer-mode .dealer-only{
     </div>
 
     <div class="stihl-line">
-      <span>Amount Financed</span>
-      <strong id="stihl-financed-display">$0.00</strong>
-    </div>
+  <span>Amount Financed</span>
+  <strong id="stihl-financed-display">$0.00</strong>
+</div>
 
-    <div class="stihl-line">
-      <span>Estimated Payment</span>
-      <strong id="stihl-payment-display">$0.00/mo</strong>
-    </div>
+<div class="stihl-line">
+  <span>Bank Application Fee</span>
+  <strong id="stihl-finance-application-fee-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Amount Financed + Fees</span>
+  <strong id="stihl-finance-principal-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Estimated Payment</span>
+  <strong id="stihl-payment-display">$0.00/mo</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Total Payback</span>
+  <strong id="stihl-finance-total-payback-display">$0.00</strong>
+</div>
 
     <div
   id="stihl-rebate-not-eligible-note"
@@ -1063,6 +1106,11 @@ body.dealer-mode .dealer-only{
 </div>
 
 <div class="stihl-line">
+  <span>Total Payback</span>
+  <strong id="stihl-total-payback-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
   <span>Dealer Finance Cost</span>
   <strong id="stihl-payment-fee-display">$0.00</strong>
 </div>
@@ -1099,6 +1147,11 @@ body.dealer-mode .dealer-only{
 <div class="stihl-line">
   <span>Gross Margin</span>
   <strong id="stihl-gross-margin-display">0.0%</strong>
+</div>
+
+<div class="stihl-line" id="stihl-salesman-bonus-row" style="display:none;">
+  <span>Salesman Bonus</span>
+  <strong id="stihl-salesman-bonus-display">$0.00</strong>
 </div>
 
 <div class="stihl-line">
@@ -1157,9 +1210,16 @@ body.dealer-mode .dealer-only{
 
 <hr>
 
-<h3>Promotions</h3>
+<h3>Manufacturer Promotions &amp; Sales Incentives</h3>
 
 <div class="stihl-small" id="stihl-rebate-description" style="margin-top:6px;"></div>
+
+<div id="stihl-salesman-spiff-row" style="display:none; margin-top:12px;">
+  <div class="stihl-line">
+    <span>Salesman SPIFF <span class="stihl-small">(Paid by Manufacturer)</span></span>
+    <strong id="stihl-salesman-spiff-display">$0.00</strong>
+  </div>
+</div>
 
 <hr>
 
@@ -1199,6 +1259,8 @@ body.dealer-mode .dealer-only{
   <script>
   (function(){
     const TAX_RATE = 0.0635;
+
+    const ESTIMATED_ELECTRIC_RATE = 0.35; // $/kWh
 
     const DATA_FILES = {
       tools: 'data/tools.csv',
@@ -1292,7 +1354,18 @@ function createQuoteNumber(brand){
   const s = clean(v).toUpperCase();
   return ['T','TRUE','YES','Y','1','X'].includes(s);
 }
-    function skuOf(item){ return clean(item.SKU || item.sku); }
+    function skuOf(item){
+  return clean(
+    item.SKU ||
+    item.sku ||
+    item.StihlID ||
+    item.STIHLID ||
+    item['STIHL ID'] ||
+    item.PartNumber ||
+    item['Part Number']
+  );
+}
+
     function modelOf(item){ return clean(item.Model || item.BatteryName || item.ChargerName || item.Name || skuOf(item)); }
     function nameOf(item){
   return clean(
@@ -1304,6 +1377,45 @@ function createQuoteNumber(brand){
     skuOf(item)
   );
 }
+
+function displayProductTitle(tool){
+
+  const type =
+    clean(tool.SubCategory) ||
+    clean(tool.Category);
+
+  return `${clean(tool.Brand || 'STIHL')} ${clean(tool.Model)}${type ? ' ' + type : ''}`;
+}
+
+function displayKitIncludes(tool){
+
+  const battery = clean(tool.KitBattery);
+  const charger = clean(tool.KitCharger);
+
+  if(!battery && !charger) return '';
+
+  const batteryQty = Number(tool.KitBatteryQty) || 1;
+  const chargerQty = Number(tool.KitChargerQty) || 1;
+
+  let text = 'Includes ';
+
+  if(battery){
+    text += batteryQty > 1
+      ? `(${batteryQty}) ${battery} Batteries`
+      : `${battery} Battery`;
+  }
+
+  if(charger){
+    if(battery) text += ' & ';
+
+    text += chargerQty > 1
+      ? `(${chargerQty}) ${charger} Chargers`
+      : `${charger} Charger`;
+  }
+
+  return text;
+}
+
     function imageOf(item){
   return clean(
     item.ImageURL ||
@@ -1456,10 +1568,13 @@ function dealerEngine(){
       : 0;
 
   const paymentFee =
-    paymentDealerFeeAmount(subtotal);
+  paymentDealerFeeAmount(subtotal);
 
-  const netProfit =
-    grossProfit - paymentFee;
+const salesmanBonus =
+  salesmanBonusTotal();
+
+const netProfit =
+  grossProfit - paymentFee;
 
   const netMargin =
     subtotal > 0
@@ -1470,13 +1585,14 @@ function dealerEngine(){
     subtotal,
     dealerCost,
     advertisingFee,
-trueDealerCost,
+    trueDealerCost,
     lineDiscounts,
     customerRebate,
     dealerRebate,
     grossProfit,
     grossMargin,
     paymentFee,
+    salesmanBonus,
     netProfit,
     netMargin,
     targetMargin: targetMarginPercent(),
@@ -1519,6 +1635,45 @@ function parsePromoDate(v){
 
   const d = new Date(s);
   return isNaN(d.getTime()) ? null : d;
+}
+
+function salesmanBonusIsActive(item){
+  const bonus = money(item.SalesmanBonus);
+  if(bonus <= 0) return false;
+
+  const start = parsePromoDate(item.SalesmanBonusStartDate);
+  const end = parsePromoDate(item.SalesmanBonusEndDate);
+
+  // Bonus with no dates is inactive
+  if(!start && !end) return false;
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  if(start){
+    start.setHours(0,0,0,0);
+    if(today < start) return false;
+  }
+
+  if(end){
+    end.setHours(23,59,59,999);
+    if(today > end) return false;
+  }
+
+  return true;
+}
+
+function lineSalesmanBonus(line){
+  if(!line || !line.item || line.included) return 0;
+  if(!salesmanBonusIsActive(line.item)) return 0;
+
+  return money(line.item.SalesmanBonus) * (Number(line.qty) || 1);
+}
+
+function salesmanBonusTotal(){
+  return state.cart.reduce((sum,line) =>
+    sum + lineSalesmanBonus(line), 0
+  );
 }
 
 function earliestPromoDateLabel(...dates){
@@ -1573,7 +1728,7 @@ function bestPromoFinanceForTool(t){
 
   const msrp = money(item.MSRP);
   const sale = money(item.SalePrice);
-  const rebate = money(item.CustomerRebateAmount || item.PromoValue);
+  const rebate = money(item.CustomerRebateAmount);
 
   const basePrice = sale || msrp || 0;
   const yourPrice = Math.max(basePrice - rebate, 0);
@@ -1613,20 +1768,20 @@ function bestPromoFinanceForTool(t){
         gap:12px;
         align-items:end;
       ">
-        <div>
+        <div style="text-align:center;">
           <div style="font-size:12px;font-weight:900;color:#666;text-transform:uppercase;">
             MSRP
           </div>
-          <div style="font-size:22px;font-weight:900;color:#111;">
+          <div style="font-size:30px;font-weight:900;color:#111;">
             ${fmtMoney(msrp || basePrice)}
           </div>
         </div>
 
-        <div style="text-align:right;">
+        <div style="text-align:center;">
           <div style="font-size:12px;font-weight:900;color:#666;text-transform:uppercase;">
             ${rebate > 0 ? 'Your Price After Rebate' : 'Your Price'}
           </div>
-          <div style="font-size:28px;font-weight:900;color:#c00000;">
+          <div style="font-size:30px;font-weight:900;color:#c00000;">
             ${fmtMoney(yourPrice)}
           </div>
         </div>
@@ -1634,96 +1789,52 @@ function bestPromoFinanceForTool(t){
 
       ${showOffers ? `
         <div style="
-          margin-top:8px;
-          padding-top:7px;
+          margin-top:10px;
+          padding-top:8px;
           border-top:1px solid #ddd;
+          text-align:center;
         ">
-
-          ${offerDate ? `
-            <div style="
-              text-align:center;
-font-size:15px;
-font-weight:900;
-margin-bottom:8px;
-line-height:1.2;
-            ">
-              Current Factory Offers • Valid Through ${escapeHtml(offerDate)}
-            </div>
-          ` : `
-            <div style="
-              text-align:center;
-              font-size:13px;
-              font-weight:900;
-              margin-bottom:5px;
-            ">
-              Current Factory Offers
-            </div>
-          `}
-
           <div style="
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
-  align-items:start;
-  font-size:13px;
-">
-
-            ${rebate ? `
-<div style="
-  display:flex;
-  justify-content:flex-start;
-">
-  <div>
-    <div style="
-  font-size:14px;
-  font-weight:900;
-  color:#555;
-">
-  Factory Rebate
-</div>
-
-    <div style="
-  font-size:18px;
-  font-weight:900;
-  color:#1f7a3a;
-">
-  Save ${fmtMoney(rebate)}
-</div>
-  </div>
-</div>
-` : `<div></div>`}
-
-${finance ? `
-<div style="
-  display:flex;
-  justify-content:flex-end;
-">
-  <div style="text-align:right;">
-
-    <div style="
-  font-size:14px;
-  font-weight:900;
-  color:#555;
-">
-      ${escapeHtml(
-        clean(finance.Label) ||
-        `${money(finance.APR)}% for ${clean(finance.TermMonths)} Months`
-      )}
-    </div>
-
-    <div style="
-  font-size:18px;
-  font-weight:900;
-  color:#1f7a3a;
-">
-  ${fmtMoney(monthly)} per month
-</div>
-
-  </div>
-</div>
-` : `<div></div>`}
+            font-size:15px;
+            font-weight:900;
+            margin-bottom:8px;
+            line-height:1.2;
+          ">
+            Current Factory Offers${offerDate ? ` • Valid Through ${escapeHtml(offerDate)}` : ''}
           </div>
 
+          <div style="
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:20px;
+            align-items:start;
+            text-align:center;
+          ">
+            ${rebate ? `
+              <div style="text-align:center;">
+                <div style="font-size:14px;font-weight:900;color:#555;">
+                  Factory Rebate
+                </div>
+                <div style="font-size:18px;font-weight:900;color:#1f7a3a;">
+                  Save ${fmtMoney(rebate)}
+                </div>
+              </div>
+            ` : `<div></div>`}
+
+            ${finance ? `
+              <div style="text-align:center;">
+                <div style="font-size:14px;font-weight:900;color:#555;">
+                  ${escapeHtml(
+                    clean(finance.Label) ||
+                    `${money(finance.APR)}% for ${clean(finance.TermMonths)} Months`
+                  )}
+                </div>
+                <div style="font-size:18px;font-weight:900;color:#1f7a3a;">
+                  ${fmtMoney(monthly)} per month
+                </div>
+              </div>
+            ` : `<div></div>`}
+          </div>
         </div>
       ` : ''}
 
@@ -2271,26 +2382,73 @@ if(clean(t.PromoTitle)){
 
 const rec = clean(t.RecommendedBattery);
 box.innerHTML = `
-  <div class="stihl-card featured">
-
-  <div class="stihl-product-title">${escapeHtml(nameOf(t))}</div>
-
-  ${imageOf(t) ? `
-    <div class="stihl-tool-image-wrap">
-      <img src="${escapeHtml(imageOf(t))}"
-           alt="${escapeHtml(nameOf(t))}"
-           class="stihl-tool-image">
-    </div>
-  ` : ''}
-
+  
   <div class="stihl-tool-info">
 
-    <div class="stihl-small">
-      Model: <strong>${escapeHtml(clean(t.Model))}</strong> |
-      STIHL ID: <strong>${escapeHtml(clean(t.StihlID) || skuOf(t))}</strong>
-    </div>
+    <div class="stihl-product-title"
+     style="
+       font-size:24px;
+       font-weight:900;
+       text-align:center;
+       margin:0 0 6px;
+       line-height:1.15;
+     ">
+  ${escapeHtml(displayProductTitle(t))}
+</div>
 
-    <div style="margin:8px 0">${badges}</div>
+${displayKitIncludes(t) ? `
+<div class="stihl-kit-includes"
+     style="
+       text-align:center;
+       font-size:15px;
+       font-weight:700;
+       color:#666;
+       margin-bottom:12px;
+     ">
+  ${escapeHtml(displayKitIncludes(t))}
+</div>
+` : ''}
+
+${imageOf(t) ? `
+      <div class="stihl-tool-image-wrap">
+        <img src="${escapeHtml(imageOf(t))}"
+             alt="${escapeHtml(nameOf(t))}"
+             class="stihl-tool-image">
+      </div>
+    ` : ''}
+
+    <div style="
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:8px 0 12px;
+">
+
+  <span style="
+    background:#333;
+    color:#fff;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+  ">
+    Model: ${escapeHtml(clean(t.Model))}
+  </span>
+
+  <span style="
+    background:#f37021;
+    color:#111;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+  ">
+    SKU #: ${escapeHtml(clean(t.StihlID) || skuOf(t))}
+  </span>
+
+</div>
 
     <div class="stihl-price-row">
   <div style="width:100%;">${displayPrice(t)}</div>
@@ -2393,7 +2551,6 @@ ${clean(t.SpecialText) && clean(t.SpecialText) !== '0'
   ? `<div class="stihl-note">${escapeHtml(clean(t.SpecialText))}</div>`
   : ''}
 
-  </div>
 </div>
 
 `;
@@ -2497,28 +2654,38 @@ function renderAvailability(item){
   }
 
   return `
-    <div class="stihl-card"
-         style="border:2px solid #1f7a3a;
-                background:#f3fbf5;
-                margin-top:12px;">
+  <div style="
+    width:100%;
+    display:block;
+    border:2px solid #1f7a3a;
+    background:#f3fbf5;
+    margin-top:12px;
+    padding:10px 12px;
+    border-radius:12px;
+    box-sizing:border-box;
+    text-align:center;
+  ">
 
-      <div style="
-          font-size:18px;
-          font-weight:900;
-          color:#1f7a3a;
-          margin-bottom:8px;">
-        ✓ Normally Stocked In:
-        ${stores.join(' & ')}
-      </div>
-
-      ${note ? `
-        <div class="stihl-small">
-          ${escapeHtml(note)}
-        </div>
-      ` : ''}
-
+    <div style="
+      width:100%;
+      display:block;
+      white-space:nowrap;
+      font-size:18px;
+      font-weight:900;
+      color:#1f7a3a;
+      margin-bottom:${note ? '8px' : '0'};
+    ">
+      ✓ Normally Stocked In: ${stores.join(' & ')}
     </div>
-  `;
+
+    ${note ? `
+      <div class="stihl-small">
+        ${escapeHtml(note)}
+      </div>
+    ` : ''}
+
+  </div>
+`;
 }
 
 async function printSalesSheet(){
@@ -3027,14 +3194,20 @@ function setupLabel(){
 function renderDeliveryOptions(){
   const box = $('stihl-delivery-options');
 
-  if(!box || !state.selectedTool){
-    if(box) box.style.display = 'none';
-    return;
-  }
+  const deliveryItem = state.cart.find(line =>
+  line &&
+  line.item &&
+  line.type === 'tool' &&
+  isTrue(line.item.LocalDelivery)
+);
 
-  const allowDelivery = isTrue(state.selectedTool.LocalDelivery);
-  const deliveryGroup = clean(state.selectedTool.DeliveryGroup);
+if(!box || !state.cart.length){
+  if(box) box.style.display = 'none';
+  return;
+}
 
+const allowDelivery = !!deliveryItem;
+const deliveryGroup = clean(deliveryItem?.item?.DeliveryGroup);
   box.style.display = '';
 
   if(allowDelivery){
@@ -3068,12 +3241,17 @@ function renderDeliveryOptions(){
 
       <datalist id="stihl-delivery-list">
         ${rows.map(r => `
-          <option value="${escapeHtml(r.zip)}">${escapeHtml(r.town)}, CT</option>
+          <option value="${escapeHtml(r.zip)}">${escapeHtml(r.town)}</option>
           <option value="${escapeHtml(r.town)}">${escapeHtml(r.zip)}</option>
         `).join('')}
       </datalist>
 
-      <div id="stihl-delivery-result" class="stihl-small" style="margin-top:8px;"></div>
+      <div id="stihl-delivery-result" style="
+  margin-top:10px;
+  font-size:16px;
+  font-weight:900;
+  color:#111;
+"></div>
 
       <div class="stihl-btn-row" style="margin-top:10px;">
         <button class="stihl-btn light" type="button" data-pickup-choice="Pickup in New Milford">
@@ -3119,11 +3297,11 @@ function renderDeliveryOptions(){
       $('stihl-delivery-fee').value = match.fee;
 
       result.innerHTML = `
-        <span style="color:#1f7a3a;font-weight:900;">
-          Delivery to ${escapeHtml(match.town)}, CT ${escapeHtml(match.zip)}:
-          ${match.fee > 0 ? fmtMoney(match.fee) : 'Included'}
-        </span>
-      `;
+  <span style="color:#1f7a3a;font-weight:900;font-size:16px;">
+    Delivery to ${escapeHtml(match.town)} ${escapeHtml(match.zip)}:
+    ${match.fee > 0 ? fmtMoney(match.fee) : 'Included'}
+  </span>
+`;
 
       box.querySelectorAll('[data-pickup-choice]')
         .forEach(b => b.classList.remove('selected'));
@@ -3886,15 +4064,40 @@ function addToolToQuote(){
   const incCharger = clean(tool.KitCharger);
 
   if(incBattery){
-    const b = findBattery(incBattery);
-    if(b) addItem('battery', b, (Number(tool.KitBatteryQty) || 1) * qty, 'Included in kit', true);
+  const b = findBattery(incBattery);
+
+  if(b){
+    addItem(
+      'battery',
+      b,
+      (Number(tool.KitBatteryQty) || 1) * qty,
+      'Included in kit',
+      true,
+      true,
+      true,
+      skuOf(tool)
+    );
   }
+}
 
   if(incCharger){
-    const c = findCharger(incCharger);
-    if(c) addItem('charger', c, (Number(tool.KitChargerQty) || 1) * qty, 'Included in kit', true);
-  }
+  const c = findCharger(incCharger);
 
+  if(c){
+    addItem(
+      'charger',
+      c,
+      (Number(tool.KitChargerQty) || 1) * qty,
+      'Included in kit',
+      true,
+      true,
+      true,
+      skuOf(tool)
+    );
+  }
+}
+
+  renderDeliveryOptions();
   renderCart();
 }
     function compatibleBatteryCodes(tool){
@@ -4098,7 +4301,17 @@ const rows = state.kmaRuntimes.filter(r => {
         <thead>
           <tr>
             <th>Attachment</th>
-            ${batteries.map(code => `<th>${escapeHtml(code)}</th>`).join('')}
+            ${batteries.map(code => `
+  <th style="
+    ${
+      code === clean(tool.KitBattery)
+        ? 'border:2px solid #222;font-weight:900;'
+        : ''
+    }
+  ">
+    ${escapeHtml(code)}
+  </th>
+`).join('')}
           </tr>
         </thead>
 
@@ -4113,23 +4326,30 @@ const rows = state.kmaRuntimes.filter(r => {
               </td>
 
               ${batteries.map(code => {
-                const low = clean(r[`${code}_RuntimeLow`] || r[`${code}_RuntimeMin`]);
-const high = clean(r[`${code}_RuntimeHigh`] || r[`${code}_RuntimeMax`]);
-const note = clean(r[`${code}_RuntimeNote`] || r.RuntimeNote);
+  const low = clean(r[`${code}_RuntimeLow`] || r[`${code}_RuntimeMin`]);
+  const high = clean(r[`${code}_RuntimeHigh`] || r[`${code}_RuntimeMax`]);
+  const note = clean(r[`${code}_RuntimeNote`] || r.RuntimeNote);
 
-if(!isTrue(r[`${code}_Compatible`]) && !low && !high && !note){
-  return `<td>—</td>`;
-}
-               
-                let runtime = 'Varies';
+  const isIncludedBattery =
+    code === clean(tool.KitBattery);
 
-                if(low && high) runtime = `${low} - ${high}`;
-                else if(low) runtime = low;
-                else if(high) runtime = high;
-                else if(note) runtime = note;
+  const includedStyle = isIncludedBattery
+    ? 'border-left:2px solid #222;border-right:2px solid #222;font-weight:900;'
+    : '';
 
-                return `<td>${escapeHtml(runtime)}</td>`;
-              }).join('')}
+  if(!isTrue(r[`${code}_Compatible`]) && !low && !high && !note){
+    return `<td style="${includedStyle}">—</td>`;
+  }
+
+  let runtime = 'Varies';
+
+  if(low && high) runtime = `${low} - ${high}`;
+  else if(low) runtime = low;
+  else if(high) runtime = high;
+  else if(note) runtime = note;
+
+  return `<td style="${includedStyle}">${escapeHtml(runtime)}</td>`;
+}).join('')}
             </tr>
           `).join('')}
         </tbody>
@@ -4368,7 +4588,68 @@ function renderWeightOptions(tool){
   const codes = compatibleBatteryCodes(tool);
   const weightCodes = codes.filter(code => batteryWeight(code) > 0);
 
+  function batteryChargeCost(battery){
+  if(!battery) return '—';
+
+  const direct =
+    clean(battery.CostToCharge) ||
+    clean(battery.ChargeCost) ||
+    clean(battery.EstCostToCharge);
+
+  if(direct) return direct;
+
+  const wh = money(
+    battery.Wh ||
+    battery.WattHours ||
+    battery.WattHoursCapacity
+  );
+
+  if(!wh) return '—';
+
+  // Estimated electric rate per kWh
+  const ratePerKwh = ESTIMATED_ELECTRIC_RATE;
+
+  const cost = (wh / 1000) * ratePerKwh;
+
+  return `$${cost.toFixed(2)}`;
+}
+
+  function batterySpecTextInline(battery){
+  if(!battery) return '';
+
+  const ah = clean(battery.Ah || battery.AmpHours || battery.ampHours);
+const wh = clean(battery.Wh || battery.WattHours);
+
+return [
+  ah ? `${ah} Ah` : '',
+  wh ? `${wh} Wh` : ''
+].filter(Boolean).join('<br>');
+}
+
+  function kitBatteryClass(code, position){
+    const isKitBattery =
+      clean(code).toUpperCase() === clean(tool.KitBattery).toUpperCase();
+
+    if(!isKitBattery) return '';
+
+    return `stihl-kit-battery-col ${
+      position === 'top'
+        ? 'stihl-kit-battery-top'
+        : position === 'bottom'
+          ? 'stihl-kit-battery-bottom'
+          : ''
+    }`;
+  }
+
   if(!clean(tool.ToolWeight) && !weightCodes.length) return '';
+
+  const chargerRows = chargerCodes
+    .filter(charger =>
+      weightCodes.some(code => {
+        const b = findBattery(code);
+        return b && clean(b[charger]);
+      })
+    );
 
   return `
     <div class="stihl-weight-wrap">
@@ -4384,12 +4665,12 @@ function renderWeightOptions(tool){
         border:2px solid #d85f12;
       ">
         <span style="font-size:16px;font-weight:900;">
-  Tool / Kit Weights, Run Times & Charge Times
-</span>
+          Tool / Kit Weights, Run Times & Charge Times
+        </span>
 
-<span style="font-size:12px;font-weight:700;">
-  Estimated Values
-</span>
+        <span style="font-size:12px;font-weight:700;">
+          Estimated Values
+        </span>
       </div>
 
       <table class="stihl-weight-table">
@@ -4397,14 +4678,14 @@ function renderWeightOptions(tool){
           <tr>
             <th>Performance</th>
             ${weightCodes.map(code => `
-  <th>
-    ${escapeHtml(code)}
-    <br>
-    <span style="font-size:11px;font-weight:400;">
-      ${batterySpecText(findBattery(code))}
-    </span>
-  </th>
-`).join('')}
+              <th class="${kitBatteryClass(code, 'top')}">
+                ${escapeHtml(code)}
+                <br>
+                <span style="font-size:11px;font-weight:400;">
+                  ${batterySpecTextInline(findBattery(code))}
+                </span>
+              </th>
+            `).join('')}
           </tr>
         </thead>
 
@@ -4414,43 +4695,43 @@ function renderWeightOptions(tool){
             ${weightCodes.map(code => {
               const toolWeight = parseFloat(clean(tool.ToolWeight)) || 0;
               const totalWeight = toolWeight + batteryWeight(code);
-              return `<td>${totalWeight.toFixed(1)} lbs</td>`;
+
+              return `<td class="${kitBatteryClass(code, '')}">${totalWeight.toFixed(1)} lbs</td>`;
             }).join('')}
           </tr>
 
           <tr>
             <td><strong>Run Time</strong></td>
             ${weightCodes.map(code => `
-              <td>${escapeHtml(runtimeText(tool, code))}</td>
+              <td class="${kitBatteryClass(code, '')}">${escapeHtml(runtimeText(tool, code))}</td>
             `).join('')}
           </tr>
 
           <tr>
             <td><strong>Cost to Charge</strong></td>
             ${weightCodes.map(code => `
-              <td>${batteryChargeCost(findBattery(code))}</td>
+              <td class="${kitBatteryClass(code, '')}">${batteryChargeCost(findBattery(code))}</td>
             `).join('')}
           </tr>
 
-          ${chargerCodes
-            .filter(charger =>
-              weightCodes.some(code => {
-                const b = findBattery(code);
-                return b && clean(b[charger]);
-              })
-            )
-            .map(charger => `
+          ${chargerRows.map((charger, index) => {
+            const isLastChargerRow = index === chargerRows.length - 1;
+
+            return `
               <tr>
                 <td style="text-align:left;">
-  <strong>${escapeHtml(charger)}</strong>
-</td>
+                  <strong>${escapeHtml(charger)}</strong>
+                </td>
+
                 ${weightCodes.map(code => {
                   const b = findBattery(code);
                   const time = b ? clean(b[charger]) : '';
-                  return `<td>${escapeHtml(time || '—')}</td>`;
+
+                  return `<td class="${kitBatteryClass(code, isLastChargerRow ? 'bottom' : '')}">${escapeHtml(time || '—')}</td>`;
                 }).join('')}
               </tr>
-            `).join('')}
+            `;
+          }).join('')}
         </tbody>
       </table>
 
@@ -4460,31 +4741,7 @@ function renderWeightOptions(tool){
     </div>
   `;
 }
-    function batterySpecText(battery){
-  if(!battery) return '';
-
-  const ampHours = clean(battery.AmpHours || battery.Ah);
-  const wattHours = clean(battery.WattHours || battery.Wh);
-
-  const parts = [];
-
-  if(ampHours) parts.push(`${escapeHtml(ampHours)} Ah`);
-  if(wattHours) parts.push(`${escapeHtml(wattHours)} Wh`);
-
-  return parts.join(' | ');
-}
-    function batteryChargeCost(battery){
-  if(!battery) return 'N/A';
-
-  const wattHours = Number(clean(battery.WattHours || battery.Wh)) || 0;
-  const electricRate = 0.25; // cost per kWh
-
-  if(!wattHours) return 'N/A';
-
-  return fmtMoney((wattHours / 1000) * electricRate);
-}
-
-
+  
 function addAccessoryCardToQuote(sku, qty){
   const item = state.accessories.find(a => skuOf(a) === clean(sku));
 
@@ -4633,8 +4890,10 @@ function addRequiredItems(parentItem, parentQty){
     x.parentSku !== parentSku
   );
 
+  renderDeliveryOptions();
   renderCart();
 }
+
 function parseRebateDate(value, endOfDay=false){
   const raw = clean(value);
 
@@ -5255,10 +5514,12 @@ function dealerDiscountLabel(){
     }).join('');
 
   lines.querySelectorAll('[data-remove]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      removeCart(btn.getAttribute('data-remove'));
-    });
+  btn.addEventListener('click', () => {
+    removeCart(btn.getAttribute('data-remove'));
+    renderDeliveryOptions();
+    renderCart();
   });
+});
 
   lines.querySelectorAll('[data-cart-qty]').forEach(input => {
     input.addEventListener('change', () => {
@@ -5460,6 +5721,16 @@ if($('stihl-rebate-description')){
     : '';
 }
 
+if($('stihl-salesman-spiff-row')){
+  $('stihl-salesman-spiff-row').style.display =
+    dealer.salesmanBonus > 0 ? '' : 'none';
+}
+
+if($('stihl-salesman-spiff-display')){
+  $('stihl-salesman-spiff-display').textContent =
+    fmtMoney(dealer.salesmanBonus);
+}
+
 const discountLine = $('stihl-discount-line');
 
 if(discountLine){
@@ -5540,10 +5811,42 @@ if(selectedProgram){
       fmtMoney(amountFinanced);
   }
 
+  if($('stihl-finance-application-fee-display')){
+  $('stihl-finance-application-fee-display').textContent =
+    fmtMoney(money(selectedProgram.ApplicationFee));
+}
+
+if($('stihl-finance-principal-display')){
+  $('stihl-finance-principal-display').textContent =
+    fmtMoney(principalFinanced);
+}
+
   if($('stihl-payment-display')){
     $('stihl-payment-display').textContent =
       `${fmtMoney(monthly)}/mo x ${clean(selectedProgram.TermMonths)} months`;
   }
+
+  if($('stihl-monthly-payment-display')){
+  $('stihl-monthly-payment-display').textContent =
+    `${fmtMoney(monthly)}/mo`;
+}
+  const totalPayback =
+  monthly * Number(clean(selectedProgram.TermMonths));
+
+  if($('stihl-total-payback-display')){
+  $('stihl-total-payback-display').textContent =
+    fmtMoney(totalPayback);
+}
+
+if($('stihl-finance-total-payback-display')){
+  $('stihl-finance-total-payback-display').textContent =
+    fmtMoney(totalPayback);
+}
+
+if($('stihl-finance-total-payback-display')){
+  $('stihl-finance-total-payback-display').textContent =
+    fmtMoney(totalPayback);
+}
 
   if($('stihl-rebate-not-eligible-note')){
   $('stihl-rebate-not-eligible-note').style.display =
@@ -5553,6 +5856,14 @@ if(selectedProgram){
 }
 
 }else{
+
+  if($('stihl-total-payback-display')){
+    $('stihl-total-payback-display').textContent = '$0.00';
+  }
+
+  if($('stihl-finance-total-payback-display')){
+  $('stihl-finance-total-payback-display').textContent = '$0.00';
+}
 
   if(financeSummary){
     financeSummary.style.display = 'none';
@@ -5569,6 +5880,22 @@ if(selectedProgram){
   if($('stihl-payment-display')){
     $('stihl-payment-display').textContent = '$0.00/mo';
   }
+
+  if($('stihl-finance-application-fee-display')){
+  $('stihl-finance-application-fee-display').textContent = '$0.00';
+}
+
+if($('stihl-finance-principal-display')){
+  $('stihl-finance-principal-display').textContent = '$0.00';
+}
+
+if($('stihl-finance-total-payback-display')){
+  $('stihl-finance-total-payback-display').textContent = '$0.00';
+}
+
+  if($('stihl-monthly-payment-display')){
+  $('stihl-monthly-payment-display').textContent = '$0.00';
+}
 
 }
 
@@ -5595,6 +5922,16 @@ if($('stihl-gross-profit-display')){
 if($('stihl-gross-margin-display')){
   $('stihl-gross-margin-display').textContent =
     dealer.grossMargin.toFixed(1) + '%';
+}
+
+if($('stihl-salesman-bonus-row')){
+  $('stihl-salesman-bonus-row').style.display =
+    dealer.salesmanBonus > 0 ? '' : 'none';
+}
+
+if($('stihl-salesman-bonus-display')){
+  $('stihl-salesman-bonus-display').textContent =
+    fmtMoney(dealer.salesmanBonus);
 }
 
 if($('stihl-net-profit-display')){
