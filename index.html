@@ -5218,35 +5218,97 @@ function warrantyLabel(){
   return option.options[option.selectedIndex]?.text || 'Extended Warranty';
 }    
     
-function dealerDiscountAmount(baseSubtotal){
-  const discountSelect = $('stihl-dealer-discount');
-  const customInput = $('stihl-custom-discount');
+function cashPaymentSelected(){
 
-  if(!discountSelect) return 0;
+  return money($('stihl-cash-payment')?.value) > 0;
 
-  const val = clean(discountSelect.value);
+}
 
-  if(val === 'custom'){
-    return Math.min(money(customInput?.value || 0), baseSubtotal);
+function selectedPaymentDealerFeePercent(){
+
+  const p = selectedPaymentProgram();
+
+  if(p){
+    return money(p.DealerFeePercent);
   }
 
-  const pct = Number(val) || 0;
-  return Math.min(baseSubtotal * (pct / 100), baseSubtotal);
+  if(cashPaymentSelected()){
+    return 0; // Cash / bank check gets full available discount
+  }
+
+  return null; // No payment selected = no discount
+
+}
+
+function roundDiscountToNearestTen(amount){
+
+  let rounded = Math.round((Number(amount) || 0) / 10) * 10;
+
+  if(rounded > 0 && rounded < 10){
+    rounded = 10;
+  }
+
+  return rounded;
+}
+
+function linePaymentDiscountAmount(line){
+
+  if(!line || !line.item || line.included){
+    return 0;
+  }
+
+  const maxDiscountPercent =
+    money(line.item.MaxPaymentDiscountPercent);
+
+  if(maxDiscountPercent <= 0){
+    return 0;
+  }
+
+  const dealerFeePercent =
+    selectedPaymentDealerFeePercent();
+
+  if(dealerFeePercent === null){
+    return 0;
+  }
+
+  const availableDiscountPercent =
+    Math.max(maxDiscountPercent - dealerFeePercent, 0);
+
+  if(availableDiscountPercent <= 0){
+    return 0;
+  }
+
+  return lineTotal(line) * (availableDiscountPercent / 100);
+}
+
+function dealerDiscountAmount(baseSubtotal){
+
+  const rawDiscount = state.cart.reduce((sum,line) =>
+    sum + linePaymentDiscountAmount(line), 0
+  );
+
+  return Math.min(
+    roundDiscountToNearestTen(rawDiscount),
+    baseSubtotal
+  );
 }
 
 function dealerDiscountLabel(){
-  const discountSelect = $('stihl-dealer-discount');
 
-  if(!discountSelect) return '';
+  const p = selectedPaymentProgram();
+  const fee = selectedPaymentDealerFeePercent();
 
-  const val = clean(discountSelect.value);
-
-  if(val === 'custom'){
-    return 'Custom Dealer Discount';
+  if(fee === null){
+    return 'No Payment Discount';
   }
 
-  return val && val !== '0' ? `${val}% Dealer Discount` : '';
+  if(!p && cashPaymentSelected()){
+    return 'Cash / Bank Check Discount';
+  }
+
+  return `${clean(p.Label || p.PaymentOptionID)} Discount After ${fee}% Program Fee`;
 }
+
     function renderCart(){
 
       const selectedProgram = selectedCustomerFinanceProgram();
