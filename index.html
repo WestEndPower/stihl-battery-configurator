@@ -61,7 +61,17 @@
     textarea{min-height:70px}
     .stihl-btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:9px;padding:11px 14px;font-weight:800;cursor:pointer;text-decoration:none;background:var(--stihl-orange);color:#111}
     .stihl-btn.secondary{background:#111;color:#fff}
-    .stihl-btn.light{background:#eee;color:#111}
+    .stihl-btn.light{
+  background:#fff5ec;
+  color:#111;
+  border:2px solid var(--stihl-orange);
+  font-weight:800;
+  transition:.2s;
+}
+.stihl-btn.light:hover{
+  background:var(--stihl-orange);
+  color:#111;
+}
     .stihl-btn.danger{background:#b00020;color:#fff}
   .stihl-btn.selected{
   background:#111 !important;
@@ -82,7 +92,19 @@
 .stihl-finance-btn:visited{
   color:#fff;
 }
-    .stihl-btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    .stihl-btn-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:12px;
+}
+
+.stihl-btn-row .stihl-btn{
+  flex:1 1 0;
+  min-height:52px;
+  font-size:16px;
+  font-weight:900;
+}
   .stihl-series-buttons{
   display:flex;
   gap:8px;
@@ -600,8 +622,7 @@ body.dealer-mode .dealer-only{
 </div>
 
           <div id="stihl-tool-details"></div>
-          <div id="stihl-promotion-public"></div>
-        </section>
+          </section>
         <!-- =========================================================
              SECTION END: TOOL PICKER
         ========================================================== -->
@@ -666,7 +687,7 @@ body.dealer-mode .dealer-only{
         <section class="stihl-panel stihl-summary" id="stihl-quote-summary-panel">
           <h2>Quote Summary</h2>
 
-<div style="margin-bottom:12px;">
+<div class="dealer-only" style="margin-bottom:12px;">
   <label for="stihl-salesperson">Prepared By</label>
 
   <select id="stihl-salesperson">
@@ -678,61 +699,196 @@ body.dealer-mode .dealer-only{
   </select>
 </div>
 
-<div>
+<div id="stihl-cart-lines" style="margin-top:12px"></div>         
+<div id="stihl-delivery-options" style="margin-top:12px;display:none;"></div>
+<input id="stihl-delivery-choice" type="hidden" value="">
+<input id="stihl-delivery-fee" type="hidden" value="0">
+<div id="stihl-setup-options" style="margin-top:12px;display:none;"></div>
+<input id="stihl-setup-choice" type="hidden" value="">
+<input id="stihl-setup-fee" type="hidden" value="0">
+          <div id="stihl-setup-line" style="display:none;"></div>
+<div id="stihl-discount-line" style="display:none;"></div>
+<div id="stihl-warranty-line" style="display:none;"></div>
+<div id="stihl-rebate-line" style="display:none;"></div>
+<div id="stihl-trade-line" style="display:none;"></div>
+
+<div class="stihl-line">
+  <span>Subtotal</span>
+  <strong id="stihl-subtotal">$0.00</strong>
+</div>
+          <div class="stihl-line">
+            <span>Estimated CT Sales Tax</span>
+            <strong id="stihl-tax">$0.00</strong>
+          </div>
+          <div class="stihl-line" style="
+  border-top:2px solid #ddd;
+  padding-top:8px;
+  margin-top:8px;
+  font-size:18px;
+  font-weight:900;
+">
+  <span>Out-the-Door Price</span>
+  <strong
+    class="stihl-total"
+    id="stihl-total"
+    style="
+      font-size:22px;
+      font-weight:900;
+      color:#f37021;
+    "
+  >
+    $0.00
+  </strong>
+</div>
+
+          <div class="stihl-card" id="stihl-payment-options-card">
+
+  <h3 style="margin-top:0;">Payment Options</h3>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <div>
+      <label for="stihl-credit-payment">Credit Card</label>
+      <input id="stihl-credit-payment"
+       type="text"
+       value="$0.00"
+       style="
+         text-align:right;
+         font-weight:700;
+         font-size:16px;
+       ">
+    </div>
+
+    <div>
+      <label for="stihl-cash-payment">Cash</label>
+      <input id="stihl-cash-payment"
+       type="text"
+       value="$0.00"
+       style="
+         text-align:right;
+         font-weight:700;
+         font-size:16px;
+       ">
+    </div>
+  </div>
+
+  <div style="margin-top:12px;">
+    <label for="stihl-financing-select">Financing</label>
+    <select id="stihl-financing-select">
+      <option value="">Select Financing Program</option>
+    </select>
+  </div>
+
+  <div id="stihl-financing-in-lieu-wrap" style="margin-top:12px;display:none;">
+  <label for="stihl-financing-in-lieu-select">
+    Financing In Lieu of Rebate
+  </label>
+
+  <select id="stihl-financing-in-lieu-select">
+    <option value="">Select Financing Program</option>
+  </select>
+
+  <div class="stihl-small" style="margin-top:5px;color:#b00020;font-weight:800;">
+    Selecting one of these programs removes the factory rebate from the quote.
+  </div>
+</div> 
+
+  <div id="stihl-finance-summary" style="display:none;margin-top:12px;">
+    <div class="stihl-line">
+      <span>Minimum Down Payment</span>
+      <strong id="stihl-minimum-down-display">$0.00</strong>
+    </div>
+
+    <div class="stihl-line">
+      <span>Amount Financed</span>
+      <strong id="stihl-financed-display">$0.00</strong>
+    </div>
+
+    <div class="stihl-line">
+      <span>Estimated Payment</span>
+      <strong id="stihl-payment-display">$0.00/mo</strong>
+    </div>
+
+    <div
+  id="stihl-rebate-not-eligible-note"
+  class="stihl-small"
+  style="display:none;color:#b00020;font-weight:800;margin-top:6px;">
+  Factory rebate is not available with the selected financing program.
+</div>
+
+  </div>
+
+</div>
+
+<!-- ===========================
+     CUSTOMER INFORMATION
+=========================== -->
+
+<div class="stihl-card" id="stihl-customer-info-card">
+
+  <h3 style="margin-top:0;">Customer Information</h3>
+
   <div>
     <label for="stihl-customer-name">Customer</label>
-    <input id="stihl-customer-name" placeholder="Customer name" />
+    <input id="stihl-customer-name" placeholder="Customer name">
   </div>
 
-<div style="margin-top:10px">
-  <label for="stihl-business-name">Business Name</label>
-  <input id="stihl-business-name" placeholder="Business name" />
-</div>
-
-<div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-  <div>
-    <label for="stihl-customer-contact">Phone</label>
-    <input id="stihl-customer-contact" placeholder="Phone number" />
+  <div style="margin-top:10px;">
+    <label for="stihl-business-name">Business Name</label>
+    <input id="stihl-business-name" placeholder="Business name">
   </div>
 
-  <div>
-    <label for="stihl-alt-phone">Alt. Phone</label>
-    <input id="stihl-alt-phone" placeholder="Alt. phone" />
-  </div>
-</div>
+  <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
 
-<div style="margin-top:10px">
-  <label for="stihl-street-address">Street Address</label>
-  <input id="stihl-street-address" placeholder="Street address" />
-</div>
+    <div>
+      <label for="stihl-customer-contact">Phone</label>
+      <input id="stihl-customer-contact" placeholder="Phone number">
+    </div>
 
-<div style="margin-top:10px;display:grid;grid-template-columns:1fr 90px 120px;gap:10px;">
-  <div>
-    <label for="stihl-city">City</label>
-    <input id="stihl-city" placeholder="City" />
+    <div>
+      <label for="stihl-alt-phone">Alt. Phone</label>
+      <input id="stihl-alt-phone" placeholder="Alt. phone">
+    </div>
+
   </div>
 
-  <div>
-    <label for="stihl-state">State</label>
-    <input id="stihl-state" placeholder="CT" />
+  <div style="margin-top:10px;">
+    <label for="stihl-street-address">Street Address</label>
+    <input id="stihl-street-address" placeholder="Street address">
   </div>
 
-  <div>
-    <label for="stihl-zip">ZIP</label>
-    <input id="stihl-zip" placeholder="06776" />
+  <div style="margin-top:10px;display:grid;grid-template-columns:1fr 90px 120px;gap:10px;">
+
+    <div>
+      <label for="stihl-city">City</label>
+      <input id="stihl-city" placeholder="City">
+    </div>
+
+    <div>
+      <label for="stihl-state">State</label>
+      <input id="stihl-state" placeholder="CT">
+    </div>
+
+    <div>
+      <label for="stihl-zip">ZIP</label>
+      <input id="stihl-zip" placeholder="06776">
+    </div>
+
   </div>
-</div>
 
-<div style="margin-top:10px">
-  <label for="stihl-customer-email">Email</label>
-  <input id="stihl-customer-email" type="email" placeholder="Email address" />
-</div>
-</div>
-          <div style="margin-top:10px">
-            <label for="stihl-quote-notes">Notes</label>
-            <textarea id="stihl-quote-notes" placeholder="Optional quote notes"></textarea>
-</div>
+  <div style="margin-top:10px;">
+    <label for="stihl-customer-email">Email</label>
+    <input id="stihl-customer-email"
+           type="email"
+           placeholder="Email address">
+  </div>
 
+  <div style="margin-top:10px;">
+    <label for="stihl-quote-notes">Notes</label>
+    <textarea id="stihl-quote-notes"
+              placeholder="Optional quote notes"></textarea>
+  </div>
+
+</div>
 <div class="stihl-card" id="stihl-trade-card">
   <h3>Trade-In</h3>
 
@@ -805,55 +961,19 @@ body.dealer-mode .dealer-only{
     </div>
 
     <div style="margin-top:10px;">
-      <label for="stihl-trade-allowance">Trade Allowance</label>
-      <input id="stihl-trade-allowance" type="number" min="0" step="0.01" value="0">
-    </div>
-
-  </div>
+  <label for="stihl-trade-allowance">Trade Allowance</label>
+  <input id="stihl-trade-allowance"
+         type="number"
+         min="0"
+         step="0.01"
+         value="0">
 </div>
 
-<div id="stihl-cart-lines" style="margin-top:12px"></div>         
-<div id="stihl-delivery-options" style="margin-top:12px;display:none;"></div>
-<input id="stihl-delivery-choice" type="hidden" value="">
-<input id="stihl-delivery-fee" type="hidden" value="0">
-<div id="stihl-setup-options" style="margin-top:12px;display:none;"></div>
-<input id="stihl-setup-choice" type="hidden" value="">
-<input id="stihl-setup-fee" type="hidden" value="0">
-          <div id="stihl-setup-line" style="display:none;"></div>
-<div id="stihl-discount-line" style="display:none;"></div>
-<div id="stihl-warranty-line" style="display:none;"></div>
-<div id="stihl-rebate-line" style="display:none;"></div>
-<div id="stihl-trade-line" style="display:none;"></div>
+</div>   <!-- closes #stihl-trade-fields -->
 
-<div class="stihl-line">
-  <span>Subtotal</span>
-  <strong id="stihl-subtotal">$0.00</strong>
-</div>
-          <div class="stihl-line">
-            <span>Estimated CT Sales Tax</span>
-            <strong id="stihl-tax">$0.00</strong>
-          </div>
-          <div class="stihl-line">
-            <span>Out-the-Door Price</span>
-            <strong class="stihl-total" id="stihl-total">$0.00</strong>
-          </div>
+</div>   <!-- closes #stihl-trade-card -->
 
-          <div style="margin-top:12px;">
-  <label for="stihl-deposit-option">Customer Down Payment</label>
-  <select id="stihl-deposit-option">
-    <option value="0">No Down Payment</option>
-    <option value="10pct">10% Down Payment</option>
-    <option value="20pct">20% Down Payment</option>
-    <option value="custom">Custom Down Payment Amount</option>
-  </select>
-</div>
-
-<div id="stihl-custom-deposit-wrap" style="display:none;margin-top:10px;">
-  <label for="stihl-custom-deposit">Custom Down Payment Amount</label>
-  <input id="stihl-custom-deposit" type="number" min="0" step="0.01" value="0">
-</div>
-
-          <div class="dealer-only" id="stihl-dealer-pricing-panel" style="
+<div class="dealer-only" id="stihl-dealer-pricing-panel" style="
   margin-top:14px;
   border:2px solid #1f7a3a;
   border-radius:12px;
@@ -1051,8 +1171,7 @@ body.dealer-mode .dealer-only{
 </div>
 
 </div>
-<div id="stihl-financing-options" style="margin-top:14px;display:none;"></div>
-<input id="stihl-financing-choice" type="hidden" value="">          
+         
           
           <div class="stihl-btn-row">
             <button class="stihl-btn secondary" id="stihl-print" type="button">Print / Save PDF</button>
@@ -1394,40 +1513,222 @@ function managerApproval(){
   };
 }
 
-    function displayPrice(item){
-  const sale = money(item.SalePrice);
-  const msrp = money(item.MSRP);
+function parsePromoDate(v){
+  const s = clean(v);
+  if(!s) return null;
 
-  if(sale && msrp && sale < msrp){
-  return `
-<div style="
-  font-size:12px;
-  font-weight:800;
-  text-transform:uppercase;
-  color:#666;
-  margin-bottom:4px;
-">
-  MSRP <span class="stihl-old">${fmtMoney(msrp)}</span>
-</div>
-
-<div style="
-  font-size:18px;
-  font-weight:900;
-  color:#c00000;
-">
-  SALE PRICE ${fmtMoney(sale)}
-</div>
-`;
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
 }
+
+function earliestPromoDateLabel(...dates){
+
+  const valid = dates
+    .map(parsePromoDate)
+    .filter(Boolean)
+    .sort((a,b) => a - b);
+
+  if(!valid.length){
+    return '';
+  }
+
+  return valid[0].toLocaleDateString(undefined,{
+  year:'numeric',
+  month:'long',
+  day:'numeric'
+});
+}
+
+function bestPromoFinanceForTool(t){
+
+  if(!t){
+    return null;
+  }
+
+  const model =
+    clean(t.Model) ||
+    clean(t.BaseModel) ||
+    clean(t.ShortModel);
+
+  if(!model){
+    return null;
+  }
+
+  return state.paymentOptions
+    .filter(p =>
+      clean(p.Type).toLowerCase() === 'finance' ||
+      clean(p.Type).toLowerCase() === 'financing'
+    )
+    .filter(p => clean(p.Active) === '' || isTrue(p.Active))
+    .filter(p => clean(p.Display) === '' || isTrue(p.Display))
+    .filter(p => clean(p.RebateEligible) === '' || isTrue(p.RebateEligible))
+    .filter(p => isTrue(p[model]))
+    .sort((a,b) =>
+      money(a.APR) - money(b.APR) ||
+      Number(clean(b.TermMonths)) - Number(clean(a.TermMonths))
+    )[0] || null;
+}
+
+    function displayPrice(item){
+
+  const msrp = money(item.MSRP);
+  const sale = money(item.SalePrice);
+  const rebate = money(item.CustomerRebateAmount || item.PromoValue);
+
+  const basePrice = sale || msrp || 0;
+  const yourPrice = Math.max(basePrice - rebate, 0);
+
+  const finance = bestPromoFinanceForTool(item);
+
+  let monthly = 0;
+
+  if(finance){
+    const principal =
+      (yourPrice * (1 + TAX_RATE)) +
+      money(finance.ApplicationFee);
+
+    monthly = monthlyPayment(
+      principal,
+      money(finance.APR),
+      Number(clean(finance.TermMonths))
+    );
+  }
+
+  const offerDate = earliestPromoDateLabel(
+    item.PromoEndDate,
+    item.RebateEndDate,
+    finance?.PromoEndDate,
+    finance?.ProgramEndDate,
+    finance?.EndDate
+  );
+
+  const showOffers = rebate || finance;
+
   return `
+    <div style="width:100%;">
+
+      <div style="
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:12px;
+        align-items:end;
+      ">
+        <div>
+          <div style="font-size:12px;font-weight:900;color:#666;text-transform:uppercase;">
+            MSRP
+          </div>
+          <div style="font-size:22px;font-weight:900;color:#111;">
+            ${fmtMoney(msrp || basePrice)}
+          </div>
+        </div>
+
+        <div style="text-align:right;">
+          <div style="font-size:12px;font-weight:900;color:#666;text-transform:uppercase;">
+            ${rebate > 0 ? 'Your Price After Rebate' : 'Your Price'}
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#c00000;">
+            ${fmtMoney(yourPrice)}
+          </div>
+        </div>
+      </div>
+
+      ${showOffers ? `
+        <div style="
+          margin-top:8px;
+          padding-top:7px;
+          border-top:1px solid #ddd;
+        ">
+
+          ${offerDate ? `
+            <div style="
+              text-align:center;
+font-size:15px;
+font-weight:900;
+margin-bottom:8px;
+line-height:1.2;
+            ">
+              Current Factory Offers • Valid Through ${escapeHtml(offerDate)}
+            </div>
+          ` : `
+            <div style="
+              text-align:center;
+              font-size:13px;
+              font-weight:900;
+              margin-bottom:5px;
+            ">
+              Current Factory Offers
+            </div>
+          `}
+
+          <div style="
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  align-items:start;
+  font-size:13px;
+">
+
+            ${rebate ? `
 <div style="
+  display:flex;
+  justify-content:flex-start;
+">
+  <div>
+    <div style="
+  font-size:14px;
+  font-weight:900;
+  color:#555;
+">
+  Factory Rebate
+</div>
+
+    <div style="
   font-size:18px;
   font-weight:900;
-  color:#c00000;
+  color:#1f7a3a;
 ">
-  MSRP ${fmtMoney(sale || msrp)}
+  Save ${fmtMoney(rebate)}
 </div>
-`;
+  </div>
+</div>
+` : `<div></div>`}
+
+${finance ? `
+<div style="
+  display:flex;
+  justify-content:flex-end;
+">
+  <div style="text-align:right;">
+
+    <div style="
+  font-size:14px;
+  font-weight:900;
+  color:#555;
+">
+      ${escapeHtml(
+        clean(finance.Label) ||
+        `${money(finance.APR)}% for ${clean(finance.TermMonths)} Months`
+      )}
+    </div>
+
+    <div style="
+  font-size:18px;
+  font-weight:900;
+  color:#1f7a3a;
+">
+  ${fmtMoney(monthly)} per month
+</div>
+
+  </div>
+</div>
+` : `<div></div>`}
+          </div>
+
+        </div>
+      ` : ''}
+
+    </div>
+  `;
 }
     function sortByOrder(a,b){ return (Number(a.SortOrder)||9999) - (Number(b.SortOrder)||9999); }
 
@@ -1467,6 +1768,34 @@ async function loadOptionalCSV(url){
     console.warn(url + ' not found');
     return [];
   }
+}
+
+function clearAll(){
+
+  state.selectedTool = null;
+  state.cart = [];
+
+  $('stihl-tool-select').value = '';
+  $('stihl-tool-qty').value = '1';
+
+  if($('stihl-credit-payment')) $('stihl-credit-payment').value = '0';
+  if($('stihl-cash-payment')) $('stihl-cash-payment').value = '0';
+  if($('stihl-financing-select')){
+    $('stihl-financing-select').value = '';
+    $('stihl-financing-select').dataset.selectedValue = '';
+  }
+
+  if($('stihl-dealer-discount')) $('stihl-dealer-discount').value = '0';
+  if($('stihl-custom-discount')) $('stihl-custom-discount').value = '0';
+
+  if($('stihl-trade-enabled')) $('stihl-trade-enabled').value = '';
+  if($('stihl-trade-fields')) $('stihl-trade-fields').style.display = 'none';
+  if($('stihl-trade-allowance')) $('stihl-trade-allowance').value = '0';
+
+  renderToolDetails();
+  renderAllOptions();
+  renderKMARuntimeMatrix();
+  renderCart();
 }
 
 async function init(){
@@ -1761,36 +2090,72 @@ $('stihl-customer-email').addEventListener('blur', () => {
 
 });
 
-/* ---------- Deposit / Down Payment ---------- */
+/* ---------- Payment Options ---------- */
 
-['stihl-deposit-option','stihl-custom-deposit'].forEach(id => {
+[
+  'stihl-credit-payment',
+  'stihl-cash-payment',
+  'stihl-financing-select',
+  'stihl-financing-in-lieu-select'
+].forEach(id => {
 
   const el = $(id);
 
   if(!el) return;
 
-  function updateDeposit(){
+  el.addEventListener('input', () => {
 
-    const wrap = $('stihl-custom-deposit-wrap');
+  if(id === 'stihl-financing-select'){
+    el.dataset.selectedValue = clean(el.value);
 
-    if(wrap){
-      wrap.style.display =
-        clean($('stihl-deposit-option').value) === 'custom'
-          ? ''
-          : 'none';
+    if(clean(el.value) && $('stihl-financing-in-lieu-select')){
+      $('stihl-financing-in-lieu-select').value = '';
+      $('stihl-financing-in-lieu-select').dataset.selectedValue = '';
     }
-
-    renderCart();
-
   }
 
-  el.addEventListener('change', updateDeposit);
-  el.addEventListener('input', updateDeposit);
+  if(id === 'stihl-financing-in-lieu-select'){
+    el.dataset.selectedValue = clean(el.value);
 
-});      
-}
+    if(clean(el.value) && $('stihl-financing-select')){
+      $('stihl-financing-select').value = '';
+      $('stihl-financing-select').dataset.selectedValue = '';
+    }
+  }
 
-    function renderCategories(){
+  renderCart();
+
+});
+
+el.addEventListener('change', () => {
+
+  if(id === 'stihl-financing-select'){
+    el.dataset.selectedValue = clean(el.value);
+
+    if(clean(el.value) && $('stihl-financing-in-lieu-select')){
+      $('stihl-financing-in-lieu-select').value = '';
+      $('stihl-financing-in-lieu-select').dataset.selectedValue = '';
+    }
+  }
+
+  if(id === 'stihl-financing-in-lieu-select'){
+    el.dataset.selectedValue = clean(el.value);
+
+    if(clean(el.value) && $('stihl-financing-select')){
+      $('stihl-financing-select').value = '';
+      $('stihl-financing-select').dataset.selectedValue = '';
+    }
+  }
+
+  renderCart();
+
+});
+
+});   // closes Payment Options forEach
+
+}     // closes bindEvents
+
+function renderCategories(){
       const cats = [...new Set(state.tools.map(t => clean(t.Category)).filter(Boolean))].sort();
       $('stihl-category').innerHTML = '<option value="">All categories</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
     }
@@ -1928,7 +2293,7 @@ box.innerHTML = `
     <div style="margin:8px 0">${badges}</div>
 
     <div class="stihl-price-row">
-      <div>${displayPrice(t)}</div>
+  <div style="width:100%;">${displayPrice(t)}</div>
 
       ${clean(t.SaleEndDate) ? `
         <div class="stihl-sale-date">
@@ -1936,7 +2301,7 @@ box.innerHTML = `
         </div>
       ` : ''}
     </div>
-    
+
 ${renderKitSavings(t)}
 
 ${renderAvailability(t)}
@@ -2044,6 +2409,48 @@ const priceTagBtn = document.getElementById('stihl-price-tag');
 if(priceTagBtn){
   priceTagBtn.addEventListener('click', printPriceTag);
 }
+}
+
+function renderToolPromotion(t){
+
+  if(!t){
+    return '';
+  }
+
+  const title = clean(t.PromoTitle);
+  const value = money(t.PromoValue || t.CustomerRebateAmount);
+  const description = clean(t.PromoDescription || t.PromoItem);
+  const endDate = clean(t.PromoEndDate || t.RebateEndDate);
+
+  if(!title && !value && !description && !endDate){
+    return '';
+  }
+
+  return `
+    <div class="stihl-note" style="margin-top:10px;">
+      <div style="font-weight:900;font-size:15px;">
+        🔥 Current Factory Promotion
+      </div>
+
+      ${value ? `
+        <div style="font-size:18px;font-weight:900;color:#b00020;margin-top:4px;">
+          Save ${fmtMoney(value)}
+        </div>
+      ` : ''}
+
+      ${title ? `
+        <div style="font-weight:800;margin-top:4px;">
+          ${escapeHtml(title)}
+        </div>
+      ` : ''}
+
+      ${endDate ? `
+        <div class="stihl-small" style="margin-top:4px;">
+          Offer Ends: ${escapeHtml(endDate)}
+        </div>
+      ` : ''}
+    </div>
+  `;
 }
 
 function renderAvailability(item){
@@ -2605,7 +3012,7 @@ function setupDetailHtml(){
       border-top:2px solid #ddd;
       padding-top:6px;
       margin-top:6px;
-      font-weight:900;
+      font-weight:normal;
     ">
       <span>Setup / Installation Charges</span>
       <strong>${fmtMoney(setupFee())}</strong>
@@ -2631,81 +3038,128 @@ function renderDeliveryOptions(){
   box.style.display = '';
 
   if(allowDelivery){
+    const rows = state.delivery
+      .map(row => {
+        const zip = clean(row.ZipCode || row.Zip || row.ZIP || row.zip || row.Lookup);
+        const town = clean(row.DeliveryTown || row.Town || row.City || row.Area);
+        const fee = money(row[deliveryGroup]);
+
+        if(!zip || !town || !deliveryGroup) return null;
+        if(row[deliveryGroup] === undefined || row[deliveryGroup] === '') return null;
+
+        return { zip, town, fee };
+      })
+      .filter(Boolean);
+
     box.innerHTML = `
-  <label for="stihl-delivery-area">Deliver To ZIP Code</label>
+      <label for="stihl-delivery-search">View Delivery Areas</label>
 
-  <select id="stihl-delivery-area">
-    <option value="">Select ZIP Code for Delivery Quote</option>
-    ${state.delivery.map(row => {
-      const zip = clean(row.ZipCode || row.Zip || row.ZIP || row.zip || row.Lookup);
-      const town = clean(row.DeliveryTown || row.Town || row.City || row.Area);
-      const fee = money(row[deliveryGroup]);
+      <div style="display:grid;grid-template-columns:1fr auto;gap:8px;">
+        <input
+          id="stihl-delivery-search"
+          type="text"
+          placeholder="Enter ZIP Code or Town"
+          list="stihl-delivery-list">
 
-      if(!zip || !deliveryGroup) return '';
-      if(row[deliveryGroup] === undefined || row[deliveryGroup] === '') return '';
+        <button class="stihl-btn light" type="button" id="stihl-check-delivery">
+          Check
+        </button>
+      </div>
 
-      return `
-        <option value="${zip}" data-fee="${fee}" data-town="${escapeHtml(town)}">
-          ${zip} | ${town}, CT | ${fee > 0 ? fmtMoney(fee) : 'Included'}
-        </option>
+      <datalist id="stihl-delivery-list">
+        ${rows.map(r => `
+          <option value="${escapeHtml(r.zip)}">${escapeHtml(r.town)}, CT</option>
+          <option value="${escapeHtml(r.town)}">${escapeHtml(r.zip)}</option>
+        `).join('')}
+      </datalist>
+
+      <div id="stihl-delivery-result" class="stihl-small" style="margin-top:8px;"></div>
+
+      <div class="stihl-btn-row" style="margin-top:10px;">
+        <button class="stihl-btn light" type="button" data-pickup-choice="Pickup in New Milford">
+          Or Pickup in New Milford
+        </button>
+
+        <button class="stihl-btn light" type="button" data-pickup-choice="Pickup in Danbury">
+          Or Pickup in Danbury
+        </button>
+      </div>
+    `;
+
+    function checkDelivery(){
+      const input = $('stihl-delivery-search');
+      const result = $('stihl-delivery-result');
+      const q = clean(input?.value).toLowerCase();
+
+      const match = rows.find(r =>
+        r.zip.toLowerCase() === q ||
+        r.town.toLowerCase() === q
+      ) || rows.find(r =>
+        r.zip.toLowerCase().includes(q) ||
+        r.town.toLowerCase().includes(q)
+      );
+
+      if(!q || !match){
+        $('stihl-delivery-choice').value = '';
+        $('stihl-delivery-fee').value = 0;
+
+        result.innerHTML = `
+          <span style="color:#b00020;font-weight:900;">
+            Delivery area not found. Please select pickup or contact us.
+          </span>
+        `;
+
+        renderCart();
+        return;
+      }
+
+      $('stihl-delivery-choice').value =
+        `Delivery to ${match.town} ${match.zip}`;
+
+      $('stihl-delivery-fee').value = match.fee;
+
+      result.innerHTML = `
+        <span style="color:#1f7a3a;font-weight:900;">
+          Delivery to ${escapeHtml(match.town)}, CT ${escapeHtml(match.zip)}:
+          ${match.fee > 0 ? fmtMoney(match.fee) : 'Included'}
+        </span>
       `;
-    }).join('')}
-  </select>
 
-  <div class="stihl-btn-row" style="margin-top:10px;">
-    <button class="stihl-btn light"
-            type="button"
-            data-pickup-choice="or Pickup in New Milford">
-      Or Pickup in New Milford
-    </button>
+      box.querySelectorAll('[data-pickup-choice]')
+        .forEach(b => b.classList.remove('selected'));
 
-    <button class="stihl-btn light"
-            type="button"
-            data-pickup-choice="or Pickup in Danbury">
-      Or Pickup in Danbury
-    </button>
-  </div>
-`;
+      renderCart();
+    }
 
-    const select = $('stihl-delivery-area');
+    $('stihl-check-delivery')?.addEventListener('click', checkDelivery);
 
-    if(select){
-      select.addEventListener('change', () => {
-        const opt = select.options[select.selectedIndex];
-        const zip = clean(select.value);
-        const town = clean(opt?.dataset?.town);
-        const fee = money(opt?.dataset?.fee);
+    $('stihl-delivery-search')?.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        checkDelivery();
+      }
+    });
 
-        $('stihl-delivery-choice').value =
-          zip ? `Delivery to ${town} ${zip}` : '';
+    box.querySelectorAll('[data-pickup-choice]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        $('stihl-delivery-choice').value = btn.dataset.pickupChoice;
+        $('stihl-delivery-fee').value = 0;
 
-        $('stihl-delivery-fee').value = zip ? fee : 0;
-        
+        const result = $('stihl-delivery-result');
+        if(result) result.innerHTML = '';
+
+        const input = $('stihl-delivery-search');
+        if(input) input.value = '';
+
         box.querySelectorAll('[data-pickup-choice]')
-  .forEach(b => b.classList.remove('selected'));
-        
+          .forEach(b => b.classList.remove('selected'));
+
+        btn.classList.add('selected');
+
         renderCart();
       });
-    }
-box.querySelectorAll('[data-pickup-choice]').forEach(btn => {
-  btn.addEventListener('click', () => {
+    });
 
-    $('stihl-delivery-choice').value =
-      btn.dataset.pickupChoice;
-
-    $('stihl-delivery-fee').value = 0;
-
-    const select = $('stihl-delivery-area');
-    if(select) select.value = '';
-
-    box.querySelectorAll('[data-pickup-choice]')
-      .forEach(b => b.classList.remove('selected'));
-
-    btn.classList.add('selected');
-
-    renderCart();
-  });
-});
     return;
   }
 
@@ -2740,14 +3194,7 @@ box.querySelectorAll('[data-pickup-choice]').forEach(btn => {
 
 function selectedPaymentProgram(){
 
-  const id = clean($('stihl-financing-choice')?.value);
-
-  if(!id) return null;
-
-  return state.paymentOptions.find(p =>
-    clean(p.PaymentOptionID) === id ||
-    clean(p.Label) === id
-  ) || null;
+  return selectedCustomerFinanceProgram();
 
 }
 
@@ -2979,32 +3426,14 @@ function programDefaultDownPayment(total){
 }
 
 function selectedDepositAmount(total){
-  total = Number(total) || 0;
 
-  const option = clean($('stihl-deposit-option')?.value || '0');
-  const custom = money($('stihl-custom-deposit')?.value || 0);
+    total = Number(total) || 0;
 
-  let deposit = programDefaultDownPayment(total);
+    const entered =
+        paymentDownEntered();
 
-  if(option === '10pct'){
-    deposit = total * 0.10;
-  }else if(option === '20pct'){
-    deposit = total * 0.20;
-  }else if(option === 'custom'){
-    deposit = custom;
-  }else if(option !== '0'){
-  deposit = money(option);
-}
+    return Math.min(entered, total);
 
-  if(total > 0){
-    deposit = Math.min(deposit, total);
-  }
-
-  const requiredMinimum = programDefaultDownPayment(total);
-
-deposit = Math.max(deposit, requiredMinimum);
-
-return Math.max(deposit, 0);
 }
 
 function renderDepositSummary(total){
@@ -3028,6 +3457,72 @@ function renderDepositSummary(total){
         : 'none';
   }
 }
+
+function paymentDownEntered(){
+  return money($('stihl-credit-payment')?.value) +
+         money($('stihl-cash-payment')?.value);
+}
+
+function minimumDownForProgram(program, total){
+  if(!program) return 0;
+
+  const fixed = money(
+    program.MinimumDown ||
+    program.MinimumDownAmount ||
+    program.MinimumDownPayment ||
+    program.minimundown ||
+    program.minimumdown
+  );
+
+  const percent = money(
+    program.MinimumDownPercent ||
+    program.MinDownPercent ||
+    program.minimumdownpercent
+  );
+
+  if(fixed > 0) return fixed;
+  if(percent > 0) return total * (percent / 100);
+
+  return 0;
+}
+
+function selectedCustomerFinanceProgram(){
+
+  const standardId =
+    clean($('stihl-financing-select')?.value);
+
+  const inLieuId =
+    clean($('stihl-financing-in-lieu-select')?.value);
+
+  const id = inLieuId || standardId;
+
+  if(!id){
+    return null;
+  }
+
+  return state.paymentOptions.find(p =>
+    clean(p.PaymentOptionID) === id ||
+    clean(p.Label) === id
+  ) || null;
+}
+
+function selectedProgramAllowsRebate(){
+
+  const program = selectedCustomerFinanceProgram();
+
+  if(!program){
+    return true;
+  }
+
+  const value = clean(program.RebateEligible);
+
+  if(value === ''){
+    return true;
+  }
+
+  return isTrue(value);
+}
+
 function currentQuoteTotal(){
   const txt = clean($('stihl-total')?.textContent).replace(/[$,]/g,'');
   return Number(txt) || 0;
@@ -3194,7 +3689,7 @@ rebateEndDate: rebateEndDate(),
   )
   .join(' | '),
     
-    payment: clean($('stihl-financing-choice')?.value),
+    payment: clean($('stihl-financing-select')?.value),
     notes: clean($('stihl-quote-notes')?.value),
     subtotal: $('stihl-subtotal')?.textContent,
     tax: $('stihl-tax')?.textContent,
@@ -3222,164 +3717,118 @@ rebateEndDate: rebateEndDate(),
 }
 
 function renderFinancingOptions(){
-  const box = $('stihl-financing-options');
 
-  if(!box || !state.selectedTool){
-    if(box) box.style.display = 'none';
+  const select = $('stihl-financing-select');
+  const inLieuSelect = $('stihl-financing-in-lieu-select');
+  const inLieuWrap = $('stihl-financing-in-lieu-wrap');
+
+  if(!select){
     return;
   }
 
-  const amount = currentQuoteTotal();
-  const programs = state.paymentOptions.filter(financingApplies);
+  const total = currentQuoteTotal();
 
-  if(!programs.length || amount <= 0){
-    box.style.display = 'none';
-    return;
-  }
+  const programs = state.paymentOptions
+    .filter(financingApplies)
+    .filter(p =>
+      clean(p.Type).toLowerCase() === 'finance' ||
+      clean(p.Type).toLowerCase() === 'financing'
+    )
+    .sort((a,b) =>
+      money(a.APR) - money(b.APR) ||
+      Number(clean(a.TermMonths)) - Number(clean(b.TermMonths))
+    );
 
-  box.style.display = '';
-
-  box.innerHTML = `
-    <label>Payment Options</label>
-
-    <select id="stihl-financing-sort" style="margin-bottom:8px;">
-      <option value="">Select Payment Option</option>
-      <option value="payment">Financing - Lowest Payment</option>
-      <option value="rate">Financing - Lowest APR</option>
-      <option value="creditcard">Credit Card Payment</option>
-    </select>
-
-    <select id="stihl-financing-select">
-      <option value="">Choose financing option</option>
-    </select>
-
-    <div id="stihl-financing-detail" class="stihl-small" style="margin-top:8px;"></div>
-  `;
-
-  function programPayment(p){
-
-  const customerAdj =
-    amount * (money(p.CustomerAdjustmentPercent) / 100);
-
-  const appFee =
-    money(p.ApplicationFee);
-
-  const down =
-    downPaymentForProgram(p, amount);
-
-  const principal =
-    Math.max(amount + customerAdj + appFee - down, 0);
-
-  return monthlyPayment(
-    principal,
-    money(p.APR),
-    Number(clean(p.TermMonths))
+  const rebatePrograms = programs.filter(p =>
+    clean(p.RebateEligible) === '' || isTrue(p.RebateEligible)
   );
-}
-  function fillFinanceSelect(){
-    const sort = clean($('stihl-financing-sort').value);
 
-    $('stihl-financing-choice').value = '';
-    $('stihl-financing-detail').innerHTML = '';
+  const inLieuPrograms = programs.filter(p =>
+    clean(p.RebateEligible) !== '' && !isTrue(p.RebateEligible)
+  );
 
-    if(sort === 'creditcard'){
-      const credit = programs.find(p =>
-        clean(p.Type).toLowerCase() === 'creditcard' ||
-        clean(p.PaymentOptionID).toLowerCase().includes('credit') ||
-        clean(p.Label).toLowerCase().includes('credit')
+  const optionHtml = p => {
+    const id =
+      clean(p.PaymentOptionID) ||
+      clean(p.Label);
+
+    const minDown =
+      minimumDownForProgram(p, total);
+
+    const financed =
+      Math.max(total - minDown, 0);
+
+    const monthly =
+      monthlyPayment(
+        financed + money(p.ApplicationFee),
+        money(p.APR),
+        Number(clean(p.TermMonths))
       );
 
-      if(credit){
-        $('stihl-financing-select').innerHTML =
-          `<option value="0">${escapeHtml(clean(credit.Label))}</option>`;
-
-        $('stihl-financing-select').dataset.programs =
-          JSON.stringify([credit]);
-      }else{
-        $('stihl-financing-select').innerHTML =
-          '<option value="">No credit card option found</option>';
-
-        $('stihl-financing-select').dataset.programs = '[]';
-      }
-
-      return;
-    }
-
-    const sorted = [...programs].sort((a,b) => {
-
-  const advA = isTrue(a.Advertised) ? 0 : 1;
-  const advB = isTrue(b.Advertised) ? 0 : 1;
-
-  if(advA !== advB){
-    return advA - advB;
-  }
-
-  const sortA = Number(clean(a.AdvertisedSort)) || 9999;
-  const sortB = Number(clean(b.AdvertisedSort)) || 9999;
-
-  if(sortA !== sortB){
-    return sortA - sortB;
-  }
-
-  if(sort === 'rate'){
-    return money(a.APR) - money(b.APR);
-  }
-
-  return programPayment(a) - programPayment(b);
-
-});
-
-    $('stihl-financing-select').innerHTML =
-      '<option value="">Choose financing option</option>' +
-      sorted.map((p,i) => `
-        <option value="${i}">
-          ${escapeHtml(clean(p.Label))} — ${fmtMoney(programPayment(p))}/mo
-        </option>
-      `).join('');
-
-    $('stihl-financing-select').dataset.programs =
-      JSON.stringify(sorted);
-
-  }
-
-  fillFinanceSelect();
-
-  $('stihl-financing-sort').addEventListener('change', fillFinanceSelect);
-
-  $('stihl-financing-select').addEventListener('change', () => {
-    const selectedIndex = Number($('stihl-financing-select').value);
-    const list = JSON.parse($('stihl-financing-select').dataset.programs || '[]');
-    const p = list[selectedIndex];
-
-    if(!p){
-      $('stihl-financing-choice').value = '';
-      $('stihl-financing-detail').innerHTML = '';
-      renderCart();
-      return;
-    }
-
-    const payment = programPayment(p);
-
-    $('stihl-financing-choice').value =
-      clean(p.PaymentOptionID) || clean(p.Label);
-
-    $('stihl-financing-detail').innerHTML = `
-      <strong>${escapeHtml(clean(p.Label))}</strong><br>
-      APR: ${escapeHtml(clean(p.APR))}% |
-      Term: ${escapeHtml(clean(p.TermMonths))} months |
-      Est. Payment: <strong>${fmtMoney(payment)}/mo</strong>
-      ${clean(p.CreditApplicationURL) ? `
-        <br><a class="stihl-btn stihl-finance-btn"
-           href="${escapeHtml(clean(p.CreditApplicationURL))}"
-           target="_blank"
-           rel="noopener">
-          ✓ Apply for Financing
-        </a>
-      ` : ''}
+    return `
+      <option value="${escapeHtml(id)}">
+        ${money(p.APR)}% APR • ${clean(p.TermMonths)} mo • ${fmtMoney(monthly)}/mo
+      </option>
     `;
+  };
 
-    renderCart();
-  });
+  const currentValue =
+    clean(select.value) ||
+    clean(select.dataset.selectedValue);
+
+  const currentInLieuValue =
+    clean(inLieuSelect?.value) ||
+    clean(inLieuSelect?.dataset.selectedValue);
+
+  if(!programs.length || total <= 0){
+    select.innerHTML =
+      '<option value="">No financing programs available</option>';
+
+    select.dataset.selectedValue = '';
+
+    if(inLieuSelect){
+      inLieuSelect.innerHTML =
+        '<option value="">No in-lieu programs available</option>';
+      inLieuSelect.dataset.selectedValue = '';
+    }
+
+    if(inLieuWrap){
+      inLieuWrap.style.display = 'none';
+    }
+
+    return;
+  }
+
+  select.innerHTML =
+    '<option value="">Select Financing Program</option>' +
+    rebatePrograms.map(optionHtml).join('');
+
+  select.value = currentValue;
+  select.dataset.selectedValue = clean(select.value);
+
+  if(inLieuSelect && inLieuWrap){
+
+    if(inLieuPrograms.length){
+      inLieuWrap.style.display = '';
+
+      inLieuSelect.innerHTML =
+        '<option value="">Select Financing Program</option>' +
+        inLieuPrograms.map(optionHtml).join('');
+
+      inLieuSelect.value = currentInLieuValue;
+      inLieuSelect.dataset.selectedValue = clean(inLieuSelect.value);
+
+    }else{
+
+      inLieuWrap.style.display = 'none';
+      inLieuSelect.innerHTML =
+        '<option value="">No in-lieu programs available</option>';
+      inLieuSelect.dataset.selectedValue = '';
+
+    }
+
+  }
+
 }
     
 function selectTool(){
@@ -4226,6 +4675,11 @@ function rebateIsActive(item){
 }
 
 function customerRebateAmount(){
+
+  if(!selectedProgramAllowsRebate()){
+  return 0;
+}
+
   return state.cart.reduce((sum, line) => {
     if(!line.item || !rebateIsActive(line.item)) return sum;
 
@@ -4535,231 +4989,346 @@ function dealerDiscountLabel(){
   return val && val !== '0' ? `${val}% Dealer Discount` : '';
 }
     function renderCart(){
+
+      const selectedProgram = selectedCustomerFinanceProgram();
+      const dealer = dealerEngine();
+
       const lines = $('stihl-cart-lines');
       if(!state.cart.length){
         lines.innerHTML = '<div class="stihl-note">No package selected yet.</div>';
-      } else {
-        lines.innerHTML = state.cart
-  .map((line, cartIndex) => ({ line, cartIndex }))
-  .filter(x => !x.line.requiredItem)
-  .map(({ line, cartIndex }) => {
-  const childItems = state.cart.filter(c =>
-    c.requiredItem &&
-    c.parentSku === skuOf(line.item)
-  );
+} else {
 
-  const childTotal = childItems.reduce((sum, c) =>
-    sum + (c.included ? 0 : priceOf(c.item) * c.qty), 0
-  );
+  lines.innerHTML = state.cart
+    .map((line, cartIndex) => ({ line, cartIndex }))
+    .filter(x => !x.line.requiredItem)
+    .map(({ line, cartIndex }) => {
 
-  const unit = line.included ? 0 : priceOf(line.item);
-const baseExt = unit * line.qty;
-const ext = line.included ? 0 : lineTotal(line) + childTotal;
-          return `
-            <div class="stihl-card">
-              <div style="font-weight:900;">
-  ${escapeHtml(nameOf(line.item))}
-</div>
+      const childItems = state.cart.filter(c =>
+        c.requiredItem &&
+        c.parentSku === skuOf(line.item)
+      );
 
-<div style="
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-top:4px;
-  font-size:13px;
-  color:#666;
-">
-  <span>
-    ${line.type === 'tool'
-      ? escapeHtml(clean(line.item.StihlID) || skuOf(line.item))
-      : escapeHtml(skuOf(line.item))}
-  </span>
+      const childTotal = childItems.reduce((sum, c) =>
+        sum + (c.included ? 0 : priceOf(c.item) * c.qty), 0
+      );
 
-  <strong style="
-    color:#111;
-    font-size:18px;
-  ">
-    ${line.included ? 'Included' : fmtMoney(ext)}
-  </strong>
-</div>
+      const skuText =
+        line.type === 'tool'
+          ? clean(line.item.StihlID) || skuOf(line.item)
+          : skuOf(line.item);
 
- ${line.qty > 1 ? `<div class="stihl-small">Qty: ${line.qty}</div>` : ''}
+      const setupFee =
+        money(line.item.AssemblyAmount) * (Number(line.qty) || 1);
 
-${(() => {
-  return childItems.length ? `
-    <div style="
-      margin-top:8px;
-      padding:8px 10px;
-      background:#f8f8f8;
-      border-left:4px solid #f37021;
-      border-radius:8px;
-      font-size:13px;
-    ">
-      <strong>Includes:</strong><br>
-      ${childItems.map(c => `
-        ✓ ${escapeHtml(nameOf(c.item))}
-        (${escapeHtml(skuOf(c.item))})
-      `).join('<br>')}
-    </div>
-  ` : '';
-})()}
+      const setupAmount =
+        line.setupSelected ? setupFee : 0;
 
-<div style="
-  margin-top:10px;
-  padding-top:8px;
-  border-top:1px solid #e5e5e5;
-  text-align:right;
-">
-  <strong style="
-    font-size:18px;
-    color:#111;
-  ">
-    ${line.included ? 'Included' : fmtMoney(ext)}
-  </strong>
-</div>
+      const packageTotal =
+        line.included
+          ? 0
+          : lineTotal(line) + childTotal + setupAmount;
 
-${document.body.classList.contains('dealer-mode') && !line.included ? `
-  <div style="
-    margin-top:10px;
-    padding:10px;
-    border:1px solid #d6eadb;
-    border-radius:10px;
-    background:#f3fbf5;
-  ">
-    <label>Line Discount</label>
+      const includedTooltip =
+        childItems.length || isTrue(line.item.AssemblyOption)
+          ? `
+            <div class="stihl-included-tooltip" style="
+              position:absolute;
+              right:0;
+              top:28px;
+              z-index:999;
+              display:none;
+              width:320px;
+              background:#111;
+              color:#fff;
+              border-radius:8px;
+              padding:10px;
+              font-size:12px;
+              line-height:1.35;
+              box-shadow:0 6px 18px rgba(0,0,0,.25);
+            ">
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-      <select data-line-discount-type="${cartIndex}">
-        <option value="">No Discount</option>
-        <option value="dollar" ${line.discountType === 'dollar' ? 'selected' : ''}>Dollar Discount</option>
-        <option value="percent" ${line.discountType === 'percent' ? 'selected' : ''}>Percent Discount</option>
-        <option value="override" ${line.discountType === 'override' ? 'selected' : ''}>Override Price</option>
-      </select>
+              <strong>Package Details</strong>
 
-      <input
-        type="number"
-        min="0"
-        step="0.01"
-        value="${escapeHtml(clean(line.discountValue || ''))}"
-        placeholder="Amount"
-        data-line-discount-value="${cartIndex}">
-    </div>
+              <div style="margin-top:7px;">
+                <div>
+                  <strong>${escapeHtml(skuText)}</strong>
+                  ${escapeHtml(nameOf(line.item))}
+                  ${document.body.classList.contains('dealer-mode')
+                    ? ` — ${fmtMoney(lineTotal(line))}`
+                    : ''}
+                </div>
 
-    <div class="stihl-small" style="margin-top:6px;line-height:1.6;">
-  Discount: <strong>${fmtMoney(lineDiscountAmount(line))}</strong><br>
-  Line Total: <strong>${fmtMoney(lineTotal(line))}</strong><br>
-  Dealer Cost: <strong>${fmtMoney(lineDealerCost(line))}</strong><br>
-  Gross Profit: <strong>${fmtMoney(lineGrossProfit(line))}</strong><br>
-  Gross Margin: <strong>${lineGrossMargin(line).toFixed(1)}%</strong>
-</div>
-  </div>
-` : ''}
+                ${childItems.map(c => `
+                  <div style="margin-top:5px;">
+                    <strong>${escapeHtml(skuOf(c.item))}</strong>
+                    ${escapeHtml(nameOf(c.item))}
+                    ${document.body.classList.contains('dealer-mode')
+                      ? ` — ${c.included ? 'No Additional Charge' : fmtMoney(priceOf(c.item) * c.qty)}`
+                      : ''}
+                  </div>
+                `).join('')}
 
-              ${isTrue(line.item.AssemblyOption) && money(line.item.AssemblyAmount) > 0 ? `
-  <label class="stihl-setup-checkbox" style="
-    display:flex;
-    align-items:center;
-    gap:12px;
-    margin:12px 0;
-    padding:12px;
-    background:#f7f7f7;
-    border:2px solid #ddd;
-    border-radius:10px;
-    font-weight:800;
-    color:#111;
-  ">
-    <input type="checkbox"
-           data-setup-index="${cartIndex}"
-           ${!line.setupSelected ? 'checked' : ''}
-           style="
-             width:22px;
-             height:22px;
-             cursor:pointer;
-           ">
+                ${isTrue(line.item.AssemblyOption) ? `
+                  <div style="
+                    margin-top:7px;
+                    padding-top:7px;
+                    border-top:1px solid rgba(255,255,255,.25);
+                    display:grid;
+                    grid-template-columns:1fr auto;
+                    gap:8px;
+                    align-items:center;
+                  ">
+                    <div>
+                      <strong>SERVICE</strong>
+                      Dealer Setup / Install
+                    </div>
 
-    <div>
-      <div style="font-size:15px;font-weight:900;">
-  Customer prefers to install this item
-</div>
+                    ${setupFee > 0 ? `
+                      <label style="
+                        display:flex;
+                        align-items:center;
+                        gap:6px;
+                        white-space:nowrap;
+                      ">
+                        ${line.setupSelected ? fmtMoney(setupFee) : '$0.00'}
+                        <input
+                          type="checkbox"
+                          data-setup-index="${cartIndex}"
+                          ${line.setupSelected ? 'checked' : ''}
+                          style="width:16px;height:16px;margin:0;">
+                      </label>
+                    ` : `
+                      <strong>No Additional Charge</strong>
+                    `}
+                  </div>
+                ` : ''}
 
-<div style="font-size:13px;color:#555;margin-top:2px;">
-  Remove <strong>${fmtMoney(
-    money(line.item.AssemblyAmount) * line.qty
-  )}</strong> setup / installation charge
-</div>
-    </div>
-  </label>
-` : ''}
-             ${!line.included ? `<button class="stihl-btn light" type="button" data-remove="${escapeHtml(line.key)}">Remove</button>` : ''}
+                <div style="
+                  margin-top:8px;
+                  padding-top:8px;
+                  border-top:1px solid rgba(255,255,255,.35);
+                  display:flex;
+                  justify-content:space-between;
+                  gap:10px;
+                  font-weight:900;
+                ">
+                  <span>Total</span>
+                  <span>${fmtMoney(packageTotal)}</span>
+                </div>
+
+              </div>
             </div>
-          `;
-        }).join('') +
+          `
+          : '';
 
-`${document.body.classList.contains('dealer-mode') && state.cart.length ? `
-  <div style="
-    margin-top:12px;
-    border:2px solid #1f7a3a;
-    border-radius:12px;
-    padding:12px;
-    background:#f3fbf5;
-  ">
-    <h3 style="margin:0 0 8px;">Dealer Line Totals</h3>
+      return `
+        <div class="stihl-card" style="padding:8px 10px;margin:6px 0;">
 
-    <div class="stihl-line">
-      <span>Total Line Discounts</span>
-      <strong>${fmtMoney(cartLineDiscountTotal())}</strong>
-    </div>
+          <div style="
+            display:grid;
+            grid-template-columns:1fr auto auto auto;
+            gap:8px;
+            align-items:center;
+          ">
 
-    <div class="stihl-line">
-      <span>Total Dealer Cost</span>
-      <strong>${fmtMoney(cartLineDealerCostTotal())}</strong>
-    </div>
+            <div style="
+              font-weight:900;
+              font-size:14px;
+              line-height:1.2;
+              min-width:0;
+            ">
+              ${escapeHtml(nameOf(line.item))}
+            </div>
 
-    <div class="stihl-line">
-      <span>Total Gross Profit</span>
-      <strong>${fmtMoney(cartLineGrossProfitTotal())}</strong>
-    </div>
+            ${includedTooltip ? `
+              <div style="position:relative;">
+                <button type="button"
+                        class="stihl-info-btn"
+                        style="
+                          border:1px solid #ccc;
+                          background:#fff;
+                          border-radius:999px;
+                          width:22px;
+                          height:22px;
+                          font-weight:900;
+                          cursor:pointer;
+                        ">
+                  i
+                </button>
+                ${includedTooltip}
+              </div>
+            ` : ''}
 
-    <div class="stihl-line">
-      <span>Total Gross Margin</span>
-      <strong>${cartLineGrossMarginTotal().toFixed(1)}%</strong>
-    </div>
-  </div>
-` : ''}`;
+            <div style="
+              display:flex;
+              align-items:center;
+              gap:4px;
+              font-size:12px;
+              font-weight:800;
+              white-space:nowrap;
+            ">
+              Qty
+              <input
+                type="number"
+                min="1"
+                value="${Number(line.qty) || 1}"
+                data-cart-qty="${cartIndex}"
+                style="
+                  width:44px;
+                  padding:3px 4px;
+                  text-align:center;
+                  font-size:13px;
+                  font-weight:900;
+                ">
+            </div>
 
-        lines.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', () => removeCart(btn.getAttribute('data-remove'))));
-        lines.querySelectorAll('[data-line-discount-type]').forEach(el => {
-  el.addEventListener('change', () => {
-    const idx = Number(el.getAttribute('data-line-discount-type'));
+            <button
+              type="button"
+              data-remove="${escapeHtml(line.key)}"
+              title="Remove item"
+              style="
+                border:0;
+                background:#b00020;
+                color:#fff;
+                border-radius:6px;
+                width:24px;
+                height:24px;
+                font-weight:900;
+                cursor:pointer;
+                line-height:1;
+              ">
+              ×
+            </button>
 
-    if(state.cart[idx]){
-      state.cart[idx].discountType = clean(el.value);
-      renderCart();
-    }
+          </div>
+
+          <div style="
+            display:grid;
+            grid-template-columns:1fr auto;
+            gap:8px;
+            align-items:center;
+            margin-top:3px;
+            font-size:13px;
+            color:#666;
+            line-height:1.15;
+          ">
+            <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              ${escapeHtml(skuText)}
+            </div>
+
+            <strong style="color:#111;white-space:nowrap;">
+              ${line.included ? 'No Additional Charge' : fmtMoney(packageTotal)}
+            </strong>
+          </div>
+
+          ${document.body.classList.contains('dealer-mode') && !line.included ? `
+            <div style="
+              margin-top:8px;
+              padding:8px;
+              border:1px solid #d6eadb;
+              border-radius:10px;
+              background:#f3fbf5;
+            ">
+              <label>Line Discount</label>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <select data-line-discount-type="${cartIndex}">
+                  <option value="">No Discount</option>
+                  <option value="dollar" ${line.discountType === 'dollar' ? 'selected' : ''}>Dollar Discount</option>
+                  <option value="percent" ${line.discountType === 'percent' ? 'selected' : ''}>Percent Discount</option>
+                  <option value="override" ${line.discountType === 'override' ? 'selected' : ''}>Override Price</option>
+                </select>
+
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value="${escapeHtml(clean(line.discountValue || ''))}"
+                  placeholder="Amount"
+                  data-line-discount-value="${cartIndex}">
+              </div>
+            </div>
+          ` : ''}
+
+        </div>
+      `;
+    }).join('');
+
+  lines.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      removeCart(btn.getAttribute('data-remove'));
+    });
   });
-});
 
-lines.querySelectorAll('[data-line-discount-value]').forEach(el => {
-  el.addEventListener('input', () => {
-    const idx = Number(el.getAttribute('data-line-discount-value'));
+  lines.querySelectorAll('[data-cart-qty]').forEach(input => {
+    input.addEventListener('change', () => {
+      const idx = Number(input.getAttribute('data-cart-qty'));
+      const qty = Math.max(1, Number(input.value) || 1);
 
-    if(state.cart[idx]){
-      state.cart[idx].discountValue = clean(el.value);
+      if(state.cart[idx]){
+        state.cart[idx].qty = qty;
+      }
+
       renderCart();
-    }
+    });
   });
-});
-        lines.querySelectorAll('[data-setup-index]').forEach(box => {
-  box.addEventListener('change', () => {
-    const idx = Number(box.getAttribute('data-setup-index'));
 
-    if(state.cart[idx]){
-      state.cart[idx].setupSelected = !box.checked;
-      renderCart();
-    }
+  lines.querySelectorAll('.stihl-info-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tip = btn.parentElement.querySelector('.stihl-included-tooltip');
+      if(tip){
+        tip.style.display = tip.style.display === 'block' ? 'none' : 'block';
+      }
+    });
+
+    btn.addEventListener('mouseenter', () => {
+      const tip = btn.parentElement.querySelector('.stihl-included-tooltip');
+      if(tip) tip.style.display = 'block';
+    });
+
+    btn.parentElement.addEventListener('mouseleave', () => {
+      const tip = btn.parentElement.querySelector('.stihl-included-tooltip');
+      if(tip) tip.style.display = 'none';
+    });
   });
-});
-     }
+
+  lines.querySelectorAll('[data-setup-index]').forEach(box => {
+    box.addEventListener('change', () => {
+      const idx = Number(box.getAttribute('data-setup-index'));
+
+      if(state.cart[idx]){
+        state.cart[idx].setupSelected = box.checked;
+      }
+
+      renderCart();
+    });
+  });
+
+  lines.querySelectorAll('[data-line-discount-type]').forEach(el => {
+    el.addEventListener('change', () => {
+      const idx = Number(el.getAttribute('data-line-discount-type'));
+
+      if(state.cart[idx]){
+        state.cart[idx].discountType = clean(el.value);
+      }
+
+      renderCart();
+    });
+  });
+
+  lines.querySelectorAll('[data-line-discount-value]').forEach(el => {
+    el.addEventListener('input', () => {
+      const idx = Number(el.getAttribute('data-line-discount-value'));
+
+      if(state.cart[idx]){
+        state.cart[idx].discountValue = clean(el.value);
+      }
+
+      renderCart();
+    });
+  });
+
+}
 
       const productSubtotal = state.cart.reduce((sum,line) =>
   sum + lineTotal(line), 0
@@ -4861,16 +5430,8 @@ if(warrantyDisplay){
 const rebateLine = $('stihl-rebate-line');
 
 if(rebateLine){
-  rebateLine.style.display = rebate > 0 ? '' : 'none';
-
-  rebateLine.innerHTML = rebate > 0
-    ? `
-      <div class="stihl-line">
-        <span>Factory Instant Rebate</span>
-        <strong>-${fmtMoney(rebate)}</strong>
-      </div>
-    `
-    : '';
+  rebateLine.style.display = 'none';
+  rebateLine.innerHTML = '';
 }
 
 if($('stihl-rebate-display')){
@@ -4921,7 +5482,9 @@ if(discountDisplay){
 
 if($('stihl-payment-program-display')){
   $('stihl-payment-program-display').textContent =
-    paymentProgramLabel();
+    selectedProgram
+      ? clean(selectedProgram.Label || selectedProgram.PaymentOptionID)
+      : 'None Selected';
 }
 
 if($('stihl-payment-fee-display')){
@@ -4939,45 +5502,75 @@ if($('stihl-principal-financed-display')){
     fmtMoney(principalFinanced);
 }
 
-const selectedProgram = selectedPaymentProgram();
 
-const monthly =
-  selectedProgram
-    ? monthlyPayment(
-        principalFinanced,
-        money(selectedProgram.APR),
-        Number(clean(selectedProgram.TermMonths))
-      )
-    : 0;
+const financeSummary = $('stihl-finance-summary');
 
-if($('stihl-deposit-display')){
-  $('stihl-deposit-display').textContent =
-    fmtMoney(selectedDepositAmount(taxableSubtotal + tax));
+if(selectedProgram){
+
+  const enteredDown =
+    paymentDownEntered();
+
+  const minimumDown =
+    minimumDownForProgram(selectedProgram, currentQuoteTotal());
+
+  const amountFinanced =
+    Math.max(currentQuoteTotal() - enteredDown, 0);
+
+  const principalFinanced =
+    amountFinanced + money(selectedProgram.ApplicationFee);
+
+  const monthly =
+    monthlyPayment(
+      principalFinanced,
+      money(selectedProgram.APR),
+      Number(clean(selectedProgram.TermMonths))
+    );
+
+  if(financeSummary){
+    financeSummary.style.display = '';
+  }
+
+  if($('stihl-minimum-down-display')){
+    $('stihl-minimum-down-display').textContent =
+  fmtMoney(minimumDown);
+  }
+
+  if($('stihl-financed-display')){
+    $('stihl-financed-display').textContent =
+      fmtMoney(amountFinanced);
+  }
+
+  if($('stihl-payment-display')){
+    $('stihl-payment-display').textContent =
+      `${fmtMoney(monthly)}/mo x ${clean(selectedProgram.TermMonths)} months`;
+  }
+
+  if($('stihl-rebate-not-eligible-note')){
+  $('stihl-rebate-not-eligible-note').style.display =
+    selectedProgram && !selectedProgramAllowsRebate()
+      ? ''
+      : 'none';
 }
 
-if($('stihl-balance-display')){
-  $('stihl-balance-display').textContent =
-    fmtMoney(amountFinanced);
-}
+}else{
 
-if($('stihl-customer-adjustment-display')){
-  $('stihl-customer-adjustment-display').textContent =
-    fmtMoney(customerAdjustment);
-}
+  if(financeSummary){
+    financeSummary.style.display = 'none';
+  }
 
-if($('stihl-application-fee-display')){
-  $('stihl-application-fee-display').textContent =
-    fmtMoney(applicationFee);
-}
+  if($('stihl-minimum-down-display')){
+    $('stihl-minimum-down-display').textContent = '$0.00';
+  }
 
-if($('stihl-monthly-payment-display')){
-  $('stihl-monthly-payment-display').textContent =
-    selectedProgram
-      ? `${fmtMoney(monthly)}/mo`
-      : '$0.00';
-}
+  if($('stihl-financed-display')){
+    $('stihl-financed-display').textContent = '$0.00';
+  }
 
-const dealer = dealerEngine();
+  if($('stihl-payment-display')){
+    $('stihl-payment-display').textContent = '$0.00/mo';
+  }
+
+}
 
 if($('stihl-dealer-cost-display')){
   $('stihl-dealer-cost-display').textContent =
@@ -5067,8 +5660,26 @@ if($('stihl-application-fee-display')){
     fmtMoney(paymentApplicationFee());
 }
 
+const cartSubtotal = state.cart.reduce((sum,line) => {
+
+  if(!line || line.included){
+    return sum;
+  }
+
+  const qty = Number(line.qty) || 1;
+
+  const calculatedLineTotal =
+    lineTotal(line);
+
+  const fallbackLineTotal =
+    Math.max((priceOf(line.item) * qty) - lineDiscountAmount(line), 0);
+
+  return sum + Math.max(calculatedLineTotal, fallbackLineTotal);
+
+}, 0);
+
 const finalSubtotal = Math.max(
-  dealer.subtotal +
+  cartSubtotal +
   setupFee() +
   deliveryFee() +
   warrantyAmount() -
@@ -5119,8 +5730,6 @@ $('stihl-total').textContent = fmtMoney(finalTotal);
 
 renderDepositSummary(finalTotal);
 
-renderPromotionPublic();
-
 renderFinancingOptions();
 
     }
@@ -5162,19 +5771,6 @@ Prices, compatibility, availability, promotions, and estimated run times should 
       navigator.clipboard.writeText(text).then(()=> alert('Quote copied.'));
     }
 
-    function clearAll(){
-  state.selectedTool = null;
-  state.cart = [];
-  $('stihl-tool-select').value = '';
-  $('stihl-customer-name').value = '';
-$('stihl-customer-contact').value = '';
-$('stihl-customer-email').value = '';
-$('stihl-quote-notes').value = '';
- renderToolDetails();
-renderAllOptions();
-renderKMARuntimeMatrix();
-renderCart();
-}
     function findBattery(code){ return state.batteries.find(b => skuOf(b).toUpperCase() === clean(code).toUpperCase()); }
     function findCharger(code){ return state.chargers.find(c => skuOf(c).toUpperCase() === clean(code).toUpperCase()); }
 
