@@ -1300,6 +1300,13 @@ body.dealer-mode .dealer-only{
   <strong>Coming Soon</strong>
 </div>
 
+<div class="stihl-line" style="display:block;">
+  <span style="display:block;font-weight:800;margin-bottom:6px;">Kit Cost Check</span>
+  <div id="stihl-kit-cost-check-display" style="font-weight:900;">
+    No kit selected
+  </div>
+</div>
+
 </div>
          
           
@@ -1349,8 +1356,30 @@ paymentOptions: 'data/payment-options.csv'
 const STRIPE_CHECKOUT_API =
   "https://westendpower-stripe-checkout.westendpower-nm.workers.dev";
 
-const batteryCodes = ['AS2','AK10','AK20','AK30','AK30S','AP200S','AP300S','AP500S','AR2000L','AR3000L'];
-    const chargerCodes = ['AL1','AL5','AL5-2','AL101','AL301','AL301-4','AL501'];
+const batteryCodes = [
+  'AS2',
+  'AK10',
+  'AK20',
+  'AK30',
+  'AK30S',
+  'AP200S',
+  'AP300S',
+  'AP500S',
+  'AR2000L',
+  'AR2000L_KIT',
+  'AR3000L',
+  'AR3000L_KIT'
+];
+
+const chargerCodes = [
+  'AL1',
+  'AL5',
+  'AL5-2',
+  'AL101',
+  'AL301',
+  'AL501',
+  'AL301-4'
+];
 
     const state = {
   tools: [],
@@ -1540,7 +1569,7 @@ function lineTotal(line){
 }
 
 function lineDealerCost(line){
-  if(!line || !line.item) return 0;
+  if(!line || !line.item || line.included) return 0;
 
   const qty = Number(line.qty) || 1;
   const cost = money(line.item.DealerCost);
@@ -1549,7 +1578,7 @@ function lineDealerCost(line){
 }
 
 function lineAdvertisingFee(line){
-  if(!line || !line.item) return 0;
+  if(!line || !line.item || line.included) return 0;
 
   const qty = Number(line.qty) || 1;
   const fee = money(line.item.AdvertisingFee);
@@ -1559,6 +1588,183 @@ function lineAdvertisingFee(line){
 
 function lineTrueDealerCost(line){
   return lineDealerCost(line) + lineAdvertisingFee(line);
+}
+
+function codeParts(code){
+  return clean(code).split('_').filter(Boolean);
+}
+
+function normalizeCode(v){
+  return clean(v)
+    .toUpperCase()
+    .replace(/\s+/g,'')
+    .replace(/\./g,'');
+}
+
+function findComponentByCode(code){
+
+  const c = clean(code);
+
+  let item =
+    state.batteries.find(b => skuOf(b) === c || clean(b.StihlID) === c || clean(b.BatteryID) === c) ||
+    state.chargers.find(ch => skuOf(ch) === c || clean(ch.StihlID) === c || clean(ch.ChargerID) === c) ||
+    state.tools.find(t => clean(t.StihlID) === c || skuOf(t) === c);
+
+  return item || null;
+}
+
+function parseKitComponentsFromStihlID(stihlId){
+
+  const raw = clean(stihlId);
+
+  if(!raw || !raw.endsWith('_KIT')){
+    return null;
+  }
+
+  const tokens = raw.split('_').filter(Boolean);
+
+  if(tokens.length < 3){
+    return null;
+  }
+
+  tokens.pop(); // removes final KIT marker
+
+  const toolCode = tokens.shift();
+
+  const componentCodes =
+    batteryCodes
+      .concat(chargerCodes)
+      .sort((a,b) => codeParts(b).length - codeParts(a).length);
+
+  const components = [];
+
+  while(tokens.length){
+
+    let matched = false;
+
+    for(const code of componentCodes){
+
+      const parts = codeParts(code);
+      const test = tokens.slice(0, parts.length).join('_');
+
+      if(test === code){
+        components.push(code);
+        tokens.splice(0, parts.length);
+        matched = true;
+        break;
+      }
+
+    }
+
+    if(!matched){
+      components.push(tokens.shift());
+    }
+
+  }
+
+  return {
+    toolCode,
+    components
+  };
+}
+
+function kitIndividualComponentCost(line){
+
+  if(!line || !line.item){
+    return null;
+  }
+
+  const kitInfo = parseKitComponentsFromStihlID(skuOf(line.item));
+
+  if(!kitInfo){
+    return null;
+  }
+
+  const qty = Number(line.qty) || 1;
+
+  const toolItem =
+    state.tools.find(t =>
+      normalizeCode(skuOf(t)) === normalizeCode(kitInfo.toolCode) ||
+      normalizeCode(t.Model) === normalizeCode(kitInfo.toolCode) ||
+      normalizeCode(t.BaseModel) === normalizeCode(kitInfo.toolCode)
+    );
+
+  const toolCost = toolItem ? money(toolItem.DealerCost) : 0;
+
+  let componentCost = 0;
+
+  kitInfo.components.forEach(code => {
+    const item = findComponentByCode(code);
+    componentCost += item ? money(item.DealerCost) : 0;
+  });
+
+  return {
+    kitCost: money(line.item.DealerCost) * qty,
+    componentCost: (toolCost + componentCost) * qty
+  };
+}
+
+function kitCostWarningText(){
+
+  const rows = [];
+
+  state.cart.forEach(line => {
+
+    const check = kitIndividualComponentCost(line);
+
+    if(!check){
+      return;
+    }
+
+    const toolName =
+  clean(line.item.Name) ||
+  clean(line.item.Description) ||
+  `${displayProductTitle(line.item)} ${displayKitIncludes(line.item)}`.trim() ||
+  clean(line.item.Model) ||
+  skuOf(line.item);
+
+const toolSku =
+  skuOf(line.item);
+
+    const kitCost =
+      check.kitCost;
+
+    const componentCost =
+      check.componentCost;
+
+    const difference =
+      kitCost - componentCost;
+
+    if(difference > 0){
+      rows.push(`
+        <div style="color:#b00020;margin-bottom:6px;">
+          ${escapeHtml(toolName)} <span style="color:#666;">(${escapeHtml(toolSku)})</span> —
+          WARNING: components cheaper by ${fmtMoney(difference)}
+        </div>
+      `);
+    }else if(difference < 0){
+      rows.push(`
+        <div style="color:#1f7a3a;margin-bottom:6px;">
+          ${escapeHtml(toolName)} <span style="color:#666;">(${escapeHtml(toolSku)})</span> —
+          kit saves dealer ${fmtMoney(Math.abs(difference))}
+        </div>
+      `);
+    }else{
+      rows.push(`
+        <div style="color:#111;margin-bottom:6px;">
+          ${escapeHtml(toolName)} <span style="color:#666;">(${escapeHtml(toolSku)})</span> —
+          kit cost equals components
+        </div>
+      `);
+    }
+
+  });
+
+  if(!rows.length){
+    return 'No kit selected';
+  }
+
+  return rows.join('');
 }
 
 function lineGrossProfit(line){
@@ -2291,7 +2497,7 @@ $('stihl-customer-email').addEventListener('blur', () => {
 
   if(!el) return;
 
- el.addEventListener('input', () => {
+ ['input','change'].forEach(evt => el.addEventListener(evt, () => {
 
   if(id === 'stihl-cash-full-payment'){
 
@@ -2372,7 +2578,7 @@ $('stihl-customer-email').addEventListener('blur', () => {
 
   renderCart();
 
-});
+}));
 
 el.addEventListener('change', () => {
 
@@ -3571,10 +3777,10 @@ function selectedPaymentProgram(){
 
 }
 
-function paymentDealerFeeAmount(subtotal){
+function paymentDealerFeeAmount(totalBeforePaymentFee){
 
   const total =
-    currentQuoteTotal();
+    Math.max(Number(totalBeforePaymentFee) || 0, 0);
 
   if(creditFullPaymentSelected()){
     return total * 0.03;
@@ -3584,7 +3790,7 @@ function paymentDealerFeeAmount(subtotal){
     money($('stihl-credit-payment')?.value);
 
   if(creditAmount > 0){
-    return creditAmount * 0.03;
+    return Math.min(creditAmount, total) * 0.03;
   }
 
   const p =
@@ -3633,6 +3839,51 @@ function paymentProgramLabel(){
 
   return clean(p.Label) || clean(p.PaymentOptionID);
 
+}
+
+function financingProgramMinimumAmount(program){
+  if(!program) return 0;
+
+  return Math.max(
+    money(program.MinAmount),
+    money(program.MinimumAmount),
+    money(program.MinimumFinanceAmount),
+    money(program.MinFinanceAmount)
+  );
+}
+
+function selectedFinanceIsBelowMinimum(totalBeforeFinance){
+
+  const p = selectedPaymentProgram();
+
+  if(!p) return false;
+
+  const split =
+    paymentSplitAmounts(totalBeforeFinance);
+
+  const minimumAmount =
+    financingProgramMinimumAmount(p);
+
+  if(minimumAmount <= 0) return false;
+
+  return split.financeAmount > 0 && split.financeAmount < minimumAmount;
+}
+
+function clearSelectedFinancingProgram(){
+
+  if($('stihl-financing-select')){
+    $('stihl-financing-select').value = '';
+    $('stihl-financing-select').dataset.selectedValue = '';
+  }
+
+  if($('stihl-financing-in-lieu-select')){
+    $('stihl-financing-in-lieu-select').value = '';
+    $('stihl-financing-in-lieu-select').dataset.selectedValue = '';
+  }
+
+  if($('stihl-finance-remaining-payment')){
+    $('stihl-finance-remaining-payment').checked = false;
+  }
 }
 
 function monthlyPayment(principal, apr, months){
@@ -5985,7 +6236,7 @@ const principalFinanced =
   applicationFee;
 
 const paymentFee =
-  paymentDealerFeeAmount(amountFinanced);
+  paymentDealerFeeAmount(taxableSubtotal + tax);
 
 const dealerCost = dealerCostAmount();
 
@@ -6119,10 +6370,84 @@ if($('stihl-principal-financed-display')){
 
 const financeSummary = $('stihl-finance-summary');
 
-if(selectedProgram){
+const totalBeforeFinanceCheck =
+  currentQuoteTotal();
+
+if(selectedProgram && selectedFinanceIsBelowMinimum(totalBeforeFinanceCheck)){
+
+  clearSelectedFinancingProgram();
+
+  if(financeSummary){
+    financeSummary.style.display = 'none';
+  }
+
+  [
+    'stihl-minimum-down-display',
+    'stihl-financed-display',
+    'stihl-finance-application-fee-display',
+    'stihl-finance-principal-display',
+    'stihl-payment-display',
+    'stihl-finance-total-payback-display',
+    'stihl-amount-financed-display',
+    'stihl-principal-financed-display',
+    'stihl-monthly-payment-display',
+    'stihl-total-payback-display'
+  ].forEach(id => {
+    if($(id)) $(id).textContent = '$0.00';
+  });
+
+  if($('stihl-payment-program-display')){
+    $('stihl-payment-program-display').textContent = 'None Selected';
+  }
+
+  if($('stihl-rebate-not-eligible-note')){
+    $('stihl-rebate-not-eligible-note').style.display = 'none';
+  }
+
+}else if(selectedProgram){
 
   const totalBeforeFinance =
-    currentQuoteTotal();
+    taxableSubtotal + tax;
+
+  const minFinanceAmount =
+    money(selectedProgram.MinAmount);
+
+  const splitCheck =
+    paymentSplitAmounts(totalBeforeFinance);
+
+  if(minFinanceAmount > 0 && splitCheck.financeAmount < minFinanceAmount){
+
+    clearSelectedFinancingProgram();
+
+    if(financeSummary){
+      financeSummary.style.display = 'none';
+    }
+
+    [
+      'stihl-minimum-down-display',
+      'stihl-financed-display',
+      'stihl-finance-application-fee-display',
+      'stihl-finance-principal-display',
+      'stihl-payment-display',
+      'stihl-finance-total-payback-display',
+      'stihl-payment-program-display',
+      'stihl-amount-financed-display',
+      'stihl-principal-financed-display',
+      'stihl-monthly-payment-display',
+      'stihl-total-payback-display'
+    ].forEach(id => {
+      if($(id)){
+        $(id).textContent =
+          id === 'stihl-payment-program-display'
+            ? 'None Selected'
+            : '$0.00';
+      }
+    });
+
+    renderPaymentOptions();
+
+    return;
+  }
 
   const split =
     paymentSplitAmounts(totalBeforeFinance);
@@ -6266,6 +6591,11 @@ if($('stihl-advertising-fee-display')){
 if($('stihl-true-dealer-cost-display')){
   $('stihl-true-dealer-cost-display').textContent =
     fmtMoney(dealer.trueDealerCost);
+}
+
+if($('stihl-kit-cost-check-display')){
+  $('stihl-kit-cost-check-display').innerHTML =
+    kitCostWarningText();
 }
 
 if($('stihl-gross-profit-display')){
