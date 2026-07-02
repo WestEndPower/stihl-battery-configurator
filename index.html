@@ -1300,18 +1300,17 @@ body.dealer-mode .dealer-only{
   <strong>Coming Soon</strong>
 </div>
 
-<div class="stihl-line" style="display:block;">
-  <span style="display:block;font-weight:800;margin-bottom:6px;">Kit Cost Check</span>
-  <div id="stihl-kit-cost-check-display" style="font-weight:900;">
-    No kit selected
-  </div>
-</div>
-
 </div>
          
           
           <div class="stihl-btn-row">
-            <button class="stihl-btn secondary" id="stihl-print" type="button">Print / Save PDF</button>
+            <button class="stihl-btn secondary" id="stihl-print" type="button">
+  Print Customer Quote
+</button>
+
+<button class="stihl-btn light dealer-only" id="stihl-dealer-print" type="button">
+  Print Dealer Worksheet
+</button>
 <button class="stihl-btn light" id="stihl-email-quote" type="button">
   Confirm Price & Availability
 </button>
@@ -1704,6 +1703,203 @@ function kitIndividualComponentCost(line){
   };
 }
 
+function itemPartNumber(item){
+  return clean(
+    item.PartNumber ||
+    item['Part Number'] ||
+    item.SKU ||
+    item.sku ||
+    item.StihlID ||
+    item.STIHLID ||
+    item['STIHL ID']
+  );
+}
+
+function findBareToolForKitCode(code){
+  return state.tools.find(t =>
+    normalizeCode(skuOf(t)) === normalizeCode(code) ||
+    normalizeCode(t.Model) === normalizeCode(code) ||
+    normalizeCode(t.BaseModel) === normalizeCode(code)
+  ) || null;
+}
+
+function kitBreakdownRows(line){
+
+  const kitInfo = parseKitComponentsFromStihlID(skuOf(line.item));
+
+  if(!kitInfo){
+    return [];
+  }
+
+  const kitQty = Number(line.qty) || 1;
+  const rows = [];
+
+  const toolItem = findBareToolForKitCode(kitInfo.toolCode);
+
+  const kitMsrp = priceOf(line.item) * kitQty;
+  const kitCost = money(line.item.DealerCost) * kitQty;
+
+  let remainingMsrp = kitMsrp;
+  let remainingCost = kitCost;
+
+  if(toolItem){
+    const toolMsrp = Math.min(money(toolItem.MSRP) * kitQty, remainingMsrp);
+    const toolCost = Math.min(money(toolItem.DealerCost) * kitQty, remainingCost);
+
+    remainingMsrp -= toolMsrp;
+    remainingCost -= toolCost;
+
+    rows.push({
+  qty: kitQty,
+  model: clean(toolItem.Model) || kitInfo.toolCode,
+  stihlId: clean(toolItem.StihlID) || skuOf(toolItem),
+  desc: clean(toolItem.Description) || nameOf(toolItem),
+  msrpOriginal: money(toolItem.MSRP) * kitQty,
+  sale: toolMsrp,
+  cost: toolCost
+});
+
+  }
+
+  kitInfo.components.forEach((code, index) => {
+    const item = findComponentByCode(code);
+    const isLast = index === kitInfo.components.length - 1;
+
+    const normalMsrp = item ? money(item.MSRP) * kitQty : 0;
+    const normalCost = item ? money(item.DealerCost) * kitQty : 0;
+
+    const allocatedMsrp = isLast
+      ? Math.max(remainingMsrp, 0)
+      : Math.min(normalMsrp, Math.max(remainingMsrp, 0));
+
+    const allocatedCost = isLast
+      ? Math.max(remainingCost, 0)
+      : Math.min(normalCost, Math.max(remainingCost, 0));
+
+    remainingMsrp -= allocatedMsrp;
+    remainingCost -= allocatedCost;
+
+    rows.push({
+  qty: kitQty,
+  model: item ? clean(item.Model) || modelOf(item) : code,
+  stihlId: item ? clean(item.StihlID) || skuOf(item) : code,
+  desc: item ? clean(item.Description) || nameOf(item) : code,
+  msrpOriginal: item ? money(item.MSRP) * kitQty : 0,
+  sale: allocatedMsrp,
+  cost: allocatedCost
+});
+  });
+
+  return rows;
+}
+
+function kitBreakdownPrintHtml(){
+
+  const blocks = [];
+
+  state.cart.forEach(line => {
+
+    if(line.included) return;
+
+    const kitInfo = parseKitComponentsFromStihlID(skuOf(line.item));
+
+    if(!kitInfo) return;
+
+    const breakdown = kitBreakdownRows(line);
+    const check = kitIndividualComponentCost(line);
+
+    const kitMsrp = priceOf(line.item) * (Number(line.qty) || 1);
+    const kitCost = check ? check.kitCost : lineDealerCost(line);
+    const componentCost = check ? check.componentCost : 0;
+    const difference = kitCost - componentCost;
+
+    const status =
+      difference > 0
+        ? `WARNING: Components cheaper by ${fmtMoney(difference)}`
+        : difference < 0
+          ? `Kit saves dealer ${fmtMoney(Math.abs(difference))}`
+          : 'Kit cost equals components';
+
+    const statusColor =
+      difference > 0 ? '#b00020' : difference < 0 ? '#1f7a3a' : '#111';
+
+    blocks.push(`
+      <div style="
+        margin-top:18px;
+        border:2px solid #1f7a3a;
+        border-radius:10px;
+        overflow:hidden;
+        page-break-inside:avoid;
+      ">
+        <div style="
+          background:#1f7a3a;
+          color:#fff;
+          padding:8px 12px;
+          font-size:15px;
+          font-weight:900;
+        ">
+          Dealer Kit Breakdown — ${escapeHtml(clean(line.item.Model) || skuOf(line.item))}
+        </div>
+
+        <div style="
+  padding:8px 12px 4px;
+  font-size:11px;
+  color:#555;
+  text-align:center;
+">
+  <strong>${escapeHtml(clean(line.item.StihlID) || skuOf(line.item))}</strong>
+  &nbsp; | &nbsp;
+  Description: <strong>${escapeHtml(clean(line.item.Description) || nameOf(line.item))}</strong>
+  &nbsp; | &nbsp;
+  MSRP / Sale: <strong>${fmtMoney(kitMsrp)}</strong>
+  &nbsp; | &nbsp;
+  Cost: <strong>${fmtMoney(kitCost)}</strong>
+</div>
+
+<div style="
+  padding:2px 12px 8px;
+  text-align:center;
+  font-size:12px;
+  font-weight:900;
+  color:${statusColor};
+">
+  ${status}
+</div>
+
+        <table style="width:100%;border-collapse:collapse;font-size:11px;">
+          <thead>
+            <tr style="background:#f5f5f5;">
+              <th style="border:1px solid #ccc;padding:5px;text-align:right;">Qty</th>
+<th style="border:1px solid #ccc;padding:5px;text-align:left;">Model</th>
+<th style="border:1px solid #ccc;padding:5px;text-align:left;">StihlID</th>
+<th style="border:1px solid #ccc;padding:5px;text-align:left;">Description</th>
+<th style="border:1px solid #ccc;padding:5px;text-align:right;">MSRP</th>
+<th style="border:1px solid #ccc;padding:5px;text-align:right;">Sale Price</th>
+<th style="border:1px solid #ccc;padding:5px;text-align:right;">Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${breakdown.map(row => `
+              <tr>
+                <td style="border:1px solid #ccc;padding:5px;text-align:right;">${row.qty}</td>
+<td style="border:1px solid #ccc;padding:5px;">${escapeHtml(row.model)}</td>
+<td style="border:1px solid #ccc;padding:5px;">${escapeHtml(row.stihlId)}</td>
+<td style="border:1px solid #ccc;padding:5px;">${escapeHtml(row.desc)}</td>
+<td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(row.msrpOriginal)}</td>
+<td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(row.sale)}</td>
+<td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(row.cost)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `);
+
+  });
+
+  return blocks.join('');
+}
+
 function kitCostWarningText(){
 
   const rows = [];
@@ -1735,28 +1931,40 @@ const toolSku =
     const difference =
       kitCost - componentCost;
 
-    if(difference > 0){
-      rows.push(`
-        <div style="color:#b00020;margin-bottom:6px;">
-          ${escapeHtml(toolName)} <span style="color:#666;">(${escapeHtml(toolSku)})</span> —
-          WARNING: components cheaper by ${fmtMoney(difference)}
-        </div>
-      `);
-    }else if(difference < 0){
-      rows.push(`
-        <div style="color:#1f7a3a;margin-bottom:6px;">
-          ${escapeHtml(toolName)} <span style="color:#666;">(${escapeHtml(toolSku)})</span> —
-          kit saves dealer ${fmtMoney(Math.abs(difference))}
-        </div>
-      `);
-    }else{
-      rows.push(`
-        <div style="color:#111;margin-bottom:6px;">
-          ${escapeHtml(toolName)} <span style="color:#666;">(${escapeHtml(toolSku)})</span> —
-          kit cost equals components
-        </div>
-      `);
-    }
+    const shortName =
+  clean(line.item.Model) ||
+  toolSku
+    .replace(/_AK.*$/i,'')
+    .replace(/_AP.*$/i,'')
+    .replace(/_AR.*$/i,'')
+    .replace(/_AS.*$/i,'')
+    .replace(/_KIT$/i,'');
+
+const statusText =
+  difference > 0
+    ? `Components cheaper ${fmtMoney(difference)}`
+    : difference < 0
+      ? `Saves ${fmtMoney(Math.abs(difference))}`
+      : 'Same cost';
+
+const statusColor =
+  difference > 0
+    ? '#b00020'
+    : difference < 0
+      ? '#1f7a3a'
+      : '#111';
+
+rows.push(`
+  <div style="margin-bottom:5px;font-size:13px;">
+    <strong style="color:#111;">${escapeHtml(shortName)}</strong>
+    <strong style="color:${statusColor};float:right;">
+      ${statusText}
+    </strong>
+    <div style="clear:both;font-size:11px;color:#777;">
+      ${escapeHtml(toolSku)}
+    </div>
+  </div>
+`);
 
   });
 
@@ -2286,7 +2494,11 @@ $('stihl-tool-select').addEventListener('change', selectTool);
       $('stihl-add-charger').addEventListener('click', ()=> addSelected('charger'));
       $('stihl-add-attachment').addEventListener('click', ()=> addSelected('attachment'));
       // Accessories are now added from image cards rendered below.
-      $('stihl-print').addEventListener('click', printSalesSheet);
+      $('stihl-print').addEventListener('click', () => printSalesSheet(false));
+
+if($('stihl-dealer-print')){
+  $('stihl-dealer-print').addEventListener('click', () => printSalesSheet(true));
+}
       $('stihl-email-quote').addEventListener('click', emailQuote);
       $('stihl-clear').addEventListener('click', clearAll);
       [
@@ -3089,7 +3301,7 @@ function renderAvailability(item){
 `;
 }
 
-async function printSalesSheet(){
+async function printSalesSheet(dealerWorksheet = false){
   const t = state.selectedTool;
 
   if(!t){
@@ -3287,21 +3499,72 @@ const tradeBlock = tradeInfo
   `
   : '';
 
-  const quoteItems = state.cart.map(line => {
-  const msrp = money(line.item.MSRP);
-  const sale = money(line.item.SalePrice);
-  const unit = priceOf(line.item);
+  const dealerKitBreakdownBlock =
+  dealerWorksheet
+    ? kitBreakdownPrintHtml()
+    : '';
 
-  return `
-  <tr>
-    <td style="text-align:right;">${line.qty}</td>
-    <td style="text-align:left;">${escapeHtml(nameOf(line.item))}</td>
-    <td style="text-align:right;">${line.included ? 'Included' : (msrp ? fmtMoney(msrp) : '')}</td>
-    <td style="text-align:right;">${line.included ? 'Included' : fmtMoney(sale || unit)}</td>
-    <td style="text-align:right;">${line.included ? 'Included' : fmtMoney(lineTotal(line))}</td>
-  </tr>
-`;
-}).join('');
+  const quoteItems = state.cart
+  .filter(line => !line.included)
+  .map(line => {
+
+    const includedItems = state.cart.filter(child =>
+      child.included &&
+      child.parentSku === skuOf(line.item)
+    );
+
+    const packageIncludes = includedItems.length
+      ? includedItems.map(child => {
+          const qty = Number(child.qty) || 1;
+          return `${qty > 1 ? `(${qty}) ` : ''}${nameOf(child.item)}`;
+        }).join(' + ')
+      : '';
+
+    const itemId =
+      line.type === 'tool'
+        ? clean(line.item.StihlID) || skuOf(line.item)
+        : skuOf(line.item);
+
+    return `
+      <tr>
+        <td style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:right;">
+          ${line.qty}
+        </td>
+        <td style="padding:8px 10px;border-bottom:1px solid #ddd;">
+          <strong>
+  ${escapeHtml(nameOf(line.item))}
+</strong>
+
+${packageIncludes ? `
+  <div style="
+    font-size:11px;
+    color:#666;
+    margin-top:2px;
+    white-space:nowrap;
+  ">
+    ${escapeHtml(itemId)}
+    <span style="color:#999;"> — </span>
+    <span>(Package Includes: ${escapeHtml(packageIncludes)})</span>
+  </div>
+` : `
+  <div style="font-size:11px;color:#666;margin-top:2px;">
+    ${escapeHtml(itemId)}
+  </div>
+`}
+        </td>
+        <td style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:right;">
+          ${fmtMoney(money(line.item.MSRP) || priceOf(line.item))}
+        </td>
+        <td style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:right;">
+          ${fmtMoney(priceOf(line.item))}
+        </td>
+        <td style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:right;">
+          ${fmtMoney(lineTotal(line))}
+        </td>
+      </tr>
+    `;
+  }).join('');
+  
   $('stihl-sales-sheet-output').innerHTML = `
     <div class="stihl-sales-sheet">
      <div class="stihl-sales-header">
@@ -3387,6 +3650,8 @@ const tradeBlock = tradeInfo
   </table>
 
 </div>
+
+${dealerKitBreakdownBlock}
 
 ${tradeBlock}
 
