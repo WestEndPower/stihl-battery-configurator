@@ -6800,7 +6800,7 @@ if(discountLine){
 const discountDisplay = $('stihl-discount-display');
 
 if(discountDisplay){
-  discountDisplay.textContent = fmtMoney(discount);
+  discountDisplay.textContent = fmtMoney(discount + bidFleetDiscount);
 }
 
 if($('stihl-payment-program-display')){
@@ -7180,19 +7180,12 @@ const paymentSavings = dealerDiscountAmount(
   customerRebateAmount()
 );
 
-const finalSubtotal = Math.max(
-  cartSubtotal +
-  setupFee() +
-  deliveryFee() +
-  warrantyAmount() -
-  customerRebateAmount() -
-  paymentSavings -
-  trade,
-  0
-);
+const finalSubtotal = subtotal;
 
-const finalTax = finalSubtotal * TAX_RATE;
-const finalTotal = finalSubtotal + finalTax;
+const finalTax = tax;
+
+const finalTotal = taxableSubtotal + tax;
+
 if(cashFullPaymentSelected() && $('stihl-cash-payment')){
   $('stihl-cash-payment').value = fmtMoney(finalTotal);
 }
