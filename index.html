@@ -1346,7 +1346,8 @@ body.dealer-mode .dealer-only{
       accessories: 'data/accessories.csv',
      kmaRuntimes: 'data/kma-runtimes.csv',
 delivery: 'data/delivery.csv',
-paymentOptions: 'data/payment-options.csv'
+paymentOptions: 'data/payment-options.csv',
+bidFleet: 'data/bid-fleet.csv'
     };
 
     const CONFIGURATOR_API =
@@ -1389,6 +1390,7 @@ const chargerCodes = [
   kmaRuntimes: [],
 delivery: [],
 paymentOptions: [],
+bidFleet: [],
 selectedTool: null,
 selectedSystemButton: '',
 selectedPowerButton: '',
@@ -2399,7 +2401,7 @@ if($('stihl-finance-remaining-payment')) $('stihl-finance-remaining-payment').ch
 
 async function init(){
       try{
-        const [tools,batteries,chargers,attachments,accessories,kmaRuntimes,delivery,paymentOptions] = await Promise.all([
+        const [tools,batteries,chargers,attachments,accessories,kmaRuntimes,delivery,paymentOptions,bidFleet] = await Promise.all([
           loadCSV(DATA_FILES.tools),
           loadCSV(DATA_FILES.batteries),
           loadCSV(DATA_FILES.chargers),
@@ -2407,7 +2409,8 @@ async function init(){
           loadCSV(DATA_FILES.accessories),
           loadCSV(DATA_FILES.kmaRuntimes),
 loadCSV(DATA_FILES.delivery),
-loadOptionalCSV(DATA_FILES.paymentOptions)
+loadOptionalCSV(DATA_FILES.paymentOptions),
+loadOptionalCSV(DATA_FILES.bidFleet)
         ]);
 
         state.tools = tools.filter(t => clean(t.Active)==='' || isTrue(t.Active)).sort(sortByOrder);
@@ -2420,6 +2423,10 @@ loadOptionalCSV(DATA_FILES.paymentOptions)
         state.paymentOptions = paymentOptions
   .filter(p => clean(p.Active)==='' || isTrue(p.Active))
   .filter(p => clean(p.Display)==='' || isTrue(p.Display))
+  .sort(sortByOrder);
+
+  state.bidFleet = bidFleet
+  .filter(p => clean(p.Active)==='' || isTrue(p.Active))
   .sort(sortByOrder);
 
         $('stihl-load-status').className = 'stihl-success';
@@ -5661,6 +5668,165 @@ function rebateIsActive(item){
   return true;
 }
 
+function bidFleetDateActive(program){
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const start = parseRebateDate(program.StartDate);
+  const end = parseRebateDate(program.EndDate, true);
+
+  if(start && today < start) return false;
+  if(end && today > end) return false;
+
+  return true;
+}
+
+function bidFleetLineMatches(line, program){
+  if(!line || !line.item || line.included) return false;
+
+  const appliesTo = clean(program.AppliesTo);
+  const matchType = clean(program.MatchType);
+
+  if(!appliesTo || appliesTo.toLowerCase() === 'all') return true;
+
+  const item = line.item;
+
+  if(matchType === 'Family'){
+    return clean(item.Series) === appliesTo ||
+           clean(item.Family) === appliesTo ||
+           clean(item.Model).includes(appliesTo) ||
+           clean(item.StihlID).includes(appliesTo);
+  }
+
+  if(matchType === 'Category'){
+    return clean(item.Category) === appliesTo;
+  }
+
+  if(matchType === 'StihlID'){
+    return clean(item.StihlID) === appliesTo || skuOf(item) === appliesTo;
+  }
+
+  return clean(item.Category) === appliesTo ||
+         clean(item.Series) === appliesTo ||
+         clean(item.Model).includes(appliesTo);
+}
+
+function bidFleetQualifies(program){
+  if(!program || !bidFleetDateActive(program)) return false;
+
+  const minSubtotal = money(program.MinSubtotal);
+  const minUnits = Number(clean(program.MinUnits)) || 0;
+
+  const matchingLines = state.cart.filter(line =>
+    bidFleetLineMatches(line, program)
+  );
+
+  const matchingSubtotal = matchingLines.reduce((sum,line) =>
+    sum + lineTotal(line), 0
+  );
+
+  const matchingUnits = matchingLines.reduce((sum,line) =>
+    sum + (Number(line.qty) || 1), 0
+  );
+
+  if(minSubtotal > 0 && matchingSubtotal < minSubtotal) return false;
+  if(minUnits > 0 && matchingUnits < minUnits) return false;
+
+  if(clean(program.QualificationType) === 'HandheldFleetPurchase'){
+    const handheldRequired = money(program.MinQualifingHandHeldPurchase);
+
+    const handheldSubtotal = state.cart.reduce((sum,line) => {
+      if(!line.item || line.included) return sum;
+
+      const category = clean(line.item.Category).toLowerCase();
+      const power = clean(line.item.Power).toLowerCase();
+
+      const isHandheld =
+        category.includes('handheld') ||
+        category.includes('trimmer') ||
+        category.includes('blower') ||
+        category.includes('chainsaw') ||
+        category.includes('cut-off') ||
+        category.includes('edger') ||
+        category.includes('sprayer') ||
+        category.includes('kombisystem');
+
+      if(!isHandheld) return sum;
+
+      if(clean(program.AppliesToPower) &&
+         clean(program.AppliesToPower).toLowerCase() !== power){
+        return sum;
+      }
+
+      return sum + lineTotal(line);
+    }, 0);
+
+    if(handheldRequired > 0 && handheldSubtotal < handheldRequired){
+      return false;
+    }
+  }
+
+  return matchingLines.length > 0;
+}
+
+function bidFleetDiscountForProgram(program){
+  if(!bidFleetQualifies(program)) return 0;
+
+  const basisSubtotal = state.cart
+    .filter(line => bidFleetLineMatches(line, program))
+    .reduce((sum,line) => sum + lineTotal(line), 0);
+
+  const type = clean(program.DiscountType).toLowerCase();
+
+  let discount = 0;
+
+  if(type === 'fixed'){
+    discount = money(program.DiscountAmount);
+  }
+
+  if(type === 'percent'){
+    discount = basisSubtotal * (money(program.DiscountPercent) / 100);
+  }
+
+  const cap = money(program.MaxDealerRebateAmount);
+
+  if(cap > 0){
+    discount = Math.min(discount, cap);
+  }
+
+  return Math.min(discount, basisSubtotal);
+}
+
+function selectedBidFleetProgram(){
+  if(!document.body.classList.contains('dealer-mode')){
+    return null;
+  }
+
+  return state.bidFleet
+    .filter(bidFleetQualifies)
+    .map(program => ({
+      program,
+      discount: bidFleetDiscountForProgram(program)
+    }))
+    .filter(x => x.discount > 0)
+    .sort((a,b) => b.discount - a.discount)[0]?.program || null;
+}
+
+function bidFleetDiscountAmount(){
+  const program = selectedBidFleetProgram();
+  return program ? bidFleetDiscountForProgram(program) : 0;
+}
+
+function bidFleetLabel(){
+  const program = selectedBidFleetProgram();
+
+  if(!program) return '';
+
+  return clean(program.DisplayLabel) ||
+         clean(program.ProgramName) ||
+         'Bid / Fleet Pricing Applied';
+}
+
 function customerRebateAmount(){
 
   if(!selectedProgramAllowsRebate()){
@@ -6467,6 +6633,7 @@ const warranty = warrantyAmount();
 const rebate = customerRebateAmount();
 const grossSubtotal = productSubtotal + setup + delivery + warranty;
 const discount = dealerDiscountAmount(grossSubtotal);
+const bidFleetDiscount = bidFleetDiscountAmount();
 
 const customerAdjustment =
   customerAdjustmentAmount(grossSubtotal);
@@ -6477,7 +6644,8 @@ const applicationFee =
 const subtotal = Math.max(
   grossSubtotal
   - discount
-  - rebate
+- bidFleetDiscount
+- rebate
   + customerAdjustment,
   0
 );
@@ -6562,6 +6730,18 @@ if($('stihl-dealer-rebate-display')){
   $('stihl-dealer-rebate-display').textContent = fmtMoney(dealerRebateAmount());
 }
 
+const bidFleetProgram = selectedBidFleetProgram();
+
+if($('stihl-rebate-description') && bidFleetProgram){
+  $('stihl-rebate-description').innerHTML += `
+    <div style="margin-top:8px;color:#1f7a3a;font-weight:900;">
+      ${escapeHtml(clean(bidFleetProgram.ProgramName))}
+      <br>Bid / Fleet Discount: ${fmtMoney(bidFleetDiscountAmount())}
+      ${isTrue(bidFleetProgram.RequiresAppproval) ? '<br><span style="color:#b00020;">Dealer approval required.</span>' : ''}
+    </div>
+  `;
+}
+
 if($('stihl-rebate-description')){
   const desc = rebateDescription();
   const end = rebateEndDate();
@@ -6590,16 +6770,29 @@ if($('stihl-salesman-spiff-display')){
     fmtMoney(dealer.salesmanBonus);
 }
 
+const bidFleetLine = document.createElement('div');
 const discountLine = $('stihl-discount-line');
 
 if(discountLine){
-  discountLine.style.display = discount > 0 ? '' : 'none';
-  discountLine.innerHTML = discount > 0
+  const hasDiscount = discount > 0 || bidFleetDiscount > 0;
+
+  discountLine.style.display = hasDiscount ? '' : 'none';
+
+  discountLine.innerHTML = hasDiscount
     ? `
-      <div class="stihl-line">
-        <span>${escapeHtml(dealerDiscountLabel())}</span>
-        <strong>-${fmtMoney(discount)}</strong>
-      </div>
+      ${discount > 0 ? `
+        <div class="stihl-line">
+          <span>${escapeHtml(dealerDiscountLabel())}</span>
+          <strong>-${fmtMoney(discount)}</strong>
+        </div>
+      ` : ''}
+
+      ${bidFleetDiscount > 0 ? `
+        <div class="stihl-line">
+          <span>${escapeHtml(bidFleetLabel())}</span>
+          <strong>-${fmtMoney(bidFleetDiscount)}</strong>
+        </div>
+      ` : ''}
     `
     : '';
 }
