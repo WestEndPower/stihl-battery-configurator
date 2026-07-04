@@ -1131,6 +1131,28 @@ body.dealer-mode .dealer-only{
   <strong id="stihl-discount-display">$0.00</strong>
 </div>
 
+<div style="margin-top:12px;">
+  <label>Bid / Fleet Type</label>
+
+  <label style="display:flex;gap:6px;align-items:center;font-size:13px;">
+    <input id="stihl-fleet-enabled" type="checkbox" style="width:auto;">
+    Fleet
+  </label>
+
+  <label style="display:flex;gap:6px;align-items:center;font-size:13px;">
+    <input id="stihl-bid-enabled" type="checkbox" style="width:auto;">
+    Bid Assist
+  </label>
+</div>
+
+<div style="margin-top:10px;">
+  <label for="stihl-bid-fleet-select">Available Program</label>
+
+  <select id="stihl-bid-fleet-select">
+    <option value="">No Eligible Program</option>
+  </select>
+</div>
+
 <div class="stihl-line">
   <span>Bid / Fleet Program</span>
   <strong id="stihl-bid-fleet-program-display">Not Applied</strong>
@@ -2039,6 +2061,429 @@ function cartLineGrossMarginTotal(){
   return (cartLineGrossProfitTotal() / total) * 100;
 }
 
+function isDateActive(startDate, endDate){
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const start = parsePromoDate(startDate);
+  const end = parsePromoDate(endDate);
+
+  if(start){
+    start.setHours(0,0,0,0);
+
+    if(today < start){
+      return false;
+    }
+  }
+
+  if(end){
+    end.setHours(23,59,59,999);
+
+    if(today > end){
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function activeBidFleetPrograms(){
+
+  return state.bidFleet
+    .filter(program =>
+      clean(program.Brand).toUpperCase() === 'STIHL'
+    )
+    .filter(program =>
+      clean(program.Active) === '' || isTrue(program.Active)
+    )
+    .sort((a,b) =>
+      Number(clean(a.SortOrder)) - Number(clean(b.SortOrder))
+    );
+}
+
+function selectedBidFleetProgram(){
+
+  const id = clean($('stihl-bid-fleet-select')?.value);
+
+  if(id){
+  return filteredBidFleetPrograms().find(program =>
+    clean(program.ProgramID) === id
+  ) || null;
+}
+
+  const zeroTurnUnits = fleetQualifyingUnitCount();
+  const handheldTotal = fleetQualifyingHandheldTotal();
+
+  return filteredBidFleetPrograms()[0] || null;
+}
+
+function fleetQualifyingHandheldTotal(){
+
+  return state.cart.reduce((sum,line) => {
+
+    if(line.included || !line.item){
+      return sum;
+    }
+
+    if(!isTrue(line.item.QualifiesForFleetDiscount)){
+      return sum;
+    }
+
+    const category = clean(line.item.SubCategory || line.item.Category).toLowerCase();
+
+    if(!category.includes('handheld')){
+      return sum;
+    }
+
+    return sum + (priceOf(line.item) * (Number(line.qty) || 1));
+
+  },0);
+}
+
+function fleetQualifyingUnitCount(){
+
+  return state.cart.reduce((sum,line) => {
+
+    if(line.included || !line.item){
+      return sum;
+    }
+
+    if(!isTrue(line.item.QualifiesForFleetDiscount)){
+      return sum;
+    }
+
+    const isZeroTurn =
+  money(line.item.Tier1CustomerDiscount) > 0 ||
+  money(line.item.Tier2CustomerDiscount) > 0;
+
+if(!isZeroTurn){
+  return sum;
+}
+
+    return sum + (Number(line.qty) || 1);
+
+  },0);
+}
+
+function bidFleetBasisAmount(line, basis){
+
+  const qty = Number(line.qty) || 1;
+  const salePrice = priceOf(line.item);
+  const msrp = money(line.item.MSRP);
+
+  if(clean(basis).toLowerCase() === 'msrp'){
+    return msrp * qty;
+  }
+
+  return salePrice * qty;
+}
+
+function bidFleetDiscountForLine(line, program, tier){
+
+  if(!line || !line.item || line.included){
+    return {
+      customerDiscount:0,
+      dealerRebate:0
+    };
+  }
+
+  const item = line.item;
+  const programType = clean(program.ProgramType).toLowerCase();
+
+  let customerPercent = 0;
+  let dealerPercent = 0;
+
+  if(programType === 'bid'){
+
+    if(!isTrue(item.QualifiesForBidDiscount)){
+      return {
+        customerDiscount:0,
+        dealerRebate:0
+      };
+    }
+
+    customerPercent = money(program.DiscountPercent);
+    dealerPercent = money(program.DealerRebatePercent);
+
+  } else {
+
+    if(!isTrue(item.QualifiesForFleetDiscount)){
+      return {
+        customerDiscount:0,
+        dealerRebate:0
+      };
+    }
+
+    const tierNum = clean(tier).replace('Tier','');
+
+const qty = Number(line.qty) || 1;
+
+return {
+  customerDiscount: money(item[`Tier${tierNum}CustomerDiscount`]) * qty,
+  dealerRebate: money(item[`Tier${tierNum}DealerRebate`]) * qty
+};
+  }
+
+  const customerBasis = bidFleetBasisAmount(
+    line,
+    program.DiscountBasis || 'SalePriceOrMSRP'
+  );
+
+  const dealerBasis = bidFleetBasisAmount(
+    line,
+    program.DealerRebateBasis || 'SalePriceOrMSRP'
+  );
+
+  return {
+    customerDiscount: customerBasis * (customerPercent / 100),
+    dealerRebate: dealerBasis * (dealerPercent / 100)
+  };
+}
+
+function bidFleetEngine(){
+
+  const program = selectedBidFleetProgram();
+
+  if(!program){
+    return {
+      program:null,
+      eligible:false,
+      tier:'',
+      customerDiscount:0,
+      dealerRebate:0,
+      reason:''
+    };
+  }
+
+  const programType = clean(program.ProgramType).toLowerCase();
+
+  if(programType === 'bid'){
+
+    const totals = state.cart.reduce((result,line) => {
+
+      const amounts = bidFleetDiscountForLine(line, program, '');
+
+      result.customerDiscount += amounts.customerDiscount;
+      result.dealerRebate += amounts.dealerRebate;
+
+      return result;
+
+    },{
+      customerDiscount:0,
+      dealerRebate:0
+    });
+
+    return {
+      program,
+      eligible: totals.customerDiscount > 0,
+      tier:'Bid',
+      customerDiscount: totals.customerDiscount,
+      dealerRebate: totals.dealerRebate,
+      reason: totals.customerDiscount > 0
+        ? ''
+        : 'No qualifying bid items in quote'
+    };
+  }
+
+  const handheldTotal = fleetQualifyingHandheldTotal();
+  const zeroTurnUnits = fleetQualifyingUnitCount();
+
+  let tier = '';
+  let eligible = false;
+
+  if(
+    handheldTotal >= money(program.MinQualifyingHandheldPurchase) &&
+    money(program.MinQualifyingHandheldPurchase) > 0
+  ){
+    tier = clean(program.FleetTier);
+    eligible = true;
+  }
+
+  if(clean(program.QualificationType).toLowerCase() === 'unitorhandheld'){
+
+    if(zeroTurnUnits >= 4 || handheldTotal >= 5000){
+      tier = 'Tier2';
+      eligible = true;
+    } else if(zeroTurnUnits >= 2 || handheldTotal >= 2500){
+      tier = 'Tier1';
+      eligible = true;
+    }
+  }
+
+  if(!eligible){
+    return {
+      program,
+      eligible:false,
+      tier:'',
+      customerDiscount:0,
+      dealerRebate:0,
+      reason:'Quote does not meet fleet qualification requirements'
+    };
+  }
+
+  const totals = state.cart.reduce((result,line) => {
+
+    const amounts = bidFleetDiscountForLine(line, program, tier);
+
+    result.customerDiscount += amounts.customerDiscount;
+    result.dealerRebate += amounts.dealerRebate;
+
+    return result;
+
+  },{
+    customerDiscount:0,
+    dealerRebate:0
+  });
+
+  return {
+    program,
+    eligible: totals.customerDiscount > 0,
+    tier,
+    customerDiscount: totals.customerDiscount,
+    dealerRebate: totals.dealerRebate,
+    reason: totals.customerDiscount > 0
+      ? ''
+      : 'No qualifying fleet items in quote'
+  };
+}
+
+function cartHasFleetItems(){
+  return state.cart.some(line =>
+    line &&
+    line.item &&
+    !line.included &&
+    isTrue(line.item.QualifiesForFleetDiscount)
+  );
+}
+
+function cartHasBidItems(){
+  return state.cart.some(line =>
+    line &&
+    line.item &&
+    !line.included &&
+    isTrue(line.item.QualifiesForBidDiscount)
+  );
+}
+
+function programAppliesToCart(program){
+
+  const type = clean(program.ProgramType).toLowerCase();
+
+  const programText = [
+    program.ProgramID,
+    program.ProgramName,
+    program.AppliesTo,
+    program.EligibleModels,
+    program.Models,
+    program.ProductModels
+  ].map(clean).join(' ').toUpperCase();
+
+  const selectedItems = state.cart.filter(line =>
+    line && line.item && !line.included
+  );
+
+  const matchesSelectedProduct = selectedItems.some(line => {
+
+    const item = line.item;
+
+    const itemText = [
+      item.Model,
+      item.BaseModel,
+      item.StihlID,
+      item.Category,
+      item.SubCategory
+    ].map(clean).join(' ').toUpperCase();
+
+    const selectedRz = itemText.match(/RZ\s*\d+/);
+
+    if(selectedRz){
+      const selectedRzCode = selectedRz[0].replace(/\s+/g,'');
+
+      const programRzCodes =
+        programText.match(/RZ\s*\d+/g) || [];
+
+      if(programRzCodes.length){
+        return programRzCodes
+          .map(x => x.replace(/\s+/g,''))
+          .includes(selectedRzCode);
+      }
+    }
+
+    return true;
+  });
+
+  if(!matchesSelectedProduct){
+    return false;
+  }
+
+  if(type === 'fleet'){
+
+    const zeroTurnUnits = fleetQualifyingUnitCount();
+    const handheldTotal = fleetQualifyingHandheldTotal();
+
+    return zeroTurnUnits >= 2 || handheldTotal >= 2500;
+  }
+
+  if(type === 'bid'){
+    return selectedItems.some(line =>
+      isTrue(line.item.QualifiesForBidDiscount)
+    );
+  }
+
+  return false;
+}
+  
+function filteredBidFleetPrograms(){
+
+  const fleetOn = $('stihl-fleet-enabled')?.checked;
+  const bidOn = $('stihl-bid-enabled')?.checked;
+
+  return activeBidFleetPrograms()
+    .filter(program => {
+
+      const type = clean(program.ProgramType).toLowerCase();
+
+      if(type === 'fleet' && !fleetOn){
+        return false;
+      }
+
+      if(type === 'bid' && !bidOn){
+        return false;
+      }
+
+      return programAppliesToCart(program);
+    });
+}
+
+function populateBidFleetPrograms(){
+
+  const select = $('stihl-bid-fleet-select');
+
+  if(!select){
+    return;
+  }
+
+  const currentValue = clean(select.value);
+  const programs = filteredBidFleetPrograms();
+
+  select.innerHTML =
+    `<option value="">No Eligible Program</option>` +
+    programs
+      .map(program => `
+        <option value="${escapeHtml(clean(program.ProgramID))}">
+          ${escapeHtml(clean(program.ProgramName))}
+        </option>
+      `)
+      .join('');
+
+  if(programs.some(p => clean(p.ProgramID) === currentValue)){
+    select.value = currentValue;
+  } else {
+    select.value = '';
+  }
+}
+
 function dealerEngine(){
 
   const subtotal = state.cart.reduce((sum,line) =>
@@ -2052,10 +2497,20 @@ function dealerEngine(){
   const customerRebate = customerRebateAmount();
   const dealerRebate = dealerRebateAmount();
 
+  const bidFleet = bidFleetEngine();
+
+  const bidFleetCustomerDiscount =
+    bidFleet.customerDiscount;
+
+  const bidFleetDealerRebate =
+    bidFleet.dealerRebate;
+
   const grossProfit =
   subtotal -
+  bidFleetCustomerDiscount -
   customerRebate +
-  dealerRebate -
+  dealerRebate +
+  bidFleetDealerRebate -
   trueDealerCost;
 
   const grossMargin =
@@ -2085,6 +2540,9 @@ const netProfit =
     lineDiscounts,
     customerRebate,
     dealerRebate,
+    bidFleet,
+    bidFleetCustomerDiscount,
+    bidFleetDealerRebate,
     grossProfit,
     grossMargin,
     paymentFee,
@@ -2439,6 +2897,9 @@ loadOptionalCSV(DATA_FILES.bidFleet)
   .filter(p => clean(p.Active)==='' || isTrue(p.Active))
   .sort(sortByOrder);
 
+  populateBidFleetPrograms();
+renderCart();
+
         $('stihl-load-status').className = 'stihl-success';
         $('stihl-load-status').textContent = 'Configurator data loaded.';
         renderCategories();
@@ -2454,6 +2915,19 @@ bindEvents();
     }
 
     function bindEvents(){
+    if($('stihl-bid-fleet-select')){
+  $('stihl-bid-fleet-select').addEventListener('change', renderCart);
+}
+
+  ['stihl-fleet-enabled','stihl-bid-enabled'].forEach(id => {
+  if($(id)){
+    $(id).addEventListener('change', () => {
+      populateBidFleetPrograms();
+      renderCart();
+    });
+  }
+});
+
       $('stihl-search').addEventListener('input', renderTools);
 $('stihl-category').addEventListener('change', () => {
   state.selectedTool = null;
@@ -5479,34 +5953,18 @@ function bidFleetDiscountForProgram(program){
   return Math.min(discount, basisSubtotal);
 }
 
-function selectedBidFleetProgram(){
-  if(!document.body.classList.contains('dealer-mode')){
-    return null;
-  }
-
-  return state.bidFleet
-    .filter(bidFleetQualifies)
-    .map(program => ({
-      program,
-      discount: bidFleetDiscountForProgram(program)
-    }))
-    .filter(x => x.discount > 0)
-    .sort((a,b) => b.discount - a.discount)[0]?.program || null;
-}
-
 function bidFleetDiscountAmount(){
-  const program = selectedBidFleetProgram();
-  return program ? bidFleetDiscountForProgram(program) : 0;
+  return bidFleetEngine().customerDiscount;
 }
 
 function bidFleetLabel(){
-  const program = selectedBidFleetProgram();
+  const bidFleet = bidFleetEngine();
 
-  if(!program) return '';
+  if(!bidFleet.program){
+    return '';
+  }
 
-  return clean(program.DisplayLabel) ||
-         clean(program.ProgramName) ||
-         'Bid / Fleet Pricing Applied';
+  return `${clean(bidFleet.program.ProgramName)}${bidFleet.tier ? ` — ${bidFleet.tier}` : ''}`;
 }
 
 function customerRebateAmount(){
@@ -5955,6 +6413,7 @@ function dealerDiscountLabel(){
 }
 
     function renderCart(){
+      populateBidFleetPrograms();
 
       const selectedProgram = selectedCustomerFinanceProgram();
       const dealer = dealerEngine();
