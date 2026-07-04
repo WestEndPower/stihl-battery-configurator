@@ -1132,6 +1132,16 @@ body.dealer-mode .dealer-only{
 </div>
 
 <div class="stihl-line">
+  <span>Bid / Fleet Program</span>
+  <strong id="stihl-bid-fleet-program-display">Not Applied</strong>
+</div>
+
+<div class="stihl-line">
+  <span>Bid / Fleet Discount</span>
+  <strong id="stihl-bid-fleet-discount-display">$0.00</strong>
+</div>
+
+<div class="stihl-line">
   <span>Customer Rebate</span>
   <strong id="stihl-rebate-display">$0.00</strong>
 </div>
@@ -3307,471 +3317,141 @@ function renderAvailability(item){
   </div>
 `;
 }
-
 async function printSalesSheet(dealerWorksheet = false){
-  const t = state.selectedTool;
 
-  if(!t){
-    alert('Select a tool first.');
+  const isDealer = dealerWorksheet;
+
+  if(!state.cart.length){
+    alert('Add at least one item to the quote before printing.');
     return;
   }
 
-  const series = clean(t.Series).toUpperCase();
-
-  let seriesLabel = '';
-
-  if(series.includes('AS')){
-    seriesLabel = 'Light Duty';
-  }else if(series.includes('AK')){
-    seriesLabel = 'Residential';
-  }else if(series.includes('AP')){
-    seriesLabel = 'Commercial Grade';
-  }else if(series.includes('AR')){
-    seriesLabel = 'Extended Runtime';
-  }
-  
   const quoteNumber = createQuoteNumber('STIHL');
-const quoteDate = new Date().toLocaleDateString();
-const salesperson = clean($('stihl-salesperson')?.value);
-const customerName = clean($('stihl-customer-name').value);
-const businessName = clean($('stihl-business-name').value);
+  const quoteDate = new Date().toLocaleDateString();
+  const salesperson = clean($('stihl-salesperson')?.value);
 
-const customerPhone = clean($('stihl-customer-contact').value);
-const altPhone = clean($('stihl-alt-phone').value);
+  const customerName = clean($('stihl-customer-name')?.value);
+  const businessName = clean($('stihl-business-name')?.value);
+  const customerPhone = clean($('stihl-customer-contact')?.value);
+  const customerEmail = clean($('stihl-customer-email')?.value);
 
-const streetAddress = clean($('stihl-street-address').value);
-const city = clean($('stihl-city').value);
-const stateName = clean($('stihl-state').value);
-const zip = clean($('stihl-zip').value);
-
-const customerEmail = clean($('stihl-customer-email').value);
-
-const customerBlock =
-(customerName || businessName || customerPhone || customerEmail)
-? `
-<div style="
-  min-width:320px;
-  background:#f8f8f8;
-  border:1px solid #ddd;
-  border-radius:8px;
-  padding:10px 14px;
-  font-size:13px;
-  line-height:1.6;
-">
-
-  ${customerName ? `<strong>Customer:</strong> ${escapeHtml(customerName)}<br>` : ''}
-  ${businessName ? `<strong>Business:</strong> ${escapeHtml(businessName)}<br>` : ''}
-
-  ${customerPhone ? `<strong>Phone:</strong> ${escapeHtml(customerPhone)}<br>` : ''}
-  ${altPhone ? `<strong>Alt Phone:</strong> ${escapeHtml(altPhone)}<br>` : ''}
-
-  ${streetAddress ? `${escapeHtml(streetAddress)}<br>` : ''}
-
-  ${(city || stateName || zip)
-    ? `${escapeHtml(city)}${city && stateName ? ', ' : ''}${escapeHtml(stateName)} ${escapeHtml(zip)}<br>`
-    : ''
-  }
-
-  ${customerEmail ? `<strong>Email:</strong> ${escapeHtml(customerEmail)}<br>` : ''}
-
-  <strong>Date:</strong> ${new Date().toLocaleDateString()}
-
-</div>
-`
-: '';
-  
-const tradeInfo =
-  clean($('stihl-trade-enabled')?.value) === 'yes'
-    ? {
-        year: clean($('stihl-trade-year')?.value),
-        make: clean($('stihl-trade-make')?.value),
-        model: clean($('stihl-trade-model')?.value),
-        hours: clean($('stihl-trade-hours')?.value),
-        condition: clean($('stihl-trade-condition')?.value),
-        serial: clean($('stihl-trade-serial')?.value),
-        notes: clean($('stihl-trade-notes')?.value),
-        allowance: tradeAllowance(),
-        allPhotoCount: Array.from($('stihl-trade-photos')?.files || []).length,
-
-photos: await Promise.all(
-  Array.from($('stihl-trade-photos')?.files || [])
-    .slice(0, 4)
-    .map(fileToDataUrl)
-)
-      }
-    : null;
-
-    const tradePhotoHtml =
-  tradeInfo && tradeInfo.photos.length
-    ? `
-      <div style="
-        display:grid;
-        grid-template-columns:repeat(4,1fr);
-        gap:8px;
-        padding:12px;
-      ">
-        ${tradeInfo.photos.map(src => `
-          <div style="
-            border:1px solid #ddd;
-            border-radius:6px;
-            overflow:hidden;
-            height:90px;
-          ">
-            <img src="${src}"
-                 style="width:100%;height:100%;object-fit:cover;">
-          </div>
-        `).join('')}
-      </div>
-
-      ${tradeInfo.allPhotoCount > 4 ? `
-        <div style="
-          padding:0 12px 12px;
-          font-size:12px;
-          color:#555;
-          font-style:italic;
-        ">
-          Additional trade photos have been received and are attached to the quote.
-        </div>
-      ` : ''}
-    `
-    : '';
-
-const tradeBlock = tradeInfo
-  ? `
-    <div style="
-      margin-top:20px;
-      border:2px solid #1f7a3a;
-      border-radius:10px;
-      overflow:hidden;
-    ">
-      <div style="
-        background:#1f7a3a;
-        color:#fff;
-        padding:10px 14px;
-        font-size:18px;
-        font-weight:900;
-      ">
-        Trade-In Information
-      </div>
-
-      <table style="width:100%;border-collapse:collapse;font-size:13px;">
-        ${tradeInfo.year || tradeInfo.make || tradeInfo.model ? `
-          <tr>
-            <td style="padding:8px 12px;width:35%;font-weight:700;">Trade-In</td>
-            <td style="padding:8px 12px;">
-              ${escapeHtml([tradeInfo.year, tradeInfo.make, tradeInfo.model].filter(Boolean).join(' '))}
-            </td>
-          </tr>
-        ` : ''}
-
-        ${tradeInfo.hours ? `
-          <tr>
-            <td style="padding:8px 12px;font-weight:700;">Hours</td>
-            <td style="padding:8px 12px;">${escapeHtml(tradeInfo.hours)}</td>
-          </tr>
-        ` : ''}
-
-        ${tradeInfo.condition ? `
-          <tr>
-            <td style="padding:8px 12px;font-weight:700;">Condition</td>
-            <td style="padding:8px 12px;">${escapeHtml(tradeInfo.condition)}</td>
-          </tr>
-        ` : ''}
-
-        ${tradeInfo.serial ? `
-          <tr>
-            <td style="padding:8px 12px;font-weight:700;">Serial Number</td>
-            <td style="padding:8px 12px;">${escapeHtml(tradeInfo.serial)}</td>
-          </tr>
-        ` : ''}
-
-        ${tradeInfo.notes ? `
-          <tr>
-            <td style="padding:8px 12px;font-weight:700;">Notes</td>
-            <td style="padding:8px 12px;">${escapeHtml(tradeInfo.notes)}</td>
-          </tr>
-        ` : ''}
-
-        ${tradeInfo.allowance > 0 ? `
-          <tr style="background:#f3fbf5;font-weight:900;">
-            <td style="padding:8px 12px;">Trade Allowance</td>
-            <td style="padding:8px 12px;">-${fmtMoney(tradeInfo.allowance)}</td>
-          </tr>
-        ` : ''}
-      </table>
-
-      ${tradePhotoHtml}
-
-    </div>
-  `
-  : '';
-
-  const dealerKitBreakdownBlock =
-  dealerWorksheet
-    ? kitBreakdownPrintHtml()
-    : '';
-
-  const quoteItems = state.cart
-  .filter(line => !line.included)
-  .map(line => {
-
-    const includedItems = state.cart.filter(child =>
-      child.included &&
-      child.parentSku === skuOf(line.item)
-    );
-
-    const packageIncludes = includedItems.length
-      ? includedItems.map(child => {
-          const qty = Number(child.qty) || 1;
-          return `${qty > 1 ? `(${qty}) ` : ''}${nameOf(child.item)}`;
-        }).join(' + ')
-      : '';
-
-    const itemId =
-      line.type === 'tool'
-        ? clean(line.item.StihlID) || skuOf(line.item)
-        : skuOf(line.item);
-
-    return `
-      <tr>
-        <td style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:right;">
-          ${line.qty}
-        </td>
-        <td style="padding:8px 10px;border-bottom:1px solid #ddd;">
-          <strong>
-  ${escapeHtml(nameOf(line.item))}
-</strong>
-
-${packageIncludes ? `
-  <div style="
-    font-size:11px;
-    color:#666;
-    margin-top:2px;
-    white-space:nowrap;
-  ">
-    ${escapeHtml(itemId)}
-    <span style="color:#999;"> — </span>
-    <span>(Package Includes: ${escapeHtml(packageIncludes)})</span>
-  </div>
-` : `
-  <div style="font-size:11px;color:#666;margin-top:2px;">
-    ${escapeHtml(itemId)}
-  </div>
-`}
-        </td>
-        <td style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:right;">
-          ${fmtMoney(money(line.item.MSRP) || priceOf(line.item))}
-        </td>
-        <td style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:right;">
-          ${fmtMoney(priceOf(line.item))}
-        </td>
-        <td style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:right;">
-          ${fmtMoney(lineTotal(line))}
-        </td>
-      </tr>
-    `;
-  }).join('');
-  
-  $('stihl-sales-sheet-output').innerHTML = `
-    <div class="stihl-sales-sheet">
-     <div class="stihl-sales-header">
-
-  <div style="
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:20px;
-  ">
-
-    <div>
-      <img src="https://published-assets.ari-build.com/Content/Published/Site/21168/images/West-End-Logo.png"
-           style="max-height:70px;margin-bottom:10px;">
-
-      <h1 style="margin:0;">West End Power Equipment</h1>
-
-      <div style="font-size:18px;font-weight:700;">
-        STIHL Sales Sheet
-      </div>
-    </div>
-
-    ${customerBlock}
-
-  </div>
-
-  <div style="
-  margin-top:8px;
-  display:flex;
-  justify-content:space-between;
-  font-size:12px;
-  color:#555;
-">
-
-  <div>
-    Prepared by ${salesperson ? escapeHtml(salesperson) : 'West End Power Equipment'} • Family Owned Since 1951
-  </div>
-
-  <div>
-    Quote #: ${quoteNumber}
-    &nbsp;|&nbsp;
-    Date: ${quoteDate}
-  </div>
-  
-</div>
-</div>
-
-<div style="
-  margin-top:20px;
-  border:2px solid #f37021;
-  border-radius:10px;
-  overflow:hidden;
-">
-
-  <div style="
-    background:#f37021;
-    color:#111;
-    padding:10px 14px;
-    font-size:18px;
-    font-weight:900;
-  ">
-    Package Details
-  </div>
-
-  <table style="
-    width:100%;
-    border-collapse:collapse;
-    font-size:13px;
-  ">
-    <thead>
-      <tr style="background:#f5f5f5;">
-       <th style="padding:8px;text-align:right;">Qty</th>
-<th style="padding:8px;text-align:left;">Item</th>
-<th style="padding:8px;text-align:right;">MSRP</th>
-<th style="padding:8px;text-align:right;">Sale Price</th>
-<th style="padding:8px;text-align:right;">Line Total</th>
-      </tr>
-    </thead>
-    <tbody>
-  ${quoteItems}
-
-</tbody>
-  </table>
-
-</div>
-
-${dealerKitBreakdownBlock}
-
-${tradeBlock}
-
-<div style="
-  margin-top:20px;
-  border:2px solid #f37021;
-  border-radius:10px;
-  overflow:hidden;
-">
-
-  <div style="
-    background:#f37021;
-    color:#111;
-    padding:10px 14px;
-    font-size:18px;
-    font-weight:900;
-  ">
-    Quote Summary
-  </div>
-
-  <table style="
-    width:100%;
-    border-collapse:collapse;
-    font-size:14px;
-  ">
-  ${setupFee() > 0 ? `
-<tr>
-  <td style="padding:8px 12px;">Setup / Installation Charges</td>
-  <td style="padding:8px 12px;text-align:right;">
-    ${fmtMoney(setupFee())}
-  </td>
-</tr>
-` : ''}
-    <tr>
-      <td style="padding:8px 12px;">Subtotal</td>
-      <td style="padding:8px 12px;text-align:right;">
-        ${$('stihl-subtotal').textContent}
-      </td>
-    </tr>
-
-    <tr>
-      <td style="padding:8px 12px;">CT Sales Tax (Est.)</td>
-      <td style="padding:8px 12px;text-align:right;">
-        ${$('stihl-tax').textContent}
-      </td>
-    </tr>
-
-    <tr style="
-      background:#f5f5f5;
-      font-weight:900;
-      font-size:18px;
-    ">
-      <td style="padding:10px 12px;">Estimated Total</td>
-      <td style="padding:10px 12px;text-align:right;">
-        ${$('stihl-total').textContent}
-      </td>
-    </tr>
-    <tr>
-  <td colspan="2" style="
-    padding:8px 12px;
-    font-size:12px;
-    color:#555;
-    text-align:right;
-  ">
-    Pricing valid for 30 days. Availability and promotions subject to change.
-  </td>
-</tr>
-  </table>
-
-</div>
-
-<div style="margin-top:20px;display:flex;justify-content:space-between;gap:30px;align-items:flex-start;">
-
-  <div style="font-size:12px;flex:1;">
-  <strong>New Milford Location</strong><br>
-  265 Danbury Road<br>
-  New Milford, CT 06776<br>
-  (860) 355-8722<br>
-  www.westendpower.com/newmilford
-</div>
-
-  <div style="text-align:center;">
-    <img src="images/newmilford-qr.png"
-         style="width:100px;height:100px;">
-    <div style="font-size:11px;">New Milford</div>
-  </div>
-
-  <div style="font-size:12px;flex:1;">
-    <strong>Danbury Location</strong><br>
-    56 Beaver Brook Road<br>
-    Danbury, CT 06810<br>
-    (203) 792-3030<br>
-    www.westendpower.com/danbury
-  </div>
-
-  <div style="text-align:center;">
-    <img src="images/danbury-qr.png"
-         style="width:100px;height:100px;">
-    <div style="font-size:11px;">Danbury</div>
-  </div>
-
-</div>
-
-<p style="margin-top:15px;font-size:11px;">
-  Prices, availability, compatibility, promotions, and estimated runtimes should be verified before final sale.
-</p>
-         
+  const customerBlock = `
+    <div style="font-size:12px;line-height:1.5;">
+      ${customerName ? `<strong>Customer:</strong> ${escapeHtml(customerName)}<br>` : ''}
+      ${businessName ? `<strong>Business:</strong> ${escapeHtml(businessName)}<br>` : ''}
+      ${customerPhone ? `<strong>Phone:</strong> ${escapeHtml(customerPhone)}<br>` : ''}
+      ${customerEmail ? `<strong>Email:</strong> ${escapeHtml(customerEmail)}<br>` : ''}
     </div>
   `;
 
-  await sendQuoteLead('Print / Save PDF');
-window.print();
+  const quoteItems = state.cart
+    .filter(line => !line.included)
+    .map(line => {
+      const qty = Number(line.qty) || 1;
+      const stihlId = clean(line.item.StihlID) || skuOf(line.item);
+      const desc = clean(line.item.Description) || nameOf(line.item);
+      const msrp = (money(line.item.MSRP) || priceOf(line.item)) * qty;
+      const sale = lineTotal(line);
+      const discount = Math.max(msrp - sale, 0);
+      const cost = lineTrueDealerCost(line);
+      const profit = sale - cost;
+      const margin = sale > 0 ? (profit / sale) * 100 : 0;
+
+      return isDealer ? `
+        <tr>
+          <td>${qty}</td>
+          <td>${escapeHtml(stihlId)}</td>
+          <td>${escapeHtml(desc)}</td>
+          <td style="text-align:right;">${fmtMoney(msrp)}</td>
+<td style="text-align:right;">${fmtMoney(discount)}</td>
+<td style="text-align:right;">${fmtMoney(sale)}</td>
+<td style="text-align:right;">${fmtMoney(cost)}</td>
+<td style="text-align:right;">${fmtMoney(profit)}</td>
+<td style="text-align:right;">${margin.toFixed(1)}%</td>
+        </tr>
+      ` : `
+        <tr>
+          <td>${qty}</td>
+          <td>${escapeHtml(stihlId)}</td>
+          <td>${escapeHtml(desc)}</td>
+          <td style="text-align:right;">${fmtMoney(msrp)}</td>
+<td style="text-align:right;">${fmtMoney(discount)}</td>
+<td style="text-align:right;">${fmtMoney(sale)}</td>
+        </tr>
+      `;
+    })
+    .join('');
+
+  $('stihl-sales-sheet-output').innerHTML = `
+    <div class="stihl-sales-sheet">
+      <div class="stihl-sales-header">
+        <h1>West End Power Equipment</h1>
+        <div style="font-size:16px;font-weight:800;">
+          ${isDealer ? 'Dealer Worksheet' : 'Customer Quote'}
+        </div>
+        <div style="font-size:12px;margin-top:4px;">
+          Quote #: ${quoteNumber} | Date: ${quoteDate}
+          ${salesperson ? ` | Prepared By: ${escapeHtml(salesperson)}` : ''}
+        </div>
+        ${customerBlock}
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;font-size:11px;">
+        <thead>
+          <tr>
+            ${isDealer ? `
+              <th>Qty</th><th>STIHL ID</th><th>Description</th><th>MSRP</th><th>Discount</th><th>Sale</th><th>Cost</th><th>Profit</th><th>Margin</th>
+            ` : `
+              <th>Qty</th><th>STIHL ID</th><th>Description</th><th>MSRP</th><th>Discount</th><th>Your Price</th>
+            `}
+          </tr>
+        </thead>
+        <tbody>${quoteItems}</tbody>
+      </table>
+
+      ${isDealer ? `
+  <div style="
+    margin-top:12px;
+    border:1px solid #cfcfcf;
+    border-radius:8px;
+    padding:10px 12px;
+    font-size:11px;
+    line-height:1.5;
+    background:#fafafa;
+  ">
+    <div style="font-weight:900;font-size:12px;margin-bottom:5px;">
+      STIHL Fleet Pricing Reference
+    </div>
+
+    <div>• Buy 2 qualifying zero-turn mowers: fleet pricing may apply.</div>
+    <div>• Buy $2,500 in qualifying handheld equipment: 10% fleet discount.</div>
+    <div>• Buy $5,000 in qualifying handheld equipment: 20% fleet discount.</div>
+
+    <div style="margin-top:6px;color:#666;">
+      Confirm qualifying models, current program terms, and dealer approval before quoting.
+    </div>
+  </div>
+` : ''}
+
+      <div style="margin-top:16px;text-align:right;font-size:14px;">
+        <div>Subtotal: <strong>${$('stihl-subtotal')?.textContent || '$0.00'}</strong></div>
+        <div>Estimated CT Sales Tax: <strong>${$('stihl-tax')?.textContent || '$0.00'}</strong></div>
+        <div style="font-size:18px;font-weight:900;">
+          Out-the-Door Price: ${$('stihl-total')?.textContent || '$0.00'}
+        </div>
+      </div>
+
+      <p style="margin-top:20px;font-size:11px;">
+        Prices, availability, compatibility, promotions, financing, delivery, and final order details subject to West End Power confirmation. Applies to in-stock units only.
+      </p>
+    </div>
+  `;
+
+  await sendQuoteLead(isDealer ? 'Print Dealer Worksheet' : 'Print Customer Quote');
+
+  window.print();
 }
+
 function printPriceTag(){
 
   const t = state.selectedTool;
@@ -5176,7 +4856,7 @@ const rows = state.kmaRuntimes.filter(r => {
               </div>
 
               <div class="stihl-small">
-                SKU: ${escapeHtml(sku)}
+                SKU: ${escapeHtml(stihlID)}
               </div>
 
               ${desc ? `
@@ -5192,10 +4872,10 @@ const rows = state.kmaRuntimes.filter(r => {
               <div class="stihl-accessory-actions">
                 <div>
                   <label class="stihl-qty-label"
-                         for="stihl-accessory-card-qty-${escapeHtml(sku)}">
+                         for="stihl-accessory-card-qty-${escapeHtml(stihlId)}">
                     Qty
                   </label>
-                  <input id="stihl-accessory-card-qty-${escapeHtml(sku)}"
+                  <input id="stihl-accessory-card-qty-${escapeHtml(stihlId)}"
                          class="stihl-qty"
                          type="number"
                          min="1"
@@ -5733,7 +5413,9 @@ function bidFleetQualifies(program){
   if(minUnits > 0 && matchingUnits < minUnits) return false;
 
   if(clean(program.QualificationType) === 'HandheldFleetPurchase'){
-    const handheldRequired = money(program.MinQualifingHandHeldPurchase);
+    const handheldRequired =
+  money(program.MinQualifingHandHeldPurchase) ||
+  money(program.MinQualifingHandheldPurchase);
 
     const handheldSubtotal = state.cart.reduce((sum,line) => {
       if(!line.item || line.included) return sum;
@@ -6801,6 +6483,20 @@ const discountDisplay = $('stihl-discount-display');
 
 if(discountDisplay){
   discountDisplay.textContent = fmtMoney(discount + bidFleetDiscount);
+}
+
+const activeBidFleetProgram = selectedBidFleetProgram();
+
+if($('stihl-bid-fleet-program-display')){
+  $('stihl-bid-fleet-program-display').textContent =
+    activeBidFleetProgram
+      ? clean(activeBidFleetProgram.ProgramName || activeBidFleetProgram.DisplayLabel || 'Bid / Fleet Applied')
+      : 'Not Applied';
+}
+
+if($('stihl-bid-fleet-discount-display')){
+  $('stihl-bid-fleet-discount-display').textContent =
+    fmtMoney(bidFleetDiscountAmount());
 }
 
 if($('stihl-payment-program-display')){
