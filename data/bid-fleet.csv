@@ -23,4 +23,4 @@ STIHL,T,21,STIHL_BID_27_10,STIHL Bid - 27% / 10% Rebate,Bid,,,,,,,,27.00,10.00,S
 STIHL,T,22,STIHL_BID_28_10,STIHL Bid - 28% / 10% Rebate,Bid,,,,,,,,28.00,10.00,SalePriceOrMSRP,SalePriceOrMSRP,F,F,T,F,"January 1, 2026","December 31, 2026",Requires Dealer Approval
 STIHL,T,23,STIHL_BID_29_10,STIHL Bid - 29% / 10% Rebate,Bid,,,,,,,,29.00,10.00,SalePriceOrMSRP,SalePriceOrMSRP,F,F,T,F,"January 1, 2026","December 31, 2026",Requires Dealer Approval
 STIHL,T,24,STIHL_BID_30_10,STIHL Bid - 30% / 10% Rebate,Bid,,,,,,,,30.00,1.00,SalePriceOrMSRP,SalePriceOrMSRP,F,F,T,F,"January 1, 2026","December 31, 2026",Requires Dealer Approval
-STIHL,T,25,STIHL_ZT_BID,STIHL Zero-Turn Bid Assist,Bid,UnitOrHandheld, ,,, , ,,10.00,5.00,SalePriceOrMSRP,SalePriceOrMSRP,F,T,T,F,"January 1, 2026","December 31, 2026",Requires Dealer Approval
+STIHL,T,25,STIHL_ZT_BID,STIHL Zero-Turn Bid Assist,Bid,Unit, ,,, , ,,10.00,5.00,SalePriceOrMSRP,SalePriceOrMSRP,F,T,T,F,"January 1, 2026","December 31, 2026",Requires Dealer Approval
