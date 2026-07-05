@@ -2315,9 +2315,12 @@ function fleetQualifyingUnitCount(){
       return sum;
     }
 
-    const isZeroTurn =
-  money(line.item.Tier1CustomerDiscount) > 0 ||
-  money(line.item.Tier2CustomerDiscount) > 0;
+    const category = clean(line.item.SubCategory || line.item.Category).toLowerCase();
+
+const isZeroTurn =
+  category.includes('zero') ||
+  category.includes('zero-turn') ||
+  category.includes('zero turn');
 
 if(!isZeroTurn){
   return sum;
@@ -2467,8 +2470,10 @@ function bidFleetEngine(){
       result.customerDiscount +=
         money(line.item[`Tier${tier.replace('Tier','')}CustomerDiscount`]) * qty;
 
-      result.dealerRebate +=
-        money(line.item[`Tier${tier.replace('Tier','')}DealerRebate`]) * qty;
+      if(money(line.item[`Tier${tier.replace('Tier','')}DealerRebate`]) > 0){
+  result.dealerRebate +=
+    money(line.item[`Tier${tier.replace('Tier','')}DealerRebate`]) * qty;
+}
 
       return result;
 
@@ -2755,10 +2760,22 @@ function dealerEngine(){
   const advertisingFee = cartAdvertisingFeeTotal();
   const trueDealerCost = cartTrueDealerCostTotal();
   const lineDiscounts = cartLineDiscountTotal();
-  const customerRebate = customerRebateAmount();
-  const dealerRebate = dealerRebateAmount();
 
-  const bidFleet = bidFleetEngine();
+const bidFleet = bidFleetEngine();
+
+const bidFleetActive =
+  !!bidFleet.program &&
+  ['fleet', 'bid'].includes(
+    clean(bidFleet.program.ProgramType).toLowerCase()
+  );
+
+const customerRebate = bidFleetActive
+  ? 0
+  : customerRebateAmount();
+
+const dealerRebate = bidFleetActive
+  ? 0
+  : dealerRebateAmount();
 
   const bidFleetCustomerDiscount =
     bidFleet.customerDiscount;
@@ -3129,18 +3146,28 @@ if($('stihl-finance-remaining-payment')) $('stihl-finance-remaining-payment').ch
 }
 
 async function init(){
-      try{
-        const [tools,batteries,chargers,attachments,accessories,kmaRuntimes,delivery,paymentOptions,bidFleet] = await Promise.all([
-          loadCSV(DATA_FILES.tools),
-          loadCSV(DATA_FILES.batteries),
-          loadCSV(DATA_FILES.chargers),
-          loadCSV(DATA_FILES.attachers || DATA_FILES.attachments),
-          loadCSV(DATA_FILES.accessories),
-          loadCSV(DATA_FILES.kmaRuntimes),
-loadCSV(DATA_FILES.delivery),
-loadOptionalCSV(DATA_FILES.paymentOptions),
-loadOptionalCSV(DATA_FILES.bidFleet)
-        ]);
+  try{
+    const [
+      tools,
+      batteries,
+      chargers,
+      attachments,
+      accessories,
+      kmaRuntimes,
+      delivery,
+      paymentOptions,
+      bidFleet
+    ] = await Promise.all([
+      loadCSV('data/tools.csv'),
+      loadCSV('data/batteries.csv'),
+      loadCSV('data/chargers.csv'),
+      loadCSV('data/attachments.csv'),
+      loadCSV('data/accessories.csv'),
+      loadCSV('data/kma-runtimes.csv'),
+      loadCSV('data/delivery.csv'),
+      loadCSV('data/payment-options.csv'),
+      loadCSV('data/bid-fleet.csv')
+    ]);
 
         state.tools = tools.filter(t => clean(t.Active)==='' || isTrue(t.Active)).sort(sortByOrder);
         state.batteries = batteries.sort(sortByOrder);
@@ -5160,7 +5187,8 @@ function renderFinancingOptions(){
 function selectTool(){
   const sku = clean($('stihl-tool-select').value);
   state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
-
+  $('stihl-tool-qty').value = 1;
+  
   const powerType = clean(state.selectedTool?.PowerType).toUpperCase();
   const systemType = clean(state.selectedTool?.System).toUpperCase();
 
@@ -6676,6 +6704,7 @@ function dealerDiscountLabel(){
 
       const selectedProgram = selectedCustomerFinanceProgram();
       const dealer = dealerEngine();
+      const bidFleet = bidFleetEngine();
 
       const lines = $('stihl-cart-lines');
       if(!state.cart.length){
@@ -7224,6 +7253,16 @@ if($('stihl-bid-fleet-discount-display')){
       ? `${fmtMoney(bidFleet.customerDiscount)} Included in Line Prices`
       : fmtMoney(bidFleet.customerDiscount);
 }
+}
+
+if($('stihl-rebate-display')){
+  $('stihl-rebate-display').textContent =
+    fmtMoney(dealer.customerRebate);
+}
+
+if($('stihl-dealer-rebate-display')){
+  $('stihl-dealer-rebate-display').textContent =
+    fmtMoney(dealer.dealerRebate + dealer.bidFleetDealerRebate);
 }
 
 if($('stihl-payment-program-display')){
