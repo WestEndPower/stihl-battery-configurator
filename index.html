@@ -1131,10 +1131,19 @@ body.dealer-mode .dealer-only{
   <strong id="stihl-discount-display">$0.00</strong>
 </div>
 
-<label style="display:flex;gap:6px;align-items:center;font-size:13px;margin-bottom:8px;">
-    <input id="stihl-fleet-enabled" type="checkbox" style="width:auto;">
-    Landscaper / Fleet Program Approved
-  </label>
+<label style="display:flex;gap:6px;align-items:center;font-size:13px;margin-bottom:2px;">
+  <input id="stihl-fleet-enabled" type="checkbox" style="width:auto;">
+  Professional Landscaper / Fleet Program
+</label>
+
+<div style="margin:0 0 8px 22px;font-size:11px;color:#666;line-height:1.25;">
+  For verified professional business use only.
+</div>
+
+<div id="stihl-fleet-qualification-message"
+     style="display:block;margin:0 0 8px 22px;font-size:12px;font-weight:900;color:#1f7a3a;">
+  Checking fleet qualification...
+</div>
 
   <div id="stihl-fleet-price-mode-wrap" style="display:none;margin:8px 0 10px 22px;">
   <label for="stihl-fleet-price-mode">Fleet Display Style</label>
@@ -1585,6 +1594,24 @@ function displayKitIncludes(tool){
   return 0;
 }
 
+function printBidFleetDiscountAmount(line){
+  const bidFleet = bidFleetEngine();
+
+  if(!bidFleet.program || !bidFleet.tier){
+    return 0;
+  }
+
+  if(clean(bidFleet.program.ProgramType).toLowerCase() !== 'fleet'){
+    return 0;
+  }
+
+  return bidFleetDiscountForLine(
+    line,
+    bidFleet.program,
+    bidFleet.tier
+  ).customerDiscount;
+}
+
 function fleetLineDiscountAmount(line){
 
   const bidFleet = bidFleetEngine();
@@ -1784,7 +1811,7 @@ function findBareToolForKitCode(code){
   ) || null;
 }
 
-function kitBreakdownRows(line){
+function kitBreakdownRows(line, fleetLineDiscount = 0){
 
   const kitInfo = parseKitComponentsFromStihlID(skuOf(line.item));
 
@@ -1797,63 +1824,174 @@ function kitBreakdownRows(line){
 
   const toolItem = findBareToolForKitCode(kitInfo.toolCode);
 
-  const kitMsrp = priceOf(line.item) * kitQty;
-  const kitCost = money(line.item.DealerCost) * kitQty;
-
-  let remainingMsrp = kitMsrp;
-  let remainingCost = kitCost;
+  const components = [];
 
   if(toolItem){
-    const toolMsrp = Math.min(money(toolItem.MSRP) * kitQty, remainingMsrp);
-    const toolCost = Math.min(money(toolItem.DealerCost) * kitQty, remainingCost);
-
-    remainingMsrp -= toolMsrp;
-    remainingCost -= toolCost;
-
-    rows.push({
-  qty: kitQty,
-  model: clean(toolItem.Model) || kitInfo.toolCode,
-  stihlId: clean(toolItem.StihlID) || skuOf(toolItem),
-  desc: clean(toolItem.Description) || nameOf(toolItem),
-  msrpOriginal: money(toolItem.MSRP) * kitQty,
-  sale: toolMsrp,
-  cost: toolCost
-});
-
+    components.push({
+      item: toolItem,
+      qty: kitQty,
+      fallbackCode: kitInfo.toolCode,
+      isTool: true
+    });
   }
 
-  kitInfo.components.forEach((code, index) => {
-    const item = findComponentByCode(code);
-    const isLast = index === kitInfo.components.length - 1;
-
-    const normalMsrp = item ? money(item.MSRP) * kitQty : 0;
-    const normalCost = item ? money(item.DealerCost) * kitQty : 0;
-
-    const allocatedMsrp = isLast
-      ? Math.max(remainingMsrp, 0)
-      : Math.min(normalMsrp, Math.max(remainingMsrp, 0));
-
-    const allocatedCost = isLast
-      ? Math.max(remainingCost, 0)
-      : Math.min(normalCost, Math.max(remainingCost, 0));
-
-    remainingMsrp -= allocatedMsrp;
-    remainingCost -= allocatedCost;
-
-    rows.push({
-  qty: kitQty,
-  model: item ? clean(item.Model) || modelOf(item) : code,
-  stihlId: item ? clean(item.StihlID) || skuOf(item) : code,
-  desc: item ? clean(item.Description) || nameOf(item) : code,
-  msrpOriginal: item ? money(item.MSRP) * kitQty : 0,
-  sale: allocatedMsrp,
-  cost: allocatedCost
-});
+  kitInfo.components.forEach(code => {
+    components.push({
+      item: findComponentByCode(code),
+      qty: kitQty,
+      fallbackCode: code,
+      isTool: false
+    });
   });
 
-  return rows;
-}
+  const kitTargetTotal =
+    Math.max((priceOf(line.item) * kitQty) - fleetLineDiscount, 0);
 
+  const normalTotal =
+    components.reduce((sum, component) => {
+      const item = component.item || {};
+      return sum + ((money(item.SalePrice) || money(item.MSRP)) * component.qty);
+    }, 0);
+
+  let neededComponentDiscount =
+    Math.max(normalTotal - kitTargetTotal, 0);
+
+  components.forEach(component => {
+    const item = component.item || {};
+
+    const unitMsrp = money(item.MSRP);
+    const unitBaseSale = money(item.SalePrice) || unitMsrp;
+    const normalLineTotal = unitBaseSale * component.qty;
+
+    let lineDiscount = 0;
+
+    if(component.isTool){
+      lineDiscount = Math.min(fleetLineDiscount, normalLineTotal);
+    }
+
+    rows.push({
+      qty: component.qty,
+      stihlId: clean(item.StihlID) || clean(component.fallbackCode),
+      desc: clean(item.Description) || nameOf(item) || clean(component.fallbackCode),
+      msrp: unitMsrp,
+      discount: component.qty > 0 ? lineDiscount / component.qty : 0,
+      salePrice: component.qty > 0 ? (normalLineTotal - lineDiscount) / component.qty : 0,
+      lineTotal: Math.max(normalLineTotal - lineDiscount, 0),
+      actualCost: 0,
+      isTool: component.isTool,
+      isCharger: chargerCodes.includes(clean(component.fallbackCode).toUpperCase())
+    });
+  });
+
+  neededComponentDiscount =
+    Math.max(
+      rows.reduce((sum,row) => sum + row.lineTotal, 0) - kitTargetTotal,
+      0
+    );
+
+  const batteryRows = rows.filter(row => !row.isTool && !row.isCharger);
+  const chargerRows = rows.filter(row => !row.isTool && row.isCharger);
+
+  function applyDiscountAcross(targetRows){
+    if(neededComponentDiscount <= 0 || !targetRows.length){
+      return;
+    }
+
+    const perRowDiscount = neededComponentDiscount / targetRows.length;
+
+    targetRows.forEach(row => {
+      const lineDiscount = Math.min(perRowDiscount, row.lineTotal);
+
+      row.lineTotal = Math.max(row.lineTotal - lineDiscount, 0);
+      row.discount += row.qty > 0 ? lineDiscount / row.qty : 0;
+      row.salePrice = row.qty > 0 ? row.lineTotal / row.qty : 0;
+
+      neededComponentDiscount -= lineDiscount;
+    });
+  }
+
+  applyDiscountAcross(batteryRows);
+applyDiscountAcross(chargerRows);
+
+/* Dealer kit display rounding:
+   batteries round UP to next $10;
+   charger receives the remaining package amount. */
+const toolRows = rows.filter(row => row.isTool);
+
+const toolTotal =
+  toolRows.reduce((sum,row) => sum + row.lineTotal, 0);
+
+batteryRows.forEach(row => {
+  const roundedBatteryLineTotal =
+    Math.ceil(row.lineTotal / 10) * 10;
+
+  row.lineTotal = roundedBatteryLineTotal;
+  row.salePrice =
+    row.qty > 0
+      ? row.lineTotal / row.qty
+      : 0;
+});
+
+const batteryTotal =
+  batteryRows.reduce((sum,row) => sum + row.lineTotal, 0);
+
+let remainingForChargers =
+  Math.max(
+    kitTargetTotal - toolTotal - batteryTotal,
+    0
+  );
+
+chargerRows.forEach((row, index) => {
+  const isLast =
+    index === chargerRows.length - 1;
+
+  const chargerLineTotal = isLast
+    ? remainingForChargers
+    : Math.floor(
+        (row.lineTotal / 10)
+      ) * 10;
+
+  row.lineTotal = chargerLineTotal;
+  row.salePrice =
+    row.qty > 0
+      ? row.lineTotal / row.qty
+      : 0;
+
+  remainingForChargers -= chargerLineTotal;
+});
+
+const kitActualCost =
+  money(line.item.DealerCost) * kitQty;
+
+const totalLineTotal =
+  rows.reduce((sum,row) => sum + row.lineTotal, 0);
+
+let remainingCost =
+  kitActualCost;
+
+rows.forEach((row, index) => {
+  const isLast =
+    index === rows.length - 1;
+
+  const share =
+    totalLineTotal > 0
+      ? row.lineTotal / totalLineTotal
+      : 0;
+
+  const allocatedCost =
+    isLast
+      ? Math.max(remainingCost, 0)
+      : Math.round((kitActualCost * share) * 100) / 100;
+
+  row.actualCost =
+    allocatedCost;
+
+  remainingCost -= allocatedCost;
+});
+
+return rows;
+}
+  
 function bidFleetDealerPrintHtml(){
 
   const bidFleet = bidFleetEngine();
@@ -1908,18 +2046,73 @@ function bidFleetDealerPrintHtml(){
         return '';
       }
 
-      return `
-        <tr>
-          <td style="border:1px solid #ccc;padding:5px;text-align:right;">${qty}</td>
-          <td style="border:1px solid #ccc;padding:5px;">${escapeHtml(clean(line.item.Model) || skuOf(line.item))}</td>
-          <td style="border:1px solid #ccc;padding:5px;">${escapeHtml(skuOf(line.item))}</td>
-          <td style="border:1px solid #ccc;padding:5px;">${escapeHtml(clean(bidFleet.program.ProgramName))}</td>
-          <td style="border:1px solid #ccc;padding:5px;text-align:center;">${escapeHtml(bidFleet.tier)}</td>
-          <td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(unitDiscount)}</td>
-          <td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(lineDiscount)}</td>
-          <td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(lineRebate)}</td>
-        </tr>
-      `;
+      const kitRows = [];
+
+const kitHtml = kitRows.length
+  ? `
+    <tr>
+      <td colspan="8" style="border:1px solid #ccc;padding:6px 8px;background:#fbfbfb;">
+        <div style="font-weight:900;margin-bottom:5px;color:#333;">
+          Kit Component Breakdown
+        </div>
+
+        <table style="width:100%;border-collapse:collapse;font-size:10.5px;">
+          <thead>
+            <tr style="background:#f5f5f5;">
+              <th style="border:1px solid #ddd;padding:4px;text-align:right;">Qty</th>
+              <th style="border:1px solid #ddd;padding:4px;text-align:left;">STIHL Part #</th>
+              <th style="border:1px solid #ddd;padding:4px;text-align:left;">Description</th>
+              <th style="border:1px solid #ddd;padding:4px;text-align:right;">MSRP</th>
+<th style="border:1px solid #ddd;padding:4px;text-align:right;">Discount</th>
+<th style="border:1px solid #ddd;padding:4px;text-align:right;">Sale Price</th>
+<th style="border:1px solid #ddd;padding:4px;text-align:right;">Line Total</th>
+<th style="border:1px solid #ddd;padding:4px;text-align:right;">Actual Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${kitRows.map(row => `
+              <tr>
+                <td style="border:1px solid #ddd;padding:4px;text-align:right;">${row.qty}</td>
+                <td style="border:1px solid #ddd;padding:4px;">${escapeHtml(row.stihlId)}</td>
+                <td style="border:1px solid #ddd;padding:4px;">${escapeHtml(row.desc)}</td>
+                <td style="border:1px solid #ddd;padding:4px;text-align:right;">${fmtMoney(row.msrp)}</td>
+<td style="border:1px solid #ddd;padding:4px;text-align:right;">${fmtMoney(row.discount)}</td>
+<td style="border:1px solid #ddd;padding:4px;text-align:right;">${fmtMoney(row.salePrice)}</td>
+<td style="border:1px solid #ddd;padding:4px;text-align:right;">${fmtMoney(row.lineTotal)}</td>
+<td style="border:1px solid #ddd;padding:4px;text-align:right;">${fmtMoney(row.actualCost)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot>
+            <tr style="font-weight:900;background:#fff;">
+              <td colspan="6" style="border:1px solid #ddd;padding:4px;text-align:right;">Component Totals</td>
+              <td style="border:1px solid #ddd;padding:4px;text-align:right;">
+                ${fmtMoney(kitRows.reduce((sum,row) => sum + row.lineTotal, 0))}
+              </td>
+              <td style="border:1px solid #ddd;padding:4px;text-align:right;">
+                ${fmtMoney(kitRows.reduce((sum,row) => sum + row.actualCost, 0))}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </td>
+    </tr>
+  `
+  : '';
+
+return `
+  <tr>
+    <td style="border:1px solid #ccc;padding:5px;text-align:right;">${qty}</td>
+    <td style="border:1px solid #ccc;padding:5px;">${escapeHtml(clean(line.item.Model) || skuOf(line.item))}</td>
+    <td style="border:1px solid #ccc;padding:5px;">${escapeHtml(clean(line.item.StihlID) || skuOf(line.item))}</td>
+    <td style="border:1px solid #ccc;padding:5px;">${escapeHtml(clean(bidFleet.program.ProgramName))}</td>
+    <td style="border:1px solid #ccc;padding:5px;text-align:center;">${escapeHtml(bidFleet.tier)}</td>
+    <td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(unitDiscount)}</td>
+    <td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(lineDiscount)}</td>
+    <td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(lineRebate)}</td>
+  </tr>
+  ${kitHtml}
+`;
     })
     .filter(Boolean)
     .join('');
@@ -1980,108 +2173,79 @@ function bidFleetDealerPrintHtml(){
   `;
 }
 
-function kitBreakdownPrintHtml(){
+function dealerKitBreakdownPrintHtml(){
 
   const blocks = [];
 
   state.cart.forEach(line => {
 
-    if(line.included) return;
+    if(line.included || !line.item){
+      return;
+    }
 
     const kitInfo = parseKitComponentsFromStihlID(skuOf(line.item));
 
-    if(!kitInfo) return;
+    if(!kitInfo){
+      return;
+    }
 
-    const breakdown = kitBreakdownRows(line);
-    const check = kitIndividualComponentCost(line);
+    const fleetDiscount =
+      printBidFleetDiscountAmount(line);
 
-    const kitMsrp = priceOf(line.item) * (Number(line.qty) || 1);
-    const kitCost = check ? check.kitCost : lineDealerCost(line);
-    const componentCost = check ? check.componentCost : 0;
-    const difference = kitCost - componentCost;
+    const kitRows =
+      kitBreakdownRows(line, fleetDiscount);
 
-    const status =
-      difference > 0
-        ? `WARNING: Components cheaper by ${fmtMoney(difference)}`
-        : difference < 0
-          ? `Kit saves dealer ${fmtMoney(Math.abs(difference))}`
-          : 'Kit cost equals components';
-
-    const statusColor =
-      difference > 0 ? '#b00020' : difference < 0 ? '#1f7a3a' : '#111';
+    if(!kitRows.length){
+      return;
+    }
 
     blocks.push(`
-      <div style="
-        margin-top:18px;
-        border:2px solid #1f7a3a;
-        border-radius:10px;
-        overflow:hidden;
-        page-break-inside:avoid;
-      ">
-        <div style="
-          background:#1f7a3a;
-          color:#fff;
-          padding:8px 12px;
-          font-size:15px;
-          font-weight:900;
-        ">
+      <div style="margin-top:18px;border:2px solid #1f7a3a;border-radius:10px;overflow:hidden;page-break-inside:avoid;">
+        <div style="background:#1f7a3a;color:#fff;padding:8px 12px;font-size:15px;font-weight:900;">
           Dealer Kit Breakdown — ${escapeHtml(clean(line.item.Model) || skuOf(line.item))}
         </div>
 
-        <div style="
-  padding:8px 12px 4px;
-  font-size:11px;
-  color:#555;
-  text-align:center;
-">
-  <strong>${escapeHtml(clean(line.item.StihlID) || skuOf(line.item))}</strong>
-  &nbsp; | &nbsp;
-  Description: <strong>${escapeHtml(clean(line.item.Description) || nameOf(line.item))}</strong>
-  &nbsp; | &nbsp;
-  MSRP / Sale: <strong>${fmtMoney(kitMsrp)}</strong>
-  &nbsp; | &nbsp;
-  Cost: <strong>${fmtMoney(kitCost)}</strong>
-</div>
-
-<div style="
-  padding:2px 12px 8px;
-  text-align:center;
-  font-size:12px;
-  font-weight:900;
-  color:${statusColor};
-">
-  ${status}
-</div>
-
-        <table style="width:100%;border-collapse:collapse;font-size:11px;">
+        <table style="width:100%;border-collapse:collapse;font-size:10.5px;">
           <thead>
             <tr style="background:#f5f5f5;">
               <th style="border:1px solid #ccc;padding:5px;text-align:right;">Qty</th>
-<th style="border:1px solid #ccc;padding:5px;text-align:left;">Model</th>
-<th style="border:1px solid #ccc;padding:5px;text-align:left;">StihlID</th>
-<th style="border:1px solid #ccc;padding:5px;text-align:left;">Description</th>
-<th style="border:1px solid #ccc;padding:5px;text-align:right;">MSRP</th>
-<th style="border:1px solid #ccc;padding:5px;text-align:right;">Sale Price</th>
-<th style="border:1px solid #ccc;padding:5px;text-align:right;">Cost</th>
+              <th style="border:1px solid #ccc;padding:5px;text-align:left;">STIHL Part #</th>
+              <th style="border:1px solid #ccc;padding:5px;text-align:left;">Description</th>
+              <th style="border:1px solid #ccc;padding:5px;text-align:right;">MSRP</th>
+              <th style="border:1px solid #ccc;padding:5px;text-align:right;">Discount</th>
+              <th style="border:1px solid #ccc;padding:5px;text-align:right;">Sale Price</th>
+              <th style="border:1px solid #ccc;padding:5px;text-align:right;">Line Total</th>
+              <th style="border:1px solid #ccc;padding:5px;text-align:right;">Actual Cost</th>
             </tr>
           </thead>
           <tbody>
-            ${breakdown.map(row => `
+            ${kitRows.map(row => `
               <tr>
                 <td style="border:1px solid #ccc;padding:5px;text-align:right;">${row.qty}</td>
-<td style="border:1px solid #ccc;padding:5px;">${escapeHtml(row.model)}</td>
-<td style="border:1px solid #ccc;padding:5px;">${escapeHtml(row.stihlId)}</td>
-<td style="border:1px solid #ccc;padding:5px;">${escapeHtml(row.desc)}</td>
-<td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(row.msrpOriginal)}</td>
-<td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(row.sale)}</td>
-<td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(row.cost)}</td>
+                <td style="border:1px solid #ccc;padding:5px;">${escapeHtml(row.stihlId)}</td>
+                <td style="border:1px solid #ccc;padding:5px;">${escapeHtml(row.desc)}</td>
+                <td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(row.msrp)}</td>
+                <td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(row.discount)}</td>
+                <td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(row.salePrice)}</td>
+                <td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(row.lineTotal)}</td>
+                <td style="border:1px solid #ccc;padding:5px;text-align:right;">${fmtMoney(row.actualCost)}</td>
               </tr>
             `).join('')}
           </tbody>
+          <tfoot>
+            <tr style="font-weight:900;background:#f7fff8;">
+              <td colspan="6" style="border:1px solid #ccc;padding:6px;text-align:right;">Component Totals</td>
+              <td style="border:1px solid #ccc;padding:6px;text-align:right;">
+                ${fmtMoney(kitRows.reduce((sum,row) => sum + row.lineTotal, 0))}
+              </td>
+              <td style="border:1px solid #ccc;padding:6px;text-align:right;">
+                ${fmtMoney(kitRows.reduce((sum,row) => sum + row.actualCost, 0))}
+              </td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     `);
-
   });
 
   return blocks.join('');
@@ -2281,54 +2445,38 @@ function selectedBidFleetProgram(){
 }
 
 function fleetQualifyingHandheldTotal(){
-
-  return state.cart.reduce((sum,line) => {
-
-    if(line.included || !line.item){
-      return sum;
-    }
-
+  return state.cart.reduce((sum, line) => {
     if(!isTrue(line.item.QualifiesForFleetDiscount)){
       return sum;
     }
 
-    const category = clean(line.item.SubCategory || line.item.Category).toLowerCase();
+    const fleetGroup = clean(line.item.FleetGroup).toLowerCase();
 
-    if(!category.includes('handheld')){
+    if(fleetGroup !== 'handheld'){
       return sum;
     }
 
-    return sum + (priceOf(line.item) * (Number(line.qty) || 1));
-
-  },0);
+    return sum + (
+      priceOf(line.item) *
+      (Number(line.qty) || 1)
+    );
+  }, 0);
 }
 
 function fleetQualifyingUnitCount(){
-
-  return state.cart.reduce((sum,line) => {
-
-    if(line.included || !line.item){
-      return sum;
-    }
-
+  return state.cart.reduce((sum, line) => {
     if(!isTrue(line.item.QualifiesForFleetDiscount)){
       return sum;
     }
 
-    const category = clean(line.item.SubCategory || line.item.Category).toLowerCase();
+    const fleetGroup = clean(line.item.FleetGroup).toLowerCase();
 
-const isZeroTurn =
-  category.includes('zero') ||
-  category.includes('zero-turn') ||
-  category.includes('zero turn');
-
-if(!isZeroTurn){
-  return sum;
-}
+    if(fleetGroup !== 'zeroturn'){
+      return sum;
+    }
 
     return sum + (Number(line.qty) || 1);
-
-  },0);
+  }, 0);
 }
 
 function bidFleetBasisAmount(line, basis){
@@ -2361,7 +2509,11 @@ function bidFleetDiscountForLine(line, program, tier){
 
   if(programType === 'bid'){
 
-    if(!isTrue(item.QualifiesForBidDiscount)){
+    const qualifiesForBid =
+      isTrue(item.QualifiesForBidDiscount) ||
+      isTrue(item.QualifiesForFleetDiscount);
+
+    if(!qualifiesForBid){
       return {
         customerDiscount:0,
         dealerRebate:0
@@ -4133,9 +4285,15 @@ async function printSalesSheet(dealerWorksheet = false){
       const stihlId = clean(line.item.StihlID) || skuOf(line.item);
       const desc = clean(line.item.Description) || nameOf(line.item);
       const msrp = (money(line.item.MSRP) || priceOf(line.item)) * qty;
-      const sale = lineTotal(line);
-      const discount = Math.max(msrp - sale, 0);
-      const cost = lineTrueDealerCost(line);
+
+const discount =
+  lineDiscountAmount(line) +
+  printBidFleetDiscountAmount(line);
+
+const sale =
+  Math.max(msrp - discount, 0);
+
+const cost = lineTrueDealerCost(line);
       const profit = sale - cost;
       const margin = sale > 0 ? (profit / sale) * 100 : 0;
 
@@ -4159,6 +4317,7 @@ async function printSalesSheet(dealerWorksheet = false){
           <td style="text-align:right;">${fmtMoney(msrp)}</td>
 <td style="text-align:right;">${fmtMoney(discount)}</td>
 <td style="text-align:right;">${fmtMoney(sale)}</td>
+<td style="text-align:right;">${fmtMoney(sale * qty)}</td>
         </tr>
       `;
     })
@@ -4184,7 +4343,10 @@ async function printSalesSheet(dealerWorksheet = false){
             ${isDealer ? `
               <th>Qty</th><th>STIHL ID</th><th>Description</th><th>MSRP</th><th>Discount</th><th>Sale</th><th>Cost</th><th>Profit</th><th>Margin</th>
             ` : `
-              <th>Qty</th><th>STIHL ID</th><th>Description</th><th>MSRP</th><th>Discount</th><th>Your Price</th>
+              <th>Qty</th><th>STIHL ID</th><th>Description</th><th>MSRP</th>
+<th>Discount</th>
+<th>Your Price</th>
+<th>Line Total</th>
             `}
           </tr>
         </thead>
@@ -4192,6 +4354,7 @@ async function printSalesSheet(dealerWorksheet = false){
       </table>
 
       ${isDealer ? bidFleetDealerPrintHtml() : ''}
+${isDealer ? dealerKitBreakdownPrintHtml() : ''}
 
       <div style="margin-top:16px;text-align:right;font-size:14px;">
         <div>Subtotal: <strong>${$('stihl-subtotal')?.textContent || '$0.00'}</strong></div>
@@ -5188,7 +5351,7 @@ function selectTool(){
   const sku = clean($('stihl-tool-select').value);
   state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
   $('stihl-tool-qty').value = 1;
-  
+
   const powerType = clean(state.selectedTool?.PowerType).toUpperCase();
   const systemType = clean(state.selectedTool?.System).toUpperCase();
 
@@ -7236,6 +7399,94 @@ if(discountDisplay){
 }
 
 const activeBidFleetProgram = selectedBidFleetProgram();
+
+const fleetMsg = $('stihl-fleet-qualification-message');
+
+if(fleetMsg){
+  const handheldTotal = fleetQualifyingHandheldTotal();
+  const zeroTurnUnits = fleetQualifyingUnitCount();
+
+  const fleetProgram = state.bidFleet.find(p =>
+    clean(p.ProgramType).toLowerCase() === 'fleet' &&
+    clean(p.Tier1Rule)
+  ) || {};
+
+  function ruleValue(rule, key){
+    const re = new RegExp(`${key}\\s*>=\\s*([0-9.]+)`, 'i');
+    const match = clean(rule).match(re);
+    return match ? Number(match[1]) || 0 : 0;
+  }
+
+  const tier1Rule = clean(fleetProgram.Tier1Rule);
+  const tier2Rule = clean(fleetProgram.Tier2Rule);
+
+  const tier1Units = ruleValue(tier1Rule, 'Units');
+  const tier2Units = ruleValue(tier2Rule, 'Units');
+
+  const tier1Handheld = ruleValue(tier1Rule, 'Handheld');
+  const tier2Handheld = ruleValue(tier2Rule, 'Handheld');
+
+  const handheldTier1Qualified =
+    tier1Handheld > 0 &&
+    handheldTotal >= tier1Handheld;
+
+  const handheldTier2Qualified =
+    tier2Handheld > 0 &&
+    handheldTotal >= tier2Handheld;
+
+  let handheldText = '';
+  let zeroTurnText = '';
+
+  if(handheldTier2Qualified){
+    handheldText = 'Tier 2 Qualified';
+  }else if(handheldTier1Qualified){
+    handheldText =
+      `Tier 1 Qualified • Add ${fmtMoney(Math.max(0, tier2Handheld - handheldTotal))} for Tier 2`;
+  }else{
+    handheldText =
+      `Add ${fmtMoney(Math.max(0, tier1Handheld - handheldTotal))} for Tier 1`;
+  }
+
+  if(zeroTurnUnits >= tier2Units && tier2Units > 0){
+  zeroTurnText = 'Tier 2 Qualified';
+
+}else if(zeroTurnUnits >= tier1Units && tier1Units > 0){
+  const needed = Math.max(0, tier2Units - zeroTurnUnits);
+
+  zeroTurnText =
+    needed > 0
+      ? `Tier 1 Qualified • Add ${needed} Zero-Turn${needed === 1 ? '' : 's'} for Tier 2`
+      : 'Tier 2 Qualified';
+
+}else if(zeroTurnUnits <= 0){
+  zeroTurnText = handheldTier1Qualified
+    ? 'Add 1 Zero-Turn for Fleet Pricing'
+    : 'Requires Handheld Tier 1 plus 1 Zero-Turn';
+
+}else if(handheldTier2Qualified && zeroTurnUnits >= 1){
+  zeroTurnText = 'Tier 2 Qualified';
+
+}else if(handheldTier1Qualified && zeroTurnUnits >= 1){
+  zeroTurnText =
+    `Tier 1 Qualified • Add ${Math.max(0, tier2Units - zeroTurnUnits)} Zero-Turn${Math.max(0, tier2Units - zeroTurnUnits) === 1 ? '' : 's'} for Tier 2`;
+
+}else{
+  zeroTurnText =
+    `Add ${Math.max(0, tier1Units - zeroTurnUnits)} Zero-Turn${Math.max(0, tier1Units - zeroTurnUnits) === 1 ? '' : 's'} for standalone Tier 1`;
+}
+
+  fleetMsg.style.display = 'block';
+  fleetMsg.innerHTML = `
+    <div style="display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px solid #d7eadb;">
+      <strong style="color:#333;">Handheld</strong>
+      <span style="text-align:right;">${handheldText}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;gap:10px;padding:3px 0;">
+      <strong style="color:#333;">Zero-Turn</strong>
+      <span style="text-align:right;">${zeroTurnText}</span>
+    </div>
+  `;
+}
 
 if($('stihl-bid-fleet-program-display')){
   $('stihl-bid-fleet-program-display').textContent =
