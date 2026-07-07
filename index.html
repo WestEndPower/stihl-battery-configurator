@@ -4566,14 +4566,33 @@ function freightGroupOf(line){
   return clean(
     line.item.FreightGroup ||
     line.item.Freight_Group ||
+    line.item['Freight Group'] ||
     line.item.ShippingGroup ||
-    line.item.Shipping_Group
+    line.item.Shipping_Group ||
+    line.item['Shipping Group']
   );
 }
 
+function freightKey(v){
+  return clean(v)
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g,'');
+}
+
 function freightQtyMatches(rule, qty){
-  const minQty = Number(clean(rule.MinQty || rule.MinimumQty)) || 0;
-  const maxQty = Number(clean(rule.MaxQty || rule.MaximumQty)) || 0;
+  const minQty = Number(clean(
+    rule.MinOrderQuantity ||
+    rule.MinQty ||
+    rule.MinimumQty ||
+    rule['Min Qty']
+  )) || 0;
+
+  const maxQty = Number(clean(
+    rule.MaxOrderQuantity ||
+    rule.MaxQty ||
+    rule.MaximumQty ||
+    rule['Max Qty']
+  )) || 0;
 
   if(minQty > 0 && qty < minQty) return false;
   if(maxQty > 0 && qty > maxQty) return false;
@@ -4581,32 +4600,54 @@ function freightQtyMatches(rule, qty){
   return true;
 }
 
-function freightAmountForRule(rule, line){
-  const qty = Number(line.qty) || 1;
+function freightRuleMatchesGroup(rule, group){
+  const ruleGroup = freightKey(rule.FreightGroup || rule.Group || rule.Category);
+  const itemGroup = freightKey(group);
+
+  if(!ruleGroup || !itemGroup) return false;
+
+  return (
+    ruleGroup === itemGroup ||
+    itemGroup.startsWith(ruleGroup) ||
+    ruleGroup.startsWith(itemGroup)
+  );
+}
+
+function freightAmountForRule(rule, qty, basisItem){
   const amount = money(rule.Amount);
   const percent = money(rule.Percent);
 
-  const basisName = clean(rule.DealerCostBasis || rule.Basis).toLowerCase();
+  if(amount <= 0 && percent <= 0){
+    return 0;
+  }
 
-  const basis =
+  const basisName = clean(
+    rule.Basis ||
+    rule.DealerCostBasis ||
+    rule.FreightBasis
+  ).toLowerCase();
+
+  const unitBasis =
     basisName === 'dealercost'
-      ? money(line.item.DealerCost)
+      ? money(basisItem.DealerCost)
       : basisName === 'msrp'
-        ? money(line.item.MSRP)
-        : priceOf(line.item);
+        ? money(basisItem.MSRP)
+        : priceOf(basisItem);
+
+  const ruleType = clean(rule.RuleType || rule.ChargeType).toLowerCase();
 
   let charge = 0;
 
-  if(clean(rule.ChargeType).toLowerCase() === 'percent'){
-    charge = basis * (percent / 100) * qty;
-  }else if(clean(rule.ChargeType).toLowerCase() === 'fixedpluspercent'){
-    charge = (amount * qty) + (basis * (percent / 100) * qty);
+  if(ruleType === 'percent'){
+    charge = unitBasis * (percent / 100) * qty;
+  }else if(ruleType === 'fixedpluspercent'){
+    charge = (amount * qty) + (unitBasis * (percent / 100) * qty);
   }else{
     charge = amount * qty;
   }
 
-  const min = money(rule.MinimumCharge);
-  const max = money(rule.MaximumCharge);
+  const min = money(rule.MinAmount || rule.MinimumCharge);
+  const max = money(rule.MaxAmount || rule.MaximumCharge);
 
   if(min > 0) charge = Math.max(charge, min);
   if(max > 0) charge = Math.min(charge, max);
@@ -4615,6 +4656,7 @@ function freightAmountForRule(rule, line){
 }
 
 function freightSummary(){
+  const grouped = {};
   const rows = [];
   let total = 0;
 
@@ -4624,24 +4666,41 @@ function freightSummary(){
     const group = freightGroupOf(line);
     if(!group) return;
 
-    const qty = Number(line.qty) || 1;
+    const key = freightKey(group);
 
+    if(!grouped[key]){
+      grouped[key] = {
+        group,
+        qty: 0,
+        lines: []
+      };
+    }
+
+    grouped[key].qty += Number(line.qty) || 1;
+    grouped[key].lines.push(line);
+  });
+
+  Object.values(grouped).forEach(groupInfo => {
     const rule = state.shippingCharges.find(r =>
-      clean(r.FreightGroup).toLowerCase() === group.toLowerCase() &&
-      freightQtyMatches(r, qty)
+      freightRuleMatchesGroup(r, groupInfo.group) &&
+      freightQtyMatches(r, groupInfo.qty)
     );
 
     if(!rule) return;
 
-    const amount = freightAmountForRule(rule, line);
+    const amount = freightAmountForRule(
+      rule,
+      groupInfo.qty,
+      groupInfo.lines[0].item
+    );
 
     if(amount <= 0) return;
 
     total += amount;
 
     rows.push({
-      label: clean(rule.DisplayLabel) || 'Freight',
-      group,
+      group: groupInfo.group,
+      qty: groupInfo.qty,
       amount
     });
   });
@@ -4664,7 +4723,7 @@ function renderFreightDisplay(){
     $('stihl-freight-detail').innerHTML =
       freight.rows.length
         ? freight.rows.map(r =>
-            `${escapeHtml(r.group)}: ${fmtMoney(r.amount)}`
+            `${escapeHtml(r.group)} Qty ${r.qty}: ${fmtMoney(r.amount)}`
           ).join('<br>')
         : 'No freight charge applied.';
   }
