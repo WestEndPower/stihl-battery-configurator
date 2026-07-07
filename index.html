@@ -1350,7 +1350,12 @@ body.dealer-mode .dealer-only{
 
 <div class="stihl-line">
   <span>Freight / Surcharge</span>
-  <strong>Coming Soon</strong>
+  <strong id="stihl-freight-display">$0.00</strong>
+</div>
+
+<div id="stihl-freight-detail"
+     class="stihl-small"
+     style="margin-top:4px;color:#666;">
 </div>
 
 </div>
@@ -1400,7 +1405,8 @@ body.dealer-mode .dealer-only{
      kmaRuntimes: 'data/kma-runtimes.csv',
 delivery: 'data/delivery.csv',
 paymentOptions: 'data/payment-options.csv',
-bidFleet: 'data/bid-fleet.csv'
+bidFleet: 'data/bid-fleet.csv',
+shippingCharges: 'data/shipping-charges.csv'
     };
 
     const CONFIGURATOR_API =
@@ -1444,6 +1450,7 @@ const chargerCodes = [
 delivery: [],
 paymentOptions: [],
 bidFleet: [],
+shippingCharges: [],
 selectedTool: null,
 selectedSystemButton: '',
 selectedPowerButton: '',
@@ -3406,7 +3413,8 @@ async function init(){
       kmaRuntimes,
       delivery,
       paymentOptions,
-      bidFleet
+      bidFleet,
+      shippingCharges
     ] = await Promise.all([
       loadCSV('data/tools.csv'),
       loadCSV('data/batteries.csv'),
@@ -3416,7 +3424,8 @@ async function init(){
       loadCSV('data/kma-runtimes.csv'),
       loadCSV('data/delivery.csv'),
       loadCSV('data/payment-options.csv'),
-      loadCSV('data/bid-fleet.csv')
+      loadCSV('data/bid-fleet.csv'),
+      loadCSV('data/shipping-charges.csv')
     ]);
 
         state.tools = tools.filter(t => clean(t.Active)==='' || isTrue(t.Active)).sort(sortByOrder);
@@ -3433,6 +3442,10 @@ async function init(){
 
   state.bidFleet = bidFleet
   .filter(p => clean(p.Active)==='' || isTrue(p.Active))
+  .sort(sortByOrder);
+
+state.shippingCharges = shippingCharges
+  .filter(r => clean(r.Active)==='' || isTrue(r.Active))
   .sort(sortByOrder);
 
 populateBidFleetPrograms();
@@ -4545,6 +4558,116 @@ function printPriceTag(){
 
 function deliveryFee(){
   return money($('stihl-delivery-fee')?.value || 0);
+}
+
+function freightGroupOf(line){
+  if(!line || !line.item) return '';
+
+  return clean(
+    line.item.FreightGroup ||
+    line.item.Freight_Group ||
+    line.item.ShippingGroup ||
+    line.item.Shipping_Group
+  );
+}
+
+function freightQtyMatches(rule, qty){
+  const minQty = Number(clean(rule.MinQty || rule.MinimumQty)) || 0;
+  const maxQty = Number(clean(rule.MaxQty || rule.MaximumQty)) || 0;
+
+  if(minQty > 0 && qty < minQty) return false;
+  if(maxQty > 0 && qty > maxQty) return false;
+
+  return true;
+}
+
+function freightAmountForRule(rule, line){
+  const qty = Number(line.qty) || 1;
+  const amount = money(rule.Amount);
+  const percent = money(rule.Percent);
+
+  const basisName = clean(rule.DealerCostBasis || rule.Basis).toLowerCase();
+
+  const basis =
+    basisName === 'dealercost'
+      ? money(line.item.DealerCost)
+      : basisName === 'msrp'
+        ? money(line.item.MSRP)
+        : priceOf(line.item);
+
+  let charge = 0;
+
+  if(clean(rule.ChargeType).toLowerCase() === 'percent'){
+    charge = basis * (percent / 100) * qty;
+  }else if(clean(rule.ChargeType).toLowerCase() === 'fixedpluspercent'){
+    charge = (amount * qty) + (basis * (percent / 100) * qty);
+  }else{
+    charge = amount * qty;
+  }
+
+  const min = money(rule.MinimumCharge);
+  const max = money(rule.MaximumCharge);
+
+  if(min > 0) charge = Math.max(charge, min);
+  if(max > 0) charge = Math.min(charge, max);
+
+  return charge;
+}
+
+function freightSummary(){
+  const rows = [];
+  let total = 0;
+
+  state.cart.forEach(line => {
+    if(!line || !line.item || line.included) return;
+
+    const group = freightGroupOf(line);
+    if(!group) return;
+
+    const qty = Number(line.qty) || 1;
+
+    const rule = state.shippingCharges.find(r =>
+      clean(r.FreightGroup).toLowerCase() === group.toLowerCase() &&
+      freightQtyMatches(r, qty)
+    );
+
+    if(!rule) return;
+
+    const amount = freightAmountForRule(rule, line);
+
+    if(amount <= 0) return;
+
+    total += amount;
+
+    rows.push({
+      label: clean(rule.DisplayLabel) || 'Freight',
+      group,
+      amount
+    });
+  });
+
+  return { total, rows };
+}
+
+function freightFee(){
+  return freightSummary().total;
+}
+
+function renderFreightDisplay(){
+  const freight = freightSummary();
+
+  if($('stihl-freight-display')){
+    $('stihl-freight-display').textContent = fmtMoney(freight.total);
+  }
+
+  if($('stihl-freight-detail')){
+    $('stihl-freight-detail').innerHTML =
+      freight.rows.length
+        ? freight.rows.map(r =>
+            `${escapeHtml(r.group)}: ${fmtMoney(r.amount)}`
+          ).join('<br>')
+        : 'No freight charge applied.';
+  }
 }
 
 function deliveryLabel(){
@@ -7349,9 +7472,10 @@ $('stihl-setup-line').innerHTML =
     ? setupDetailHtml()
     : '<span>Setup / Assembly</span><strong>$0.00</strong>';
 const delivery = deliveryFee();
+const freight = freightFee();
 const warranty = warrantyAmount();
 const rebate = customerRebateAmount();
-const grossSubtotal = productSubtotal + setup + delivery + warranty;
+const grossSubtotal = productSubtotal + setup + delivery + freight + warranty;
 const discount = dealerDiscountAmount(grossSubtotal);
 const bidFleetDiscount =
   fleetPriceMode() === 'linePrice'
@@ -8056,6 +8180,8 @@ if($('stihl-trade-line')){
       : '';
 
 }
+
+renderFreightDisplay();
 
 $('stihl-subtotal').textContent = fmtMoney(finalSubtotal);
 $('stihl-tax').textContent = fmtMoney(finalTax);
