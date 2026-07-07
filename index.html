@@ -1153,10 +1153,25 @@ body.dealer-mode .dealer-only{
   </select>
 </div>
 
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center;">
   <label style="display:flex;gap:6px;align-items:center;font-size:13px;">
     <input id="stihl-bid-enabled" type="checkbox" style="width:auto;">
     Bid Assist Approved
   </label>
+
+  <label style="display:flex;gap:6px;align-items:center;font-size:13px;">
+    <input id="stihl-tax-exempt" type="checkbox" style="width:auto;">
+    Tax Exempt
+  </label>
+</div>
+  
+  <div id="stihl-bid-program-wrap" style="display:none;margin:8px 0 10px 22px;">
+  <label for="stihl-bid-program-select">Bid Assist Program</label>
+  <select id="stihl-bid-program-select">
+    <option value="">Select Bid Assist Program</option>
+  </select>
+</div>
+
 </div>
 
 <div class="stihl-line">
@@ -2436,8 +2451,17 @@ function selectedBidFleetProgram(){
   }
 
   if(bidApproved){
-    return activeBidFleetPrograms().find(program =>
-      clean(program.ProgramType).toLowerCase() === 'bid'
+
+    const selectedId =
+      clean($('stihl-bid-program-select')?.value);
+
+    const bidPrograms = activeBidFleetPrograms()
+      .filter(program =>
+        clean(program.ProgramType).toLowerCase() === 'bid'
+      );
+
+    return bidPrograms.find(program =>
+      clean(program.ProgramID) === selectedId
     ) || null;
   }
 
@@ -2503,9 +2527,7 @@ function bidFleetDiscountForLine(line, program, tier){
 
   const item = line.item;
   const programType = clean(program.ProgramType).toLowerCase();
-
-  let customerPercent = 0;
-  let dealerPercent = 0;
+  const qty = Number(line.qty) || 1;
 
   if(programType === 'bid'){
 
@@ -2520,41 +2542,77 @@ function bidFleetDiscountForLine(line, program, tier){
       };
     }
 
-    customerPercent = money(program.DiscountPercent);
-    dealerPercent = money(program.DealerRebatePercent);
+    const fixedCustomerBid =
+      money(item.BidCustomerDiscount) * qty;
 
-  } else {
+    const fixedDealerBid =
+      money(item.BidDealerRebate) * qty;
 
-    if(!isTrue(item.QualifiesForFleetDiscount)){
+    if(fixedCustomerBid > 0 || fixedDealerBid > 0){
+      return {
+        customerDiscount: fixedCustomerBid,
+        dealerRebate: fixedDealerBid
+      };
+    }
+
+    const basis = bidFleetBasisAmount(
+      line,
+      program.DiscountBasis || 'SalePriceOrMSRP'
+    );
+
+    const minimum =
+      money(program.MinimumQualifyingAmount);
+
+    if(minimum > 0 && basis < minimum){
       return {
         customerDiscount:0,
         dealerRebate:0
       };
     }
 
-    const tierNum = clean(tier).replace('Tier','');
+    const customerDiscount =
+      basis * (money(program.DiscountPercent) / 100);
 
-const qty = Number(line.qty) || 1;
+    const isBattery =
+      clean(item.Power).toLowerCase() === 'battery' ||
+      clean(item.PowerType).toLowerCase() === 'battery' ||
+      clean(item.System) !== '';
 
-return {
-  customerDiscount: money(item[`Tier${tierNum}CustomerDiscount`]) * qty,
-  dealerRebate: money(item[`Tier${tierNum}DealerRebate`]) * qty
-};
+    const dealerRebatePercent = isBattery
+  ? (
+      money(program.BatteryDealerRebatePercent) ||
+      money(program.BatteryDealerReimbursementPercent) ||
+      money(program.BatteryRebatePercent) ||
+      money(program.DealerRebatePercent)
+    )
+  : (
+      money(program.GasDealerRebatePercent) ||
+      money(program.GasDealerReimbursementPercent) ||
+      money(program.GasRebatePercent) ||
+      money(program.DealerRebatePercent)
+    );
+
+const dealerRebate =
+  basis * (dealerRebatePercent / 100);
+
+    return {
+      customerDiscount,
+      dealerRebate
+    };
   }
 
-  const customerBasis = bidFleetBasisAmount(
-    line,
-    program.DiscountBasis || 'SalePriceOrMSRP'
-  );
+  if(!isTrue(item.QualifiesForFleetDiscount)){
+    return {
+      customerDiscount:0,
+      dealerRebate:0
+    };
+  }
 
-  const dealerBasis = bidFleetBasisAmount(
-    line,
-    program.DealerRebateBasis || 'SalePriceOrMSRP'
-  );
+  const tierNum = clean(tier).replace('Tier','');
 
   return {
-    customerDiscount: customerBasis * (customerPercent / 100),
-    dealerRebate: dealerBasis * (dealerPercent / 100)
+    customerDiscount: money(item[`Tier${tierNum}CustomerDiscount`]) * qty,
+    dealerRebate: money(item[`Tier${tierNum}DealerRebate`]) * qty
   };
 }
 
@@ -2900,6 +2958,46 @@ function populateBidFleetPrograms(){
   } else {
     select.value = '';
   }
+}
+
+function populateBidProgramSelect(){
+
+  const select = $('stihl-bid-program-select');
+
+  if(!select){
+    return;
+  }
+
+  const currentValue = clean(select.value);
+
+  const bidPrograms = activeBidFleetPrograms()
+    .filter(program =>
+      clean(program.ProgramType).toLowerCase() === 'bid'
+    )
+    .filter(program =>
+      clean(program.Display) === '' || isTrue(program.Display)
+    );
+
+  select.innerHTML =
+    '<option value="">Select Bid Assist Program</option>' +
+    bidPrograms.map(program => `
+      <option value="${escapeHtml(clean(program.ProgramID))}">
+        ${escapeHtml(clean(program.ProgramName))}
+      </option>
+    `).join('');
+
+  const defaultProgram =
+    bidPrograms.find(program =>
+      isTrue(program.DefaultProgram)
+    );
+
+  select.value =
+    currentValue &&
+    bidPrograms.some(program =>
+      clean(program.ProgramID) === currentValue
+    )
+      ? currentValue
+      : clean(defaultProgram?.ProgramID || '');
 }
 
 function dealerEngine(){
@@ -3337,9 +3435,9 @@ async function init(){
   .filter(p => clean(p.Active)==='' || isTrue(p.Active))
   .sort(sortByOrder);
 
-  populateBidFleetPrograms();
+populateBidFleetPrograms();
+populateBidProgramSelect();
 renderCart();
-
         $('stihl-load-status').className = 'stihl-success';
         $('stihl-load-status').textContent = 'Configurator data loaded.';
         renderCategories();
@@ -3356,38 +3454,65 @@ bindEvents();
 
     function bindEvents(){
 
-  ['stihl-fleet-enabled','stihl-bid-enabled'].forEach(id => {
-  if($(id)){
-    $(id).addEventListener('change', () => {
-      if($('stihl-fleet-price-mode-wrap')){
-        $('stihl-fleet-price-mode-wrap').style.display =
-          $('stihl-fleet-enabled')?.checked ? 'block' : 'none';
-      }
-
-      renderCart();
-    });
-  }
-});
-
-if($('stihl-fleet-price-mode')){
-  $('stihl-fleet-price-mode').addEventListener('change', renderCart);
-}
-
 if($('stihl-fleet-price-mode')){
   $('stihl-fleet-price-mode').addEventListener('change', renderCart);
 }
 
 if($('stihl-bid-enabled')){
   $('stihl-bid-enabled').addEventListener('change', () => {
-    if($('stihl-bid-enabled').checked && $('stihl-fleet-enabled')){
+
+    const bidEnabled = $('stihl-bid-enabled').checked;
+
+    if(bidEnabled && $('stihl-fleet-enabled')){
       $('stihl-fleet-enabled').checked = false;
     }
 
+    if(bidEnabled){
+
+  if($('stihl-financing-select')){
+    $('stihl-financing-select').value = '';
+    $('stihl-financing-select').disabled = true;
+  }
+
+  if($('stihl-financing-in-lieu-select')){
+    $('stihl-financing-in-lieu-select').value = '';
+    $('stihl-financing-in-lieu-select').disabled = true;
+  }
+} else {
+
+  if($('stihl-financing-select')){
+    $('stihl-financing-select').disabled = false;
+  }
+
+  if($('stihl-financing-in-lieu-select')){
+    $('stihl-financing-in-lieu-select').disabled = false;
+  }
+}
+
+    if($('stihl-fleet-price-mode-wrap')){
+      $('stihl-fleet-price-mode-wrap').style.display =
+        $('stihl-fleet-enabled')?.checked ? 'block' : 'none';
+    }
+
+    if($('stihl-bid-program-wrap')){
+      $('stihl-bid-program-wrap').style.display =
+        bidEnabled ? 'block' : 'none';
+    }
+
     populateBidFleetPrograms();
+    populateBidProgramSelect();
     renderCart();
   });
 }
 
+if($('stihl-bid-program-select')){
+  $('stihl-bid-program-select').addEventListener('change', renderCart);
+}
+
+if($('stihl-tax-exempt')){
+  $('stihl-tax-exempt').addEventListener('change', renderCart);
+}
+    
       $('stihl-search').addEventListener('input', renderTools);
 $('stihl-category').addEventListener('change', () => {
   state.selectedTool = null;
@@ -6410,6 +6535,9 @@ function bidFleetDiscountAmount(){
 function bidFleetLabel(){
   const bidFleet = bidFleetEngine();
 
+  const bidActive =
+  $('stihl-bid-enabled')?.checked === true;
+
   if(!bidFleet.program){
     return '';
   }
@@ -7252,7 +7380,10 @@ const taxableSubtotal = Math.max(
   0
 );
 
-const tax = taxableSubtotal * TAX_RATE;
+const tax =
+  $('stihl-tax-exempt')?.checked
+    ? 0
+    : taxableSubtotal * TAX_RATE;
 
 const amountFinanced =
   taxableSubtotal +
@@ -7947,7 +8078,6 @@ $('stihl-total').textContent = fmtMoney(finalTotal);
 renderDepositSummary(finalTotal);
 
 renderFinancingOptions();
-
     }
 
     function copyQuote(){
