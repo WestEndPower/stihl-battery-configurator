@@ -1358,6 +1358,11 @@ body.dealer-mode .dealer-only{
      style="margin-top:4px;color:#666;">
 </div>
 
+<label class="dealer-only" style="display:flex;gap:6px;align-items:center;font-size:13px;margin-top:8px;">
+  <input id="stihl-special-order-freight" type="checkbox" style="width:auto;">
+  Add Special Order Freight Charge
+</label>
+
 </div>
          
           
@@ -3392,6 +3397,7 @@ if($('stihl-finance-remaining-payment')) $('stihl-finance-remaining-payment').ch
   if($('stihl-dealer-discount')) $('stihl-dealer-discount').value = '0';
   if($('stihl-custom-discount')) $('stihl-custom-discount').value = '0';
 
+  if($('stihl-special-order-freight')) $('stihl-special-order-freight').checked = false;
   if($('stihl-trade-enabled')) $('stihl-trade-enabled').value = '';
   if($('stihl-trade-fields')) $('stihl-trade-fields').style.display = 'none';
   if($('stihl-trade-allowance')) $('stihl-trade-allowance').value = '0';
@@ -3466,6 +3472,14 @@ bindEvents();
     }
 
     function bindEvents(){
+
+if($('stihl-special-order-freight')){
+  $('stihl-special-order-freight').addEventListener('change', renderCart);
+}
+
+if($('stihl-tax-exempt')){
+  $('stihl-tax-exempt').addEventListener('change', renderCart);
+}
 
 if($('stihl-fleet-price-mode')){
   $('stihl-fleet-price-mode').addEventListener('change', renderCart);
@@ -4579,6 +4593,19 @@ function freightKey(v){
     .replace(/[^A-Z0-9]/g,'');
 }
 
+function lineIsInStock(line){
+  const item = line?.item || {};
+
+  return (
+    isTrue(item.QtyNewMilford) ||
+    isTrue(item.QtyDanbury)
+  );
+}
+
+function specialOrderFreightEnabled(){
+  return !!$('stihl-special-order-freight')?.checked;
+}
+
 function freightQtyMatches(rule, qty){
   const minQty = Number(clean(
     rule.MinOrderQuantity ||
@@ -4611,6 +4638,23 @@ function freightRuleMatchesGroup(rule, group){
     itemGroup.startsWith(ruleGroup) ||
     ruleGroup.startsWith(itemGroup)
   );
+}
+
+function freightApplyWhenMatches(rule, groupInfo){
+  const applyWhen = clean(rule.ApplyWhen || 'AllSales').toLowerCase();
+
+  const allNotInStock =
+    groupInfo.lines.every(line => !lineIsInStock(line));
+
+  if(applyWhen === 'notinstock'){
+    return allNotInStock && specialOrderFreightEnabled();
+  }
+
+  if(applyWhen === 'allsales'){
+    return true;
+  }
+
+  return true;
 }
 
 function freightAmountForRule(rule, qty, basisItem){
@@ -4683,7 +4727,8 @@ function freightSummary(){
   Object.values(grouped).forEach(groupInfo => {
     const rule = state.shippingCharges.find(r =>
       freightRuleMatchesGroup(r, groupInfo.group) &&
-      freightQtyMatches(r, groupInfo.qty)
+      freightQtyMatches(r, groupInfo.qty) &&
+      freightApplyWhenMatches(r, groupInfo)
     );
 
     if(!rule) return;
