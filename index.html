@@ -3481,6 +3481,7 @@ if($('stihl-tax-exempt')){
   $('stihl-tax-exempt').addEventListener('change', renderCart);
 }
 
+
 if($('stihl-fleet-price-mode')){
   $('stihl-fleet-price-mode').addEventListener('change', renderCart);
 }
@@ -4607,19 +4608,8 @@ function specialOrderFreightEnabled(){
 }
 
 function freightQtyMatches(rule, qty){
-  const minQty = Number(clean(
-    rule.MinOrderQuantity ||
-    rule.MinQty ||
-    rule.MinimumQty ||
-    rule['Min Qty']
-  )) || 0;
-
-  const maxQty = Number(clean(
-    rule.MaxOrderQuantity ||
-    rule.MaxQty ||
-    rule.MaximumQty ||
-    rule['Max Qty']
-  )) || 0;
+  const minQty = Number(clean(rule.MinOrderQuantity || rule.MinQty || rule.MinimumQty)) || 0;
+  const maxQty = Number(clean(rule.MaxOrderQuantity || rule.MaxQty || rule.MaximumQty)) || 0;
 
   if(minQty > 0 && qty < minQty) return false;
   if(maxQty > 0 && qty > maxQty) return false;
@@ -4641,17 +4631,13 @@ function freightRuleMatchesGroup(rule, group){
 }
 
 function freightApplyWhenMatches(rule, groupInfo){
-  const applyWhen = clean(rule.ApplyWhen || 'AllSales').toLowerCase();
+  const applyWhen = freightKey(rule.ApplyWhen || 'AllSales');
 
-  const allNotInStock =
-    groupInfo.lines.every(line => !lineIsInStock(line));
+  if(applyWhen === 'NOTINSTOCK'){
+    const allNotInStock =
+      groupInfo.lines.every(line => !lineIsInStock(line));
 
-  if(applyWhen === 'notinstock'){
     return allNotInStock && specialOrderFreightEnabled();
-  }
-
-  if(applyWhen === 'allsales'){
-    return true;
   }
 
   return true;
@@ -4661,15 +4647,9 @@ function freightAmountForRule(rule, qty, basisItem){
   const amount = money(rule.Amount);
   const percent = money(rule.Percent);
 
-  if(amount <= 0 && percent <= 0){
-    return 0;
-  }
+  if(amount <= 0 && percent <= 0) return 0;
 
-  const basisName = clean(
-    rule.Basis ||
-    rule.DealerCostBasis ||
-    rule.FreightBasis
-  ).toLowerCase();
+  const basisName = clean(rule.Basis || rule.DealerCostBasis || rule.FreightBasis).toLowerCase();
 
   const unitBasis =
     basisName === 'dealercost'
@@ -4680,23 +4660,15 @@ function freightAmountForRule(rule, qty, basisItem){
 
   const ruleType = clean(rule.RuleType || rule.ChargeType).toLowerCase();
 
-  let charge = 0;
-
   if(ruleType === 'percent'){
-    charge = unitBasis * (percent / 100) * qty;
-  }else if(ruleType === 'fixedpluspercent'){
-    charge = (amount * qty) + (unitBasis * (percent / 100) * qty);
-  }else{
-    charge = amount * qty;
+    return unitBasis * (percent / 100) * qty;
   }
 
-  const min = money(rule.MinAmount || rule.MinimumCharge);
-  const max = money(rule.MaxAmount || rule.MaximumCharge);
+  if(ruleType === 'fixedpluspercent'){
+    return (amount * qty) + (unitBasis * (percent / 100) * qty);
+  }
 
-  if(min > 0) charge = Math.max(charge, min);
-  if(max > 0) charge = Math.min(charge, max);
-
-  return charge;
+  return amount * qty;
 }
 
 function freightSummary(){
@@ -4725,19 +4697,30 @@ function freightSummary(){
   });
 
   Object.values(grouped).forEach(groupInfo => {
-    const rule = state.shippingCharges.find(r =>
+    const matchingRules = state.shippingCharges.filter(r =>
       freightRuleMatchesGroup(r, groupInfo.group) &&
       freightQtyMatches(r, groupInfo.qty) &&
       freightApplyWhenMatches(r, groupInfo)
     );
 
+    const rule = matchingRules[0];
+
     if(!rule) return;
 
-    const amount = freightAmountForRule(
-      rule,
-      groupInfo.qty,
-      groupInfo.lines[0].item
-    );
+    console.log('FREIGHT RULE CHECK', {
+  group: groupInfo.group,
+  qty: groupInfo.qty,
+  checkbox: specialOrderFreightEnabled(),
+  stock: groupInfo.lines.map(line => ({
+    model: line.item.Model,
+    QtyNewMilford: line.item.QtyNewMilford,
+    QtyDanbury: line.item.QtyDanbury,
+    inStock: lineIsInStock(line)
+  })),
+  matchingRules
+});
+
+    const amount = freightAmountForRule(rule, groupInfo.qty, groupInfo.lines[0].item);
 
     if(amount <= 0) return;
 
@@ -7675,6 +7658,8 @@ if(rebateLine){
   rebateLine.style.display = 'none';
   rebateLine.innerHTML = '';
 }
+
+renderFreightDisplay();
 
 if($('stihl-rebate-display')){
   $('stihl-rebate-display').textContent = fmtMoney(rebate);
