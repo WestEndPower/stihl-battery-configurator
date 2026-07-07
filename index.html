@@ -3397,7 +3397,10 @@ if($('stihl-finance-remaining-payment')) $('stihl-finance-remaining-payment').ch
   if($('stihl-dealer-discount')) $('stihl-dealer-discount').value = '0';
   if($('stihl-custom-discount')) $('stihl-custom-discount').value = '0';
 
-  if($('stihl-special-order-freight')) $('stihl-special-order-freight').checked = false;
+  if($('stihl-special-order-freight')){
+  $('stihl-special-order-freight').checked = false;
+  delete $('stihl-special-order-freight').dataset.userChanged;
+}
   if($('stihl-trade-enabled')) $('stihl-trade-enabled').value = '';
   if($('stihl-trade-fields')) $('stihl-trade-fields').style.display = 'none';
   if($('stihl-trade-allowance')) $('stihl-trade-allowance').value = '0';
@@ -3474,7 +3477,11 @@ bindEvents();
     function bindEvents(){
 
 if($('stihl-special-order-freight')){
-  $('stihl-special-order-freight').addEventListener('change', renderCart);
+  $('stihl-special-order-freight').addEventListener('change', e => {
+    e.target.dataset.userChanged = 'true';
+    e.target.dataset.userChecked = e.target.checked ? 'true' : 'false';
+    renderCart();
+  });
 }
 
 if($('stihl-tax-exempt')){
@@ -4633,6 +4640,10 @@ function freightRuleMatchesGroup(rule, group){
 function freightApplyWhenMatches(rule, groupInfo){
   const applyWhen = freightKey(rule.ApplyWhen || 'AllSales');
 
+  if(applyWhen === 'ALLSALES'){
+    return true;
+  }
+
   if(applyWhen === 'NOTINSTOCK'){
     const allNotInStock =
       groupInfo.lines.every(line => !lineIsInStock(line));
@@ -4672,72 +4683,81 @@ function freightAmountForRule(rule, qty, basisItem){
 }
 
 function freightSummary(){
-  const grouped = {};
   const rows = [];
+  const debug = [];
   let total = 0;
 
   state.cart.forEach(line => {
     if(!line || !line.item || line.included) return;
 
     const group = freightGroupOf(line);
-    if(!group) return;
+    const qty = Number(line.qty) || 1;
 
-    const key = freightKey(group);
-
-    if(!grouped[key]){
-      grouped[key] = {
-        group,
-        qty: 0,
-        lines: []
-      };
-    }
-
-    grouped[key].qty += Number(line.qty) || 1;
-    grouped[key].lines.push(line);
-  });
-
-  Object.values(grouped).forEach(groupInfo => {
-    const matchingRules = state.shippingCharges.filter(r =>
-      freightRuleMatchesGroup(r, groupInfo.group) &&
-      freightQtyMatches(r, groupInfo.qty) &&
-      freightApplyWhenMatches(r, groupInfo)
+    const matchingRules = state.shippingCharges.filter(rule =>
+      freightRuleMatchesGroup(rule, group) &&
+      freightQtyMatches(rule, qty) &&
+      freightApplyWhenMatches(rule, { group, qty, lines:[line] })
     );
 
-    const rule = matchingRules[0];
+    const pricedMatches = matchingRules
+  .map(rule => ({
+    rule,
+    amount: freightAmountForRule(rule, qty, line.item)
+  }))
+  .sort((a,b) => b.amount - a.amount);
 
-    if(!rule) return;
+const rule = pricedMatches[0]?.rule || null;
+const amount = pricedMatches[0]?.amount || 0;
 
-    console.log('FREIGHT RULE CHECK', {
-  group: groupInfo.group,
-  qty: groupInfo.qty,
-  checkbox: specialOrderFreightEnabled(),
-  stock: groupInfo.lines.map(line => ({
-    model: line.item.Model,
-    QtyNewMilford: line.item.QtyNewMilford,
-    QtyDanbury: line.item.QtyDanbury,
-    inStock: lineIsInStock(line)
-  })),
-  matchingRules
-});
-
-    const amount = freightAmountForRule(rule, groupInfo.qty, groupInfo.lines[0].item);
-
-    if(amount <= 0) return;
-
-    total += amount;
-
-    rows.push({
-      group: groupInfo.group,
-      qty: groupInfo.qty,
+    debug.push({
+      model: clean(line.item.Model),
+      group,
+      qty,
+      nm: clean(line.item.QtyNewMilford),
+      db: clean(line.item.QtyDanbury),
+      rulesLoaded: state.shippingCharges.length,
+      matchingRules: matchingRules.length,
       amount
     });
+
+    if(amount > 0){
+      total += amount;
+      rows.push({
+  group,
+  qty,
+  amount,
+  label: clean(rule.FreightNotes) || 'Freight / Surcharge'
+});
+    }
   });
 
-  return { total, rows };
+  window.stihlFreightDebug = debug;
+
+  return { total, rows, debug };
 }
 
 function freightFee(){
   return freightSummary().total;
+}
+
+function hasEligibleNotInStockFreight(){
+  return state.cart.some(line => {
+    if(!line || !line.item || line.included) return false;
+    if(lineIsInStock(line)) return false;
+
+    const group = freightGroupOf(line);
+    const qty = Number(line.qty) || 1;
+
+    return state.shippingCharges.some(rule =>
+      freightRuleMatchesGroup(rule, group) &&
+      freightQtyMatches(rule, qty) &&
+      freightKey(rule.ApplyWhen) === 'NOTINSTOCK' &&
+      (
+        money(rule.Amount) > 0 ||
+        money(rule.Percent) > 0
+      )
+    );
+  });
 }
 
 function renderFreightDisplay(){
@@ -4751,7 +4771,7 @@ function renderFreightDisplay(){
     $('stihl-freight-detail').innerHTML =
       freight.rows.length
         ? freight.rows.map(r =>
-            `${escapeHtml(r.group)} Qty ${r.qty}: ${fmtMoney(r.amount)}`
+            `${escapeHtml(r.label)}${r.qty > 1 ? ` — Qty ${r.qty}` : ''}: ${fmtMoney(r.amount)}`
           ).join('<br>')
         : 'No freight charge applied.';
   }
@@ -7202,6 +7222,17 @@ function dealerDiscountLabel(){
 
     function renderCart(){
       populateBidFleetPrograms();
+       
+      const specialOrderFreightBox = $('stihl-special-order-freight');
+
+if(specialOrderFreightBox){
+  if(!specialOrderFreightBox.dataset.userChanged){
+    specialOrderFreightBox.checked = hasEligibleNotInStockFreight();
+  }else{
+    specialOrderFreightBox.checked =
+      specialOrderFreightBox.dataset.userChecked === 'true';
+  }
+}
 
       const selectedProgram = selectedCustomerFinanceProgram();
       const dealer = dealerEngine();
