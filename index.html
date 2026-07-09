@@ -333,6 +333,19 @@
   border-bottom:2px solid #222 !important;
 }
 
+.stihl-kit-charger-row{
+  border-top:3px solid #111 !important;
+  border-bottom:3px solid #111 !important;
+}
+
+.stihl-kit-charger-row.left{
+  border-left:3px solid #111 !important;
+}
+
+.stihl-kit-charger-row.right{
+  border-right:3px solid #111 !important;
+}
+
   .stihl-table tr:nth-child(even) td{background:#fafafa}
   .stihl-kma-table thead th{
   position:sticky;
@@ -771,9 +784,19 @@ body.dealer-mode .dealer-only{
 
           <div class="stihl-card" id="stihl-payment-options-card">
 
-  <h3 style="margin-top:0;">Payment Options & Additional Promotions</h3>
+  <h3 style="margin-top:0;">Payment Options</h3>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+<div style="
+  font-size:12px;
+  color:#666;
+  font-weight:700;
+  margin-top:-6px;
+  margin-bottom:10px;
+">
+  Select an option for additional savings
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
     <div>
       <label for="stihl-credit-payment" style="color:var(--stihl-orange);font-weight:900;">
   Credit Card
@@ -1480,7 +1503,12 @@ cart: []
 
     const $ = id => document.getElementById(id);
 
-    function clean(v){ return (v === null || v === undefined || String(v).toLowerCase() === 'nan') ? '' : String(v).trim(); }
+    function clean(v){
+  return (v === null || v === undefined || String(v).toLowerCase() === 'nan')
+    ? ''
+    : String(v).replace(/^\uFEFF/, '').trim();
+}
+
     function money(v){
       const n = Number(clean(v).replace(/[$,]/g,''));
       return isFinite(n) ? n : 0;
@@ -3546,7 +3574,7 @@ function bestPromoFinanceForTool(t){
 
         <div style="text-align:center;">
           <div style="font-size:12px;font-weight:900;color:#666;text-transform:uppercase;">
-            ${rebate > 0 ? 'Your Price After Rebate' : 'Your Price'}
+            ${rebate > 0 ? 'Price After Rebate' : 'Your Price'}
           </div>
           <div style="font-size:30px;font-weight:900;color:#c00000;">
             ${fmtMoney(yourPrice)}
@@ -4204,20 +4232,18 @@ $('stihl-customer-email').addEventListener('blur', () => {
 
   if(id === 'stihl-finance-remaining-payment'){
 
-    if(el.checked){
+  if(el.checked){
 
-      if($('stihl-cash-full-payment')){
-        $('stihl-cash-full-payment').checked = false;
-        if($('stihl-cash-payment')) $('stihl-cash-payment').value = '$0.00';
-      }
-
-      if($('stihl-credit-full-payment')){
-        $('stihl-credit-full-payment').checked = false;
-        if($('stihl-credit-payment')) $('stihl-credit-payment').value = '$0.00';
-      }
-
+    if($('stihl-cash-full-payment')){
+      $('stihl-cash-full-payment').checked = false;
     }
+
+    if($('stihl-credit-full-payment')){
+      $('stihl-credit-full-payment').checked = false;
+    }
+
   }
+}
 
   if(id === 'stihl-financing-select'){
     el.dataset.selectedValue = clean(el.value);
@@ -4287,20 +4313,18 @@ el.addEventListener('change', () => {
 
   if(id === 'stihl-finance-remaining-payment'){
 
-    if(el.checked){
+  if(el.checked){
 
-      if($('stihl-cash-full-payment')){
-        $('stihl-cash-full-payment').checked = false;
-        if($('stihl-cash-payment')) $('stihl-cash-payment').value = '$0.00';
-      }
-
-      if($('stihl-credit-full-payment')){
-        $('stihl-credit-full-payment').checked = false;
-        if($('stihl-credit-payment')) $('stihl-credit-payment').value = '$0.00';
-      }
-
+    if($('stihl-cash-full-payment')){
+      $('stihl-cash-full-payment').checked = false;
     }
+
+    if($('stihl-credit-full-payment')){
+      $('stihl-credit-full-payment').checked = false;
+    }
+
   }
+}
 
   if(id === 'stihl-financing-select'){
     el.dataset.selectedValue = clean(el.value);
@@ -5606,14 +5630,7 @@ function programDefaultDownPayment(total){
 }
 
 function selectedDepositAmount(total){
-
-    total = Number(total) || 0;
-
-    const entered =
-        paymentDownEntered();
-
-    return Math.min(entered, total);
-
+  return paymentEngine(total).amountDueToday;
 }
 
 function renderDepositSummary(total){
@@ -6241,28 +6258,13 @@ function renderKMARuntimeMatrix(){
     return;
   }
 
-const toolKeys = [
-  skuOf(tool),
-  clean(tool.Model),
-  clean(tool.StihlID),
-  clean(tool.Name)
-].map(tight).filter(Boolean);
+const selectedPowerheadModel =
+  clean(tool.Model);
 
-const rows = state.kmaRuntimes.filter(r => {
-  const powerheadKey = tight(
-    r.PowerheadSKU ||
-    r.PowerheadSku ||
-    r.PowerheadModel ||
-    r.Powerhead ||
-    r.Model ||
-    r.StihlID
-  );
+const rows = state.kmaRuntimes.filter(r =>
+  clean(r.PowerheadSKU) === selectedPowerheadModel
+);
 
-  return toolKeys.some(key =>
-    key === powerheadKey ||
-    key.startsWith(powerheadKey)
-  );
-});
   if(!rows.length){
   box.innerHTML = `
     <div class="stihl-note" style="margin-top:10px;">
@@ -6444,7 +6446,7 @@ const rows = state.kmaRuntimes.filter(r => {
               </div>
 
               <div class="stihl-small">
-                SKU: ${escapeHtml(stihlID)}
+                SKU: ${escapeHtml(clean(a.StihlID))}
               </div>
 
               ${desc ? `
@@ -6718,23 +6720,40 @@ return [
           </tr>
 
           ${chargerRows.map((charger, index) => {
-            const isLastChargerRow = index === chargerRows.length - 1;
+  const isLastChargerRow = index === chargerRows.length - 1;
 
-            return `
-              <tr>
-                <td style="text-align:left;">
-                  <strong>${escapeHtml(charger)}</strong>
-                </td>
+  const isKitCharger =
+    clean(charger).toUpperCase() ===
+    clean(tool.KitCharger).toUpperCase();
 
-                ${weightCodes.map(code => {
-                  const b = findBattery(code);
-                  const time = b ? clean(b[charger]) : '';
+  return `
+    <tr>
+      <td
+        class="${isKitCharger ? 'stihl-kit-charger-row left' : ''}"
+        style="text-align:left;">
+        <strong>${escapeHtml(charger)}</strong>
+      </td>
 
-                  return `<td class="${kitBatteryClass(code, isLastChargerRow ? 'bottom' : '')}">${escapeHtml(time || '—')}</td>`;
-                }).join('')}
-              </tr>
-            `;
-          }).join('')}
+      ${weightCodes.map((code, batteryIndex) => {
+        const b = findBattery(code);
+        const time = b ? clean(b[charger]) : '';
+
+        const chargerCellClass = isKitCharger
+          ? `stihl-kit-charger-row ${
+              batteryIndex === weightCodes.length - 1 ? 'right' : ''
+            }`
+          : '';
+
+        return `
+          <td
+            class="${kitBatteryClass(code, isLastChargerRow ? 'bottom' : '')} ${chargerCellClass}">
+            ${escapeHtml(time || '—')}
+          </td>
+        `;
+      }).join('')}
+    </tr>
+  `;
+}).join('')}
         </tbody>
       </table>
 
@@ -7448,7 +7467,7 @@ function paymentMethodDiscountPercent(method){
   return 0;
 }
 
-function paymentSplitAmounts(totalBeforeSavings){
+function paymentEngine(totalBeforeSavings){
 
   const total =
     Math.max(Number(totalBeforeSavings) || 0, 0);
@@ -7457,65 +7476,100 @@ function paymentSplitAmounts(totalBeforeSavings){
     selectedCustomerFinanceProgram();
 
   const financeSelected =
-    selectedProgram || financeRemainingSelected();
+    financeRemainingSelected() || !!selectedProgram;
 
-  let cashAmount =
+  const cashFull =
+    cashFullPaymentSelected();
+
+  const creditFull =
+    creditFullPaymentSelected();
+
+  let enteredCash =
     money($('stihl-cash-payment')?.value);
 
-  let creditAmount =
+  let enteredCredit =
     money($('stihl-credit-payment')?.value);
 
-  if(cashFullPaymentSelected()){
-    cashAmount = total;
-    creditAmount = 0;
+  if(cashFull){
+    enteredCash = total;
+    enteredCredit = 0;
   }
 
-  if(creditFullPaymentSelected()){
-    creditAmount = total;
-    cashAmount = 0;
+  if(creditFull){
+    enteredCredit = total;
+    enteredCash = 0;
   }
 
-  cashAmount =
-    Math.min(Math.max(cashAmount, 0), total);
+  enteredCash =
+    Math.min(Math.max(enteredCash, 0), total);
 
-  creditAmount =
+  enteredCredit =
     Math.min(
-      Math.max(creditAmount, 0),
-      Math.max(total - cashAmount, 0)
+      Math.max(enteredCredit, 0),
+      Math.max(total - enteredCash, 0)
     );
 
-  const customerDeposit =
-    cashAmount + creditAmount;
+  const enteredDeposit =
+    enteredCash + enteredCredit;
 
   const minimumDown =
     selectedProgram
-      ? money(
-          selectedProgram.MinimumDown ||
-          selectedProgram.MinimumDownPayment ||
-          selectedProgram.MinimumDownAmount
-        )
+      ? minimumDownForProgram(selectedProgram, total)
       : 0;
 
   const requiredExtraDown =
     financeSelected
-      ? Math.max(minimumDown - customerDeposit, 0)
+      ? Math.max(minimumDown - enteredDeposit, 0)
       : 0;
 
-  cashAmount += requiredExtraDown;
+  const cashAmount =
+    enteredCash + requiredExtraDown;
+
+  const creditAmount =
+    enteredCredit;
+
+  const amountDueToday =
+    cashAmount + creditAmount;
 
   const financeAmount =
     financeSelected
-      ? Math.max(total - cashAmount - creditAmount, 0)
+      ? Math.max(total - amountDueToday, 0)
       : 0;
 
   return {
+    total,
+    selectedProgram,
+    financeSelected,
+    cashFull,
+    creditFull,
+    enteredCash,
+    enteredCredit,
+    enteredDeposit,
+    minimumDown,
+    requiredExtraDown,
     cashAmount,
     creditAmount,
-    financeAmount,
-    customerDeposit,
-    requiredExtraDown,
-    minimumDown
+    amountDueToday,
+    financeAmount
   };
+}
+
+function paymentSplitAmounts(totalBeforeSavings){
+  const payment =
+    paymentEngine(totalBeforeSavings);
+
+  return {
+    cashAmount: payment.cashAmount,
+    creditAmount: payment.creditAmount,
+    financeAmount: payment.financeAmount,
+    customerDeposit: payment.enteredDeposit,
+    requiredExtraDown: payment.requiredExtraDown,
+    minimumDown: payment.minimumDown
+  };
+}
+
+function selectedDepositAmount(totalBeforeSavings){
+  return paymentEngine(totalBeforeSavings).amountDueToday;
 }
 
 function dealerDiscountAmount(baseSubtotal){
