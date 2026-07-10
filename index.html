@@ -840,6 +840,19 @@ body.dealer-mode .dealer-only{
     </div>
   </div>
 
+<div style="
+  margin-top:12px;
+  padding:10px;
+  border:2px solid var(--stihl-orange);
+  border-radius:10px;
+  background:#fff8ef;
+">
+  <div class="stihl-line" style="font-weight:900;">
+    <span>Remaining Balance After Cash / Credit</span>
+    <strong id="stihl-payment-remaining-balance">$0.00</strong>
+  </div>
+</div>
+
   <div style="margin-top:12px;">
     <label for="stihl-financing-select" style="color:var(--stihl-orange);font-weight:900;">
   Financing
@@ -3080,7 +3093,6 @@ function westEndPowerDiscountAmount(grossSubtotal){
 
   const bidFleet = selectedBidFleetProgram();
 
-  // Never apply West End Power Discount to Bid / Fleet deals.
   if(bidFleet){
     return 0;
   }
@@ -3092,8 +3104,92 @@ function westEndPowerDiscountAmount(grossSubtotal){
     return 0;
   }
 
+  const selectedProgram =
+    selectedCustomerFinanceProgram();
+
+  const maxPercent =
+    maxPaymentDiscountPercent();
+
+  if(maxPercent <= 0){
+    return 0;
+  }
+
+  const cashSelected =
+    $('stihl-cash-full-payment')?.checked === true ||
+    money($('stihl-cash-payment')?.value) > 0;
+
+  const creditSelected =
+    $('stihl-credit-full-payment')?.checked === true ||
+    money($('stihl-credit-payment')?.value) > 0;
+
+  const financeSelected =
+    $('stihl-finance-remaining-payment')?.checked === true &&
+    !!selectedProgram;
+
+  if(
+    !cashSelected &&
+    !creditSelected &&
+    !financeSelected
+  ){
+    return 0;
+  }
+
+  function paymentSavingsAmount(total){
+
+    const split =
+      paymentSplitAmounts(total);
+
+    const cashSavings =
+      split.cashAmount *
+      (maxPercent / 100);
+
+    const creditCardPercent =
+      Math.max(
+        maxPercent - 3,
+        0
+      );
+
+    const creditSavings =
+      split.creditAmount *
+      (creditCardPercent / 100);
+
+    const financeFeePercent =
+      selectedProgram
+        ? money(selectedProgram.DealerFeePercent)
+        : maxPercent;
+
+    const financeSavings =
+      financeSelected
+        ? split.financeAmount *
+          (
+            Math.max(
+              maxPercent - financeFeePercent,
+              0
+            ) / 100
+          )
+        : 0;
+
+    return (
+      cashSavings +
+      creditSavings +
+      financeSavings
+    );
+  }
+
+  const requestedPaymentDiscount =
+    Math.max(
+      Math.floor(
+        paymentSavingsAmount(subtotal) / 10
+      ) * 10,
+      0
+    );
+
   const minimumProfitAmount =
     minimumProfitAmountTotal();
+
+  if(minimumProfitAmount <= 0){
+    return requestedPaymentDiscount;
+  }
 
   const regularDealerDiscount =
     dealerDiscountAmount(subtotal);
@@ -3108,132 +3204,23 @@ function westEndPowerDiscountAmount(grossSubtotal){
 
   const netDealerCost =
     Math.max(
-      cartTrueDealerCostTotal() - dealerRebate,
+      cartTrueDealerCostTotal() -
+      dealerRebate,
       0
     );
 
   const customerAdjustment =
     customerAdjustmentAmount(subtotal);
 
-  const baseDiscount =
-    state.cart.reduce((sum,line) => {
-
-      if(!line || !line.item || line.included){
-        return sum;
-      }
-
-      const lineAmount =
-        lineTotal(line);
-
-      const maxPercent =
-        money(
-          line.item.MaxProgramFeePercent ||
-          line.item.MaximumFeePercentage ||
-          line.item.MaxFeePercentage ||
-          line.item.MaximumFeePercent
-        );
-
-      return sum + (lineAmount * maxPercent / 100);
-
-    }, 0);
-
-  if(baseDiscount <= 0){
-    return 0;
-  }
-
-  const averageMaxPercent =
-    subtotal > 0
-      ? (baseDiscount / subtotal) * 100
-      : 0;
-
-  const split =
-    paymentSplitAmounts(subtotal);
-
-  const selectedProgram =
-  selectedCustomerFinanceProgram();
-
-  const cashSelected =
-  $('stihl-cash-full-payment')?.checked === true ||
-  money($('stihl-cash-payment')?.value) > 0;
-
-const cashExtra =
-  cashSelected
-    ? split.cashAmount * (averageMaxPercent / 100)
-    : 0;
-
-  const creditExtra =
-    split.creditAmount *
-    (
-      Math.max(averageMaxPercent - 3, 0) / 100
-    );
-
-  const financeExtra =
-    selectedProgram
-      ? split.financeAmount *
-        (
-          Math.max(
-            averageMaxPercent - money(selectedProgram.DealerFeePercent),
-            0
-          ) / 100
-        )
-      : 0;
-
-  const requestedDiscount =
-  baseDiscount +
-  cashExtra +
-  creditExtra +
-  financeExtra;
-
-// Find the maximum discount allowed before net profit drops below minimum.
-let maxAllowedDiscount =
-  Math.max(
-    Math.floor(baseDiscount / 10) * 10,
-    0
-  );
-
-while(
-  netProfitAfterDiscount(maxAllowedDiscount + 10) >= minimumProfitAmount
-){
-  maxAllowedDiscount += 10;
-}
-
-const financeFullSelected =
-  $('stihl-finance-remaining-payment')?.checked === true;
-
-const creditFullSelected =
-  !financeFullSelected &&
-  $('stihl-credit-full-payment')?.checked === true;
-
-const cashFullSelected =
-  !financeFullSelected &&
-  !creditFullSelected &&
-  $('stihl-cash-full-payment')?.checked === true;
-
-const fullPaymentSelected =
-  financeFullSelected ||
-  creditFullSelected ||
-  cashFullSelected;
-
-let finalDiscount =
-  fullPaymentSelected
-    ? maxAllowedDiscount
-    : Math.min(
-        Math.max(
-          Math.floor(requestedDiscount / 10) * 10,
-          0
-        ),
-        maxAllowedDiscount
-      );
-
   function netProfitAfterDiscount(testDiscount){
 
     const sellingSubtotal =
       Math.max(
-        subtotal
-        - regularDealerDiscount
-        - testDiscount
-        - rebate
-        + customerAdjustment,
+        subtotal -
+        regularDealerDiscount -
+        testDiscount -
+        rebate +
+        customerAdjustment,
         0
       );
 
@@ -3243,34 +3230,47 @@ let finalDiscount =
         : sellingSubtotal * TAX_RATE;
 
     const splitForFees =
-      paymentSplitAmounts(sellingSubtotal + tax);
+      paymentSplitAmounts(
+        sellingSubtotal + tax
+      );
 
     const creditCardFee =
-      paymentDealerFeeAmount(splitForFees.creditAmount);
+      paymentDealerFeeAmount(
+        splitForFees.creditAmount
+      );
 
     const financingFee =
-      selectedProgram
-        ? financeAnalysis(selectedProgram, sellingSubtotal + tax).fee
+      selectedProgram &&
+      financeSelected
+        ? financeAnalysis(
+            selectedProgram,
+            splitForFees.financeAmount
+          ).fee
         : 0;
 
     return (
-      sellingSubtotal
-      - netDealerCost
-      - creditCardFee
-      - financingFee
+      sellingSubtotal -
+      netDealerCost -
+      creditCardFee -
+      financingFee
     );
   }
 
-// Protect minimum profit only.
-// Do NOT increase the discount automatically to reach minimum profit.
-while(
-  finalDiscount > 0 &&
-  netProfitAfterDiscount(finalDiscount) < minimumProfitAmount
-){
-  finalDiscount -= 10;
-}
+  let maxAllowedDiscount = 0;
 
-return Math.max(finalDiscount, 0);
+  while(
+    maxAllowedDiscount + 10 <= subtotal &&
+    netProfitAfterDiscount(
+      maxAllowedDiscount + 10
+    ) >= minimumProfitAmount
+  ){
+    maxAllowedDiscount += 10;
+  }
+
+  return Math.min(
+    requestedPaymentDiscount,
+    maxAllowedDiscount
+  );
 }
 
 function dealerEngine(){
@@ -4242,6 +4242,18 @@ $('stihl-customer-email').addEventListener('blur', () => {
       $('stihl-credit-full-payment').checked = false;
     }
 
+  }else{
+
+    if($('stihl-financing-select')){
+      $('stihl-financing-select').value = '';
+      $('stihl-financing-select').dataset.selectedValue = '';
+    }
+
+    if($('stihl-financing-in-lieu-select')){
+      $('stihl-financing-in-lieu-select').value = '';
+      $('stihl-financing-in-lieu-select').dataset.selectedValue = '';
+    }
+
   }
 }
 
@@ -4323,6 +4335,18 @@ el.addEventListener('change', () => {
       $('stihl-credit-full-payment').checked = false;
     }
 
+  }else{
+
+    if($('stihl-financing-select')){
+      $('stihl-financing-select').value = '';
+      $('stihl-financing-select').dataset.selectedValue = '';
+    }
+
+    if($('stihl-financing-in-lieu-select')){
+      $('stihl-financing-in-lieu-select').value = '';
+      $('stihl-financing-in-lieu-select').dataset.selectedValue = '';
+    }
+
   }
 }
 
@@ -4346,24 +4370,6 @@ el.addEventListener('change', () => {
 
   renderCart();
 
-});
-
-[
-  'stihl-credit-payment',
-  'stihl-cash-payment'
-].forEach(id => {
-  const el = $(id);
-
-  if(!el) return;
-
-  el.addEventListener('blur', () => {
-    formatMoneyInput(el);
-    renderCart();
-  });
-
-  el.addEventListener('input', () => {
-    renderCart();
-  });
 });
 
 });   // closes Payment Options forEach
@@ -7692,6 +7698,55 @@ if(specialOrderFreightBox){
           ? 0
           : lineTotal(line) + childTotal + setupAmount;
 
+const cartPackageSubtotal =
+  state.cart.reduce((sum, cartLine) => {
+    if(!cartLine || cartLine.included || cartLine.requiredItem){
+      return sum;
+    }
+
+    const cartChildren = state.cart.filter(child =>
+      child.requiredItem &&
+      child.parentSku === skuOf(cartLine.item)
+    );
+
+    const cartChildTotal =
+      cartChildren.reduce((childSum, child) =>
+        childSum +
+        (child.included ? 0 : priceOf(child.item) * child.qty),
+      0
+      );
+
+    const cartSetupAmount =
+      cartLine.setupSelected
+        ? money(cartLine.item.AssemblyAmount) *
+          (Number(cartLine.qty) || 1)
+        : 0;
+
+    return (
+      sum +
+      lineTotal(cartLine) +
+      cartChildTotal +
+      cartSetupAmount
+    );
+  }, 0);
+
+const totalPaymentDiscount =
+  westEndPowerDiscountAmount(cartPackageSubtotal);
+
+const linePaymentDiscount =
+  !line.included &&
+  packageTotal > 0 &&
+  cartPackageSubtotal > 0
+    ? totalPaymentDiscount *
+      (packageTotal / cartPackageSubtotal)
+    : 0;
+
+const packageTotalAfterPaymentDiscount =
+  Math.max(
+    packageTotal - linePaymentDiscount,
+    0
+  );
+
       const includedTooltip =
         childItems.length || isTrue(line.item.AssemblyOption)
           ? `
@@ -7876,14 +7931,92 @@ if(specialOrderFreightBox){
             color:#666;
             line-height:1.15;
           ">
-            <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-              ${escapeHtml(skuText)}
-            </div>
+            
+            <div style="
+  display:grid;
+  grid-template-columns:minmax(120px,1fr) auto auto auto;
+  gap:8px;
+  align-items:center;
+  margin-top:3px;
+  font-size:11px;
+">
 
-            <strong style="color:#111;white-space:nowrap;">
-              ${line.included ? 'No Additional Charge' : fmtMoney(packageTotal)}
-            </strong>
-          </div>
+  <span style="
+    color:#555;
+    font-weight:700;
+    min-width:0;
+    white-space:nowrap;
+  ">
+    ${escapeHtml(clean(line.item.StihlID) || skuOf(line.item))}
+  </span>
+
+  ${line.included
+    ? `
+      <span></span>
+      <span></span>
+
+      <strong style="
+        color:#111;
+        white-space:nowrap;
+      ">
+        No Additional Charge
+      </strong>
+    `
+    : linePaymentDiscount > 0
+      ? `
+        <span style="
+          color:#666;
+          font-weight:700;
+          white-space:nowrap;
+        ">
+          ${fmtMoney(packageTotal)}
+        </span>
+
+        <span style="
+          color:#b00020;
+          font-weight:900;
+          white-space:nowrap;
+        ">
+          -${fmtMoney(linePaymentDiscount)}
+        </span>
+
+        <strong style="
+          color:#111;
+          font-size:13px;
+          white-space:nowrap;
+        ">
+          ${fmtMoney(packageTotalAfterPaymentDiscount)}
+        </strong>
+      `
+      : `
+        <span></span>
+        <span></span>
+
+        <strong style="
+          color:#111;
+          font-size:13px;
+          white-space:nowrap;
+        ">
+          ${fmtMoney(packageTotal)}
+        </strong>
+      `
+  }
+</div>
+
+${!line.included && linePaymentDiscount > 0 ? `
+  <div style="
+    text-align:right;
+    margin-top:1px;
+    font-size:9px;
+    line-height:1.1;
+    color:#777;
+    font-weight:700;
+  ">
+    Includes selected payment-option savings
+  </div>
+` : ''}
+
+         </div>
 
           ${document.body.classList.contains('dealer-mode') && !line.included ? `
             <div style="
@@ -8078,12 +8211,39 @@ const grossProfit =
 const splitForFees =
   paymentSplitAmounts(taxableSubtotal + tax);
 
+if($('stihl-payment-remaining-balance')){
+
+  const currentTotal =
+    Math.max(taxableSubtotal + tax, 0);
+
+  const enteredCash =
+    $('stihl-cash-full-payment')?.checked
+      ? currentTotal
+      : money($('stihl-cash-payment')?.value);
+
+  const enteredCredit =
+    $('stihl-credit-full-payment')?.checked
+      ? currentTotal
+      : money($('stihl-credit-payment')?.value);
+
+  const remainingBalance =
+    Math.max(
+      currentTotal -
+      enteredCash -
+      enteredCredit,
+      0
+    );
+
+  $('stihl-payment-remaining-balance').textContent =
+    fmtMoney(remainingBalance);
+}
+
 const creditCardProcessingFee =
   paymentDealerFeeAmount(splitForFees.creditAmount);
 
 const financingProgramFee =
   selectedProgram
-    ? financeAnalysis(selectedProgram, taxableSubtotal + tax).fee
+    ? financeAnalysis(selectedProgram, splitForFees.financeAmount).fee
     : 0;
 
 const grossMargin =
@@ -8173,10 +8333,15 @@ const bidFleetLine = document.createElement('div');
 const discountLine = $('stihl-discount-line');
 
 if(discountLine){
+
+  const hasMinimumProfit =
+    minimumProfitAmountTotal() > 0;
+
   const hasDiscount =
     discount > 0 ||
     westEndDiscount > 0 ||
-    bidFleetDiscount > 0;
+    bidFleetDiscount > 0 ||
+    hasMinimumProfit;
 
   discountLine.style.display = hasDiscount ? '' : 'none';
 
@@ -8189,12 +8354,12 @@ if(discountLine){
         </div>
       ` : ''}
 
-      ${westEndDiscount > 0 ? `
+      ${(hasMinimumProfit || westEndDiscount > 0) ? `
         <div class="stihl-line">
           <span>
   West End Power Discount
   <div style="font-size:11px;color:#777;font-weight:700;margin-top:2px;">
-    Includes selected payment-option savings
+    Select a payment option for additional discounts
   </div>
 </span>
 <strong style="color:#c00000;">-${fmtMoney(westEndDiscount)}</strong>
