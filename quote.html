@@ -1,32 +1,1166 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>West End Power Equipment - Itemized Quote</title>
-<style>
-body{font-family:Arial,sans-serif;background:#f4f4f4;margin:0;padding:30px}
-.quote{max-width:1200px;margin:auto;background:#fff;padding:30px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
-h1{color:#f58220;margin:0}table{width:100%;border-collapse:collapse;margin-top:20px}
-th,td{padding:10px;border-bottom:1px solid #ddd}th{background:#f7f7f7;text-transform:uppercase;font-size:12px}
-.num{text-align:right}.total{font-size:18px;font-weight:bold}
-</style></head><body>
-<div class="quote">
-<h1>West End Power Equipment</h1>
-<h2>Itemized Quote</h2>
-<table>
-<thead><tr><th>Qty</th><th>Description</th><th>STIHL ID</th><th class="num">MSRP</th><th class="num">Discount</th><th class="num">Sale Price</th></tr></thead>
-<tbody id="quote-lines">
-<tr><td colspan="6">Starter template. We will connect this to the configurator state next.</td></tr>
-</tbody></table>
-<br>
-<table>
-<tr><td>Equipment Subtotal</td><td class="num">$0.00</td></tr>
-<tr><td>Factory Rebate</td><td class="num">$0.00</td></tr>
-<tr><td>Payment Savings</td><td class="num">$0.00</td></tr>
-<tr><td>Delivery</td><td class="num">$0.00</td></tr>
-<tr><td>Sales Tax</td><td class="num">$0.00</td></tr>
-<tr class="total"><td>OUT THE DOOR</td><td class="num">$0.00</td></tr>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+
+  <title>West End Power Equipment - Itemized Quote</title>
+
+  <style>
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      font-family:Arial,sans-serif;
+      background:#f4f4f4;
+      margin:0;
+      padding:30px;
+      color:#111;
+    }
+
+    .quote{
+      max-width:1200px;
+      margin:auto;
+      background:#fff;
+      padding:30px;
+      border-radius:12px;
+      box-shadow:0 2px 10px rgba(0,0,0,.15);
+    }
+
+    h1{
+      color:#f58220;
+      margin:0;
+    }
+
+    h2{
+      margin:5px 0 20px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:20px;
+    }
+
+    th,
+    td{
+      padding:10px;
+      border-bottom:1px solid #ddd;
+      text-align:left;
+      vertical-align:top;
+    }
+
+    th{
+      background:#f7f7f7;
+      text-transform:uppercase;
+      font-size:12px;
+    }
+
+    .num{
+      text-align:right;
+      white-space:nowrap;
+    }
+
+    .total{
+      font-size:18px;
+      font-weight:bold;
+    }
+
+    .quote-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.quote-btn{
+  border:0;
+  border-radius:8px;
+  padding:11px 18px;
+  background:#f58220;
+  color:#111;
+  font-weight:900;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.quote-btn.secondary{
+  background:#111;
+  color:#fff;
+}
+
+.quote-btn:hover{
+  opacity:.9;
+}
+
+@media print{
+
+  @page{
+    size:letter;
+    margin:.4in;
+  }
+
+  body{
+    background:#fff;
+    padding:0;
+  }
+
+  .quote{
+    max-width:none;
+    width:100%;
+    margin:0;
+    padding:0;
+    border-radius:0;
+    box-shadow:none;
+  }
+
+  .quote-actions{
+    display:none !important;
+  }
+
+  table{
+    page-break-inside:auto;
+  }
+
+  tr{
+    page-break-inside:avoid;
+    page-break-after:auto;
+  }
+
+  h1,
+  h2{
+    page-break-after:avoid;
+  }
+}
+
+    .empty{
+      padding:20px;
+      text-align:center;
+      color:#666;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="quote">
+
+    <div class="quote-actions">
+  <button
+    type="button"
+    class="quote-btn secondary"
+    onclick="window.close()">
+    Return to Configurator
+  </button>
+
+  <button
+    type="button"
+    class="quote-btn"
+    onclick="window.print()">
+    Print Quote
+  </button>
+</div>
+
+    <h1>West End Power Equipment</h1>
+    <h2>Itemized Quote</h2>
+
+    <div style="
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  margin-bottom:20px;
+">
+
+  <div>
+    <div style="
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      color:#666;
+      margin-bottom:6px;
+    ">
+      Customer
+    </div>
+
+    <div id="quote-customer-name" style="font-weight:900;"></div>
+    <div id="quote-customer-business"></div>
+    <div id="quote-customer-address"></div>
+    <div id="quote-customer-phone"></div>
+    <div id="quote-customer-email"></div>
+  </div>
+
+  <div style="text-align:right;">
+    <div style="
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      color:#666;
+      margin-bottom:6px;
+    ">
+      Quote Information
+    </div>
+
+    <div>
+  Quote #:
+  <strong id="quote-number"></strong>
+</div>
+
+<div>
+  Prepared By:
+  <strong id="quote-salesperson">Not Selected</strong>
+</div>
+
+<div>
+  Date:
+  <strong id="quote-date"></strong>
+</div>
+
+  </div>
+
+</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Qty</th>
+          <th>Description</th>
+          <th>STIHL ID</th>
+          <th class="num">MSRP</th>
+          <th class="num">Discount / Rebate</th>
+          <th class="num">Final Price</th>
+        </tr>
+      </thead>
+
+      <tbody id="quote-lines"></tbody>
+    </table>
+
+    <table>
+  <tr>
+    <td>Itemized Equipment Total</td>
+    <td class="num" id="quote-equipment-total">$0.00</td>
+  </tr>
+
+  <tr id="quote-freight-row">
+  <td>
+    <div
+      id="quote-freight-label"
+      style="font-weight:700;"
+    >
+      Factory Freight
+    </div>
+
+    <div
+      id="quote-freight-detail"
+      style="
+        display:none;
+        font-size:11px;
+        line-height:1.35;
+        color:#666;
+        margin-top:3px;
+      "
+    ></div>
+  </td>
+
+  <td
+    class="num"
+    id="quote-freight"
+  >
+    $0.00
+  </td>
+</tr>
+
+<tr id="quote-setup-row">
+  <td>Setup / Installation</td>
+
+  <td
+    class="num"
+    id="quote-setup"
+  >
+    $0.00
+  </td>
+</tr>
+
+<tr id="quote-trade-row">
+  <td>Trade-In Allowance</td>
+
+  <td
+    class="num"
+    id="quote-trade"
+    style="
+      color:#1f7a3a;
+      font-weight:900;
+    "
+  >
+    $0.00
+  </td>
+</tr>
+
+  <tr>
+  <td>
+
+    <div
+      id="quote-delivery-label"
+      style="font-weight:700;"
+    >
+      Delivery
+    </div>
+
+    <div
+      id="quote-delivery-location"
+      style="
+        font-size:11px;
+        color:#666;
+        margin-top:2px;
+      "
+    ></div>
+
+  </td>
+
+  <td
+    class="num"
+    id="quote-delivery"
+  >
+    $0.00
+  </td>
+</tr>
+
+<tr id="quote-adjustment-row" style="display:none;">
+  <td>Other Quote Adjustment</td>
+
+  <td
+    class="num"
+    id="quote-adjustment"
+  >
+    $0.00
+  </td>
+</tr>
+
+  <tr>
+  <td id="quote-tax-label">Sales Tax</td>
+
+  <td
+    class="num"
+    id="quote-tax"
+  >
+    $0.00
+  </td>
+</tr>
+
+  <tr class="total">
+    <td>OUT THE DOOR</td>
+    <td class="num" id="quote-total">$0.00</td>
+  </tr>
 </table>
-<script>
-const state=JSON.parse(sessionStorage.getItem('stihlQuoteState')||'{}');
-console.log(state);
-</script>
-</div></body></html>
+
+<div style="
+  margin-top:28px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  overflow:hidden;
+">
+
+  <div style="
+    background:#111;
+    color:#fff;
+    padding:10px 14px;
+    font-weight:900;
+  ">
+    Payment Breakdown
+  </div>
+
+  <table style="margin-top:0;">
+    <tr>
+      <td>Cash / Bank Check</td>
+      <td class="num" id="quote-cash">$0.00</td>
+    </tr>
+
+    <tr>
+      <td>Credit Card</td>
+      <td class="num" id="quote-credit">$0.00</td>
+    </tr>
+
+    <tr>
+  <td>Amount Financed</td>
+  <td class="num" id="quote-financed">$0.00</td>
+</tr>
+
+<tr id="quote-application-fee-row">
+  <td>Bank Application Fee</td>
+  <td class="num" id="quote-application-fee">$0.00</td>
+</tr>
+
+<tr id="quote-principal-row">
+  <td>Amount Financed + Fees</td>
+  <td class="num" id="quote-principal">$0.00</td>
+</tr>
+
+<tr>
+  <td>Financing Program</td>
+  <td class="num" id="quote-program">None Selected</td>
+</tr>
+
+    <tr>
+      <td>Estimated Monthly Payment</td>
+      <td class="num" id="quote-monthly">$0.00</td>
+    </tr>
+
+    <tr id="quote-total-payback-row">
+  <td>Total Payback</td>
+  <td class="num" id="quote-total-payback">$0.00</td>
+</tr>
+
+  </table>
+
+</div>
+
+<div id="quote-notes-wrap" style="
+  display:none;
+  margin-top:24px;
+  border-left:5px solid #f58220;
+  background:#fff8ef;
+  padding:12px 14px;
+">
+  <strong>Notes</strong>
+  <div id="quote-notes" style="margin-top:5px;"></div>
+</div>
+
+  </div>
+
+  <script>
+    const quoteData = JSON.parse(
+  sessionStorage.getItem('stihlQuoteData') || '{}'
+);
+
+const state =
+  quoteData.state || {};
+
+const savedLines =
+  Array.isArray(quoteData.lines)
+    ? quoteData.lines
+    : [];
+
+const savedTotals =
+  quoteData.totals || {};
+
+  const savedCustomer =
+  quoteData.customer || {};
+
+const savedPayment =
+  quoteData.payment || {};
+
+    function clean(v){
+      return String(v ?? '').trim();
+    }
+
+    function money(v){
+      const n = Number(
+        clean(v).replace(/[$,]/g,'')
+      );
+
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function fmtMoney(v){
+      return '$' + money(v).toLocaleString(undefined,{
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      });
+    }
+
+    function escapeHtml(v){
+      return clean(v)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#039;');
+    }
+
+    function itemName(item){
+      return clean(
+        item.Description ||
+        item.Name ||
+        item.Model ||
+        item.BatteryName ||
+        item.ChargerName ||
+        'Item'
+      );
+    }
+
+    function itemSku(item){
+      return clean(
+        item.StihlID ||
+        item.SKU ||
+        item['STIHL ID'] ||
+        item.PartNumber ||
+        item['Part Number']
+      );
+    }
+
+    function itemUnitPrice(item){
+      return (
+        money(item.SalePrice) ||
+        money(item.MSRP)
+      );
+    }
+
+    const cart =
+      Array.isArray(state.cart)
+        ? state.cart
+        : [];
+
+    const visibleLines =
+  savedLines.length
+    ? savedLines
+    : cart
+        .filter(line =>
+          line &&
+          line.item &&
+          !line.requiredItem
+        )
+        .map(line => {
+
+          const qty =
+            Number(line.qty) || 1;
+
+          const originalLineTotal =
+            itemUnitPrice(line.item) * qty;
+
+          return {
+            ...line,
+            originalLineTotal,
+            paymentDiscount: 0,
+            finalLineTotal:
+              originalLineTotal
+          };
+
+        });
+
+    const quoteLines =
+      document.getElementById('quote-lines');
+
+    if(!visibleLines.length){
+
+      quoteLines.innerHTML = `
+        <tr>
+          <td colspan="6" class="empty">
+            No quote items were found.
+          </td>
+        </tr>
+      `;
+
+    }else{
+
+      quoteLines.innerHTML =
+        visibleLines.map(line => {
+
+          const qty =
+            Number(line.qty) || 1;
+
+          const unitPrice =
+  itemUnitPrice(line.item);
+
+const originalLinePrice =
+  money(
+    line.originalLineTotal
+  ) || unitPrice * qty;
+
+const paymentDiscount =
+  money(
+    line.paymentDiscount
+  );
+
+const factoryRebate =
+  money(
+    line.factoryRebate
+  );
+
+const manualCustomerDiscount =
+  money(
+    line.manualCustomerDiscount
+  );
+
+const bidFleetDiscount =
+  money(
+    line.bidFleetDiscount
+  );
+
+const totalDiscount =
+  money(line.totalDiscount) ||
+  (
+    paymentDiscount +
+    factoryRebate +
+    manualCustomerDiscount +
+    bidFleetDiscount
+  );
+
+const finalLinePrice =
+  line.included
+    ? 0
+    : (
+        money(line.finalLineTotal) ||
+        Math.max(
+          originalLinePrice -
+totalDiscount,
+          0
+        )
+      );
+
+          return `
+            <tr>
+              <td>
+                ${qty}
+              </td>
+
+              <td>
+                <strong>
+  ${escapeHtml(itemName(line.item))}
+</strong>
+
+${money(line.totalDiscount) > 0 ? `
+  <div style="
+    margin-top:3px;
+    font-size:10px;
+    line-height:1.25;
+    color:#666;
+  ">
+    ${[
+      money(line.factoryRebate) > 0
+        ? `Factory rebate ${fmtMoney(line.factoryRebate)}`
+        : '',
+
+      money(line.paymentDiscount) > 0
+        ? `Payment savings ${fmtMoney(line.paymentDiscount)}`
+        : '',
+
+      money(line.manualCustomerDiscount) > 0
+  ? `Customer discount ${fmtMoney(line.manualCustomerDiscount)}`
+  : '',
+
+money(line.bidFleetDiscount) > 0
+  ? `${
+      clean(line.bidFleetProgramType) === 'bid'
+        ? 'STIHL Bid Assist Program'
+        : [
+            'STIHL Fleet Program',
+            clean(line.bidFleetTier)
+              ? `• ${clean(line.bidFleetTier)}`
+              : ''
+          ]
+            .filter(Boolean)
+            .join(' ')
+    } — ${fmtMoney(
+      money(line.bidFleetDiscount) /
+      (Number(line.qty) || 1)
+    )} discount per unit`
+  : ''
+    ]
+      .filter(Boolean)
+      .join(' • ')
+    }
+  </div>
+` : ''}
+              </td>
+
+              <td>
+                ${escapeHtml(itemSku(line.item))}
+              </td>
+
+              <td class="num">
+                ${fmtMoney(unitPrice)}
+              </td>
+
+              <td class="num" style="
+  color:${totalDiscount > 0 ? '#b00020' : '#111'};
+  font-weight:${totalDiscount > 0 ? '900' : '400'};
+">
+  ${totalDiscount > 0
+    ? `-${fmtMoney(totalDiscount)}`
+    : '$0.00'
+  }
+</td>
+
+<td class="num" style="font-weight:900;">
+  ${line.included
+    ? 'Included'
+    : fmtMoney(finalLinePrice)
+  }
+</td>
+          `;
+
+        }).join('');
+    }
+
+    const equipmentSubtotal =
+  money(savedTotals.equipmentSubtotal) ||
+  visibleLines.reduce((sum,line) =>
+    sum + money(line.originalLineTotal),
+    0
+  );
+
+const itemizedEquipmentTotal =
+  visibleLines.reduce(
+    (sum, line) =>
+      sum + money(line.finalLineTotal),
+    0
+  );
+
+document.getElementById(
+  'quote-equipment-total'
+).textContent =
+  fmtMoney(itemizedEquipmentTotal);
+
+const savedFreight =
+  savedTotals.freight || {};
+
+const freightTotal =
+  money(savedFreight.total);
+
+document.getElementById(
+  'quote-freight-label'
+).textContent =
+  savedFreight.label ||
+  'Factory Freight';
+
+document.getElementById(
+  'quote-freight'
+).textContent =
+  fmtMoney(freightTotal);
+
+const freightDetails =
+  Array.isArray(savedFreight.details)
+    ? savedFreight.details
+    : [];
+
+const freightDetailBox =
+  document.getElementById(
+    'quote-freight-detail'
+  );
+
+if(freightDetails.length){
+
+  freightDetailBox.style.display =
+    'block';
+
+  freightDetailBox.innerHTML =
+    freightDetails
+      .map(detail =>
+        `${escapeHtml(detail.label)}: ${fmtMoney(detail.amount)}`
+      )
+      .join('<br>');
+
+}else{
+
+  freightDetailBox.style.display =
+    'none';
+
+  freightDetailBox.innerHTML =
+    '';
+}
+
+const tradeAllowance =
+  money(
+    savedTotals.tradeAllowance
+  );
+
+document.getElementById(
+  'quote-trade'
+).textContent =
+  tradeAllowance > 0
+    ? `-${fmtMoney(tradeAllowance)}`
+    : '$0.00';
+
+document.getElementById(
+  'quote-trade-row'
+).style.display =
+  tradeAllowance > 0
+    ? ''
+    : 'none';
+
+const setupAmount =
+  money(
+    savedTotals.setupInstallation
+  );
+
+document.getElementById(
+  'quote-setup'
+).textContent =
+  fmtMoney(setupAmount);
+
+document.getElementById(
+  'quote-setup-row'
+).style.display =
+  setupAmount > 0
+    ? ''
+    : 'none';
+
+document.getElementById(
+  'quote-delivery-location'
+).textContent =
+  savedTotals.deliveryLocation || '';
+
+if(savedTotals.deliveryIncluded){
+
+  document.getElementById(
+    'quote-delivery-label'
+  ).textContent =
+    '✓ Delivery Included';
+
+  document.getElementById(
+  'quote-delivery'
+).textContent =
+  'No Charge';
+
+document.getElementById(
+  'quote-delivery'
+).style.color =
+  '#1f7a3a';
+
+document.getElementById(
+  'quote-delivery'
+).style.fontWeight =
+  '900';
+
+}else{
+
+  document.getElementById(
+    'quote-delivery-label'
+  ).textContent =
+    'Delivery';
+
+  document.getElementById(
+  'quote-delivery'
+).textContent =
+  fmtMoney(savedTotals.delivery);
+
+document.getElementById(
+  'quote-delivery'
+).style.color =
+  '#111';
+
+document.getElementById(
+  'quote-delivery'
+).style.fontWeight =
+  '400';
+
+}
+
+if(savedTotals.taxExempt){
+
+  document.getElementById(
+    'quote-tax-label'
+  ).textContent =
+    'Sales Tax — Tax Exempt';
+
+  document.getElementById(
+    'quote-tax'
+  ).textContent =
+    'Exempt';
+
+  document.getElementById(
+    'quote-tax'
+  ).style.color =
+    '#1f7a3a';
+
+  document.getElementById(
+    'quote-tax'
+  ).style.fontWeight =
+    '900';
+
+}else{
+
+  document.getElementById(
+    'quote-tax-label'
+  ).textContent =
+    'Sales Tax';
+
+  document.getElementById(
+    'quote-tax'
+  ).textContent =
+    fmtMoney(savedTotals.salesTax);
+
+  document.getElementById(
+    'quote-tax'
+  ).style.color =
+    '#111';
+
+  document.getElementById(
+    'quote-tax'
+  ).style.fontWeight =
+    '400';
+}
+
+  const deliveryAmount =
+  savedTotals.deliveryIncluded
+    ? 0
+    : money(savedTotals.delivery);
+
+const freightAmount =
+  money(
+    savedTotals.freight?.total
+  );
+
+const setupTotal =
+  money(
+    savedTotals.setupInstallation
+  );
+
+const tradeTotal =
+  money(
+    savedTotals.tradeAllowance
+  );
+
+const taxTotal =
+  money(
+    savedTotals.salesTax
+  );
+
+const displayedQuoteTotal =
+  itemizedEquipmentTotal +
+  freightAmount +
+  setupTotal +
+  deliveryAmount -
+  tradeTotal +
+  taxTotal;
+
+const actualOutTheDoor =
+  money(
+    savedTotals.outTheDoor
+  ) ||
+  displayedQuoteTotal;
+
+let quoteAdjustment =
+  Math.round(
+    (
+      actualOutTheDoor -
+      displayedQuoteTotal
+    ) * 100
+  ) / 100;
+
+/*
+  Ignore tiny rounding differences caused by
+  proportional discount allocation.
+*/
+if(Math.abs(quoteAdjustment) < 0.01){
+  quoteAdjustment = 0;
+}
+
+const adjustmentRow =
+  document.getElementById(
+    'quote-adjustment-row'
+  );
+
+const adjustmentDisplay =
+  document.getElementById(
+    'quote-adjustment'
+  );
+
+if(Math.abs(quoteAdjustment) >= 0.01){
+
+  adjustmentRow.style.display = '';
+
+  adjustmentDisplay.textContent =
+    quoteAdjustment < 0
+      ? `-${fmtMoney(Math.abs(quoteAdjustment))}`
+      : fmtMoney(quoteAdjustment);
+
+  adjustmentDisplay.style.color =
+    quoteAdjustment < 0
+      ? '#b00020'
+      : '#111';
+
+  adjustmentDisplay.style.fontWeight =
+    '900';
+
+}else{
+
+  adjustmentRow.style.display =
+    'none';
+}
+
+document.getElementById(
+  'quote-total'
+).textContent =
+  fmtMoney(
+    actualOutTheDoor
+  );
+
+  document.getElementById(
+  'quote-customer-name'
+).textContent =
+  savedCustomer.name || '';
+
+document.getElementById(
+  'quote-customer-business'
+).textContent =
+  savedCustomer.business || '';
+
+const customerAddress = [
+  savedCustomer.street,
+  [
+    savedCustomer.city,
+    savedCustomer.state,
+    savedCustomer.zip
+  ].filter(Boolean).join(' ')
+]
+  .filter(Boolean)
+  .join(', ');
+
+document.getElementById(
+  'quote-customer-address'
+).textContent =
+  customerAddress;
+
+const phoneText = [
+  savedCustomer.phone,
+  savedCustomer.altPhone
+    ? `Alt: ${savedCustomer.altPhone}`
+    : ''
+]
+  .filter(Boolean)
+  .join(' | ');
+
+document.getElementById(
+  'quote-customer-phone'
+).textContent =
+  phoneText;
+
+document.getElementById(
+  'quote-customer-email'
+).textContent =
+  savedCustomer.email || '';
+
+document.getElementById(
+  'quote-salesperson'
+).textContent =
+  savedCustomer.salesperson ||
+  'Not Selected';
+
+  const quoteDate =
+  new Date();
+
+const quoteNumber =
+  'STIHL-' +
+  quoteDate.getFullYear() +
+  String(
+    quoteDate.getMonth() + 1
+  ).padStart(2,'0') +
+  String(
+    quoteDate.getDate()
+  ).padStart(2,'0') +
+  '-' +
+  String(
+    quoteDate.getTime()
+  ).slice(-5);
+
+document.getElementById(
+  'quote-number'
+).textContent =
+  quoteNumber;
+
+document.getElementById(
+  'quote-date'
+).textContent =
+  quoteDate.toLocaleDateString();
+
+document.getElementById(
+  'quote-cash'
+).textContent =
+  fmtMoney(savedPayment.cash);
+
+document.getElementById(
+  'quote-credit'
+).textContent =
+  fmtMoney(savedPayment.credit);
+
+document.getElementById(
+  'quote-financed'
+).textContent =
+  fmtMoney(savedPayment.financed);
+
+  const applicationFee =
+  money(savedPayment.applicationFee);
+
+const principalWithFees =
+  money(savedPayment.principalWithFees);
+
+const totalPayback =
+  money(savedPayment.totalPayback);
+
+document.getElementById(
+  'quote-application-fee'
+).textContent =
+  fmtMoney(applicationFee);
+
+document.getElementById(
+  'quote-application-fee-row'
+).style.display =
+  applicationFee > 0
+    ? ''
+    : 'none';
+
+document.getElementById(
+  'quote-principal'
+).textContent =
+  fmtMoney(principalWithFees);
+
+document.getElementById(
+  'quote-principal-row'
+).style.display =
+  principalWithFees > 0
+    ? ''
+    : 'none';
+
+document.getElementById(
+  'quote-total-payback'
+).textContent =
+  fmtMoney(totalPayback);
+
+document.getElementById(
+  'quote-total-payback-row'
+).style.display =
+  totalPayback > 0
+    ? ''
+    : 'none';
+
+document.getElementById(
+  'quote-program'
+).textContent =
+  savedPayment.program ||
+  'None Selected';
+
+document.getElementById(
+  'quote-monthly'
+).textContent =
+  savedPayment.monthlyPayment > 0
+    ? (
+        fmtMoney(savedPayment.monthlyPayment) +
+        (
+          savedPayment.termMonths > 0
+            ? ` × ${savedPayment.termMonths} months`
+            : ''
+        )
+      )
+    : '$0.00';
+
+if(savedCustomer.notes){
+
+  document.getElementById(
+    'quote-notes-wrap'
+  ).style.display = 'block';
+
+  document.getElementById(
+    'quote-notes'
+  ).textContent =
+    savedCustomer.notes;
+}
+
+  </script>
+
+</body>
+</html>
