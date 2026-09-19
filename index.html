@@ -902,7 +902,7 @@ body.dealer-mode .dealer-only{
              Search ID: stihl-quote-summary-panel
         ========================================================== -->
         <section class="stihl-panel stihl-summary" id="stihl-quote-summary-panel">
-          <h2>Quote Summary</h2>
+          <h2 id="stihl-summary-heading">Configuration Summary</h2>
 
 <div id="stihl-cart-lines" style="margin-top:12px"></div>
 <div id="stihl-delivery-options" style="margin-top:12px;display:none;"></div>
@@ -1781,6 +1781,8 @@ const state = {
   inventoryAvailability: null,
   inventoryAvailabilitySelections: new Map(),
   inventoryOnOrder: new Map(),
+  selectedPriceInventoryRecord: null,
+  selectedPriceQuantityAvailable: 0,
   selectedTool: null,
   selectedUseClassButton: '',
   selectedSystemButton: '',
@@ -6012,9 +6014,13 @@ function liveInventoryQuantity(item){
 
   const key = inventorySkuKey(item.SKU);
 
-  if(!key || !state.inventoryAvailability.has(key)){
-    return null;
-  }
+  /*
+    Once the live inventory request succeeds, its SKU map is authoritative.
+    A missing SKU means zero available, not "fall back to workbook quantity."
+    This keeps stale QtyNewMilford/QtyDanbury values from placing models in
+    the In Stock filter when no selectable physical inventory unit exists.
+  */
+  if(!key || !state.inventoryAvailability.has(key)) return 0;
 
   return Math.max(
     Number(state.inventoryAvailability.get(key)) || 0,
@@ -8716,6 +8722,33 @@ function renderTools(){
   );
 }
 
+function selectedInventoryPricingForTool(tool){
+  const record = state.selectedPriceInventoryRecord;
+  if(!tool || !record) return null;
+  return inventorySkuKey(record.SKU) === inventorySkuKey(skuOf(tool))
+    ? record
+    : null;
+}
+
+function inventoryPricingSummary(tool){
+  const record = selectedInventoryPricingForTool(tool);
+  if(!record) return '';
+  const cashPrice = money(record.InventoryCashPrice);
+  const creditPrice = money(record.InventoryCreditPrice || record.InventoryCustomerPrice);
+  const quantity = Math.max(
+    Number(record.QuantityAvailableAtPrice) ||
+    Number(state.selectedPriceQuantityAvailable) || 0,
+    0
+  );
+  return `
+    <div style="border:2px solid #1f7a3a;background:#f3fbf5;border-radius:12px;padding:12px;text-align:center;">
+      <div style="font-size:13px;font-weight:900;color:#1f7a3a;text-transform:uppercase;">Selected In-Stock Pricing</div>
+      ${cashPrice > 0 ? `<div style="font-size:22px;font-weight:900;margin-top:5px;">${fmtMoney(cashPrice)} <small>Cash / Bank Check</small></div>` : ''}
+      ${creditPrice > 0 ? `<div style="font-size:17px;font-weight:800;margin-top:3px;">${fmtMoney(creditPrice)} <small>Credit Card</small></div>` : ''}
+      ${quantity > 0 ? `<div style="margin-top:7px;font-weight:900;color:#1f7a3a;">${quantity} unit${quantity === 1 ? '' : 's'} available at this price</div>` : ''}
+    </div>`;
+}
+
     function renderToolDetails(){
 const box = $('stihl-tool-details');
 const t = state.selectedTool;
@@ -8817,11 +8850,22 @@ ${imageOf(t) ? `
 </div>
 
     <div class="stihl-price-row">
-  <div style="width:100%;">${displayPrice(t)}</div>
+  <div style="width:100%;">${selectedInventoryPricingForTool(t) ? inventoryPricingSummary(t) : displayPrice(t)}</div>
 
     </div>
 
 ${renderAvailability(t)}
+
+${liveInventoryQuantity(t) > 0 && selectedInventoryPricingForTool(t) ? `
+  <div style="display:flex;justify-content:center;margin:10px 0 0;">
+    <button
+      type="button"
+      id="stihl-view-orderable-pricing"
+      style="border:1px solid #1f7a3a;background:#fff;color:#155d2b;border-radius:8px;padding:9px 14px;font-weight:900;cursor:pointer;">
+      View Standard Orderable Pricing
+    </button>
+  </div>
+` : ''}
 
 <div style="
   display:flex;
@@ -8892,10 +8936,77 @@ if(salesBtn){
   salesBtn.addEventListener('click', printSalesSheet);
 }
 
+const viewInventoryPricingBtn =
+  document.getElementById('stihl-view-inventory-pricing');
+
+if(viewInventoryPricingBtn){
+  viewInventoryPricingBtn.addEventListener('click', async () => {
+    const selection = await chooseInventoryPriceGroupForTool(t);
+    if(!selection) return;
+    state.selectedPriceInventoryRecord = selection.record;
+    state.selectedPriceQuantityAvailable = selection.quantity;
+    renderToolDetails();
+  });
+}
+
+const viewOrderablePricingBtn =
+  document.getElementById('stihl-view-orderable-pricing');
+
+if(viewOrderablePricingBtn){
+  viewOrderablePricingBtn.addEventListener('click', () => {
+    state.selectedPriceInventoryRecord = null;
+    state.selectedPriceQuantityAvailable = 0;
+    renderToolDetails();
+  });
+}
+
 const priceTagBtn = document.getElementById('stihl-price-tag');
 
 if(priceTagBtn){
-  priceTagBtn.addEventListener('click', () => printPriceTag());
+  priceTagBtn.addEventListener('click', async () => {
+    const printWindow = window.open('', '_blank');
+
+    if(!printWindow){
+      alert('Please allow pop-ups to open the price tag.');
+      return;
+    }
+
+    let inventorySelection = null;
+
+    const selectedInventoryRecord =
+      selectedInventoryPricingForTool(state.selectedTool);
+
+    if(selectedInventoryRecord){
+      inventorySelection = {
+        record:selectedInventoryRecord,
+        quantity:Math.max(
+          Number(selectedInventoryRecord.QuantityAvailableAtPrice) ||
+          Number(state.selectedPriceQuantityAvailable) || 0,
+          0
+        )
+      };
+    }else if(clean(state.selectedUseClassButton).toUpperCase() === 'STOCK'){
+      inventorySelection =
+        await chooseInventoryPriceGroupForTool(state.selectedTool);
+
+      if(!inventorySelection){
+        printWindow.close();
+        return;
+      }
+
+      state.selectedPriceInventoryRecord = inventorySelection.record;
+      state.selectedPriceQuantityAvailable = inventorySelection.quantity;
+    }else{
+      state.selectedPriceInventoryRecord = null;
+      state.selectedPriceQuantityAvailable = 0;
+    }
+
+    await printPriceTag(
+      printWindow,
+      inventorySelection?.record || null,
+      inventorySelection?.quantity || 0
+    );
+  });
 }
 
 const buyOnlineBtn =
@@ -10631,7 +10742,16 @@ function renderAvailability(item){
           color:#1f7a3a;
           margin-bottom:${stores.length || note ? '8px' : '0'};
         ">
-          ✓ In Stock: ${liveQuantity} available
+          ✓ ${liveQuantity} In Stock
+          ${liveQuantity > 0 && !selectedInventoryPricingForTool(item) ? `
+            <span aria-hidden="true"> — </span>
+            <button
+              type="button"
+              id="stihl-view-inventory-pricing"
+              style="border:0;background:transparent;color:#155d2b;padding:0;font:inherit;font-weight:900;text-decoration:underline;cursor:pointer;">
+              Build &amp; Price In-Stock Unit${liveQuantity === 1 ? '' : 's'}
+            </button>
+          ` : ''}
         </div>
       `
       : '';
@@ -11728,7 +11848,8 @@ function priceTagDescription(tool){
 async function priceTagCustomerPricing(
   tool,
   paymentMethod,
-  financeProgramId = null
+  financeProgramId = null,
+  inventoryRecord = null
 ){
 
   if(clean(CONFIGURATOR_API) === ''){
@@ -11801,6 +11922,7 @@ const automaticDiscount =
       body: JSON.stringify({
   brandId: configuratorBrandId(),
   sku: skuOf(tool),
+  inventoryId: clean(inventoryRecord?.InventoryID),
   quantity: 1,
   paymentMethod,
   financeProgramId
@@ -11824,7 +11946,7 @@ const automaticDiscount =
   return result;
 }
 
-async function priceTagFinancePrograms(tool){
+async function priceTagFinancePrograms(tool, inventoryRecord = null){
 
   if(clean(CONFIGURATOR_API) === ''){
 
@@ -11869,7 +11991,8 @@ async function priceTagFinancePrograms(tool){
 
       body: JSON.stringify({
   brandId: configuratorBrandId(),
-  sku: skuOf(tool)
+  sku: skuOf(tool),
+  inventoryId: clean(inventoryRecord?.InventoryID)
 }),
 
       cache: "no-store"
@@ -11905,13 +12028,14 @@ async function priceTagFinancePrograms(tool){
   );
 }
 
-async function buildPriceTagData(tool){
+async function buildPriceTagData(
+  tool,
+  inventoryRecord = null,
+  quantityAvailableAtPrice = 0
+){
 
   const msrp =
     money(tool.MSRP);
-
-  const basePrice =
-    priceOf(tool);
 
   const [
     cashPricing,
@@ -11919,13 +12043,22 @@ async function buildPriceTagData(tool){
   ] = await Promise.all([
     priceTagCustomerPricing(
       tool,
-      "cash"
+      "cash",
+      null,
+      inventoryRecord
     ),
     priceTagCustomerPricing(
       tool,
-      "credit"
+      "credit",
+      null,
+      inventoryRecord
     )
   ]);
+
+  const basePrice =
+    money(creditPricing.baseUnitPrice) ||
+    money(cashPricing.baseUnitPrice) ||
+    priceOf(tool);
 
   const activeSaleSavings =
     Math.max(
@@ -12004,7 +12137,7 @@ async function buildPriceTagData(tool){
     programs from the protected Cloudflare engine.
   */
   const eligibleFinancePrograms =
-    await priceTagFinancePrograms(tool);
+    await priceTagFinancePrograms(tool, inventoryRecord);
 
   const financeProgram =
     longestZeroPercentNoDownFinanceProgram(
@@ -12023,7 +12156,8 @@ async function buildPriceTagData(tool){
         "finance",
         clean(
           financeProgram.ProgramID
-        )
+        ),
+        inventoryRecord
       );
 
     const rebateCompatible =
@@ -12153,6 +12287,9 @@ async function buildPriceTagData(tool){
     },
     finance,
     validThrough,
+    inventoryId:clean(inventoryRecord?.InventoryID),
+    quantityAvailableAtPrice:
+      Math.max(Number(quantityAvailableAtPrice) || 0, 0),
     specs:
       priceTagSpecs(tool)
   };
@@ -12206,7 +12343,11 @@ function priceTagBatteryChargeTime(
   return '—';
 }
 
-async function printPriceTag(printWindowOverride = null){
+async function printPriceTag(
+  printWindowOverride = null,
+  inventoryRecord = null,
+  quantityAvailableAtPrice = 0
+){
 
   const tool =
     state.selectedTool;
@@ -12224,7 +12365,11 @@ async function printPriceTag(printWindowOverride = null){
   );
 
 const data =
-  await buildPriceTagData(tool);
+  await buildPriceTagData(
+    tool,
+    inventoryRecord,
+    quantityAvailableAtPrice
+  );
 
   if(!printWindow){
     alert(
@@ -13190,6 +13335,24 @@ const warrantyHtml =
             </div>
           </div>
         </header>
+
+        ${data.quantityAvailableAtPrice > 0 ? `
+          <div style="
+            margin:14px 20px 4px;
+            padding:10px 14px;
+            border:2px solid #1f7a3a;
+            border-radius:8px;
+            background:#eef9f1;
+            color:#155d2b;
+            text-align:center;
+            font-size:16px;
+            font-weight:900;
+          ">
+            ${data.quantityAvailableAtPrice}
+            unit${data.quantityAvailableAtPrice === 1 ? '' : 's'}
+            available at this in-stock price
+          </div>
+        ` : ''}
 
         ${specsHtml}
 
@@ -15958,6 +16121,8 @@ function renderFinancingOptions(){
 function selectTool(){
   const sku = clean($('stihl-tool-select').value);
   state.selectedTool = state.tools.find(t => skuOf(t) === sku) || null;
+  state.selectedPriceInventoryRecord = null;
+  state.selectedPriceQuantityAvailable = 0;
   $('stihl-tool-qty').value = 1;
 
   const powerType = clean(state.selectedTool?.PowerType).toUpperCase();
@@ -16001,7 +16166,10 @@ function inventorySku(value){
     .replace(/[^A-Z0-9]/g,'');
 }
 
-function availableInventoryChoiceRecordsForSku(sku){
+function availableInventoryChoiceRecordsForSku(
+  sku,
+  {includeUsed = false} = {}
+){
   const wanted = inventorySku(sku);
   const usedInventoryIds = new Set();
 
@@ -16020,7 +16188,10 @@ function availableInventoryChoiceRecordsForSku(sku){
       clean(record.Status).toUpperCase() === 'IN STOCK' &&
       Math.max(Number(clean(record.Quantity)) || 0, 0) > 0 &&
       clean(record.InventoryID) &&
-      !usedInventoryIds.has(clean(record.InventoryID).toUpperCase())
+      (
+        includeUsed ||
+        !usedInventoryIds.has(clean(record.InventoryID).toUpperCase())
+      )
     );
 
   if(privateRecords.length){
@@ -16035,7 +16206,10 @@ function availableInventoryChoiceRecordsForSku(sku){
   return publicSelections
     .filter(selection =>
       selection.inventoryId &&
-      !usedInventoryIds.has(selection.inventoryId.toUpperCase())
+      (
+        includeUsed ||
+        !usedInventoryIds.has(selection.inventoryId.toUpperCase())
+      )
     )
     .map(selection => ({
       InventoryID:selection.inventoryId,
@@ -16063,13 +16237,245 @@ function toolInventoryChoiceQuantity(tool){
 }
 
 function preferredInventoryRecordForSku(sku){
-  return availableInventoryChoiceRecordsForSku(sku)[0] || null;
+  const records = availableInventoryChoiceRecordsForSku(sku);
+  const selectedId = clean(
+    state.selectedPriceInventoryRecord?.InventoryID
+  ).toUpperCase();
+
+  if(selectedId){
+    const selected = records.find(record =>
+      clean(record.InventoryID).toUpperCase() === selectedId
+    );
+    if(selected){
+      return {
+        ...selected,
+        ...state.selectedPriceInventoryRecord
+      };
+    }
+  }
+
+  return records[0] || null;
+}
+
+async function inventoryPriceGroupsForTool(tool){
+  if(!tool) return [];
+
+  let records = availableInventoryChoiceRecordsForSku(
+    skuOf(tool),
+    {includeUsed:true}
+  );
+
+  /* Refresh once on demand in case the page was opened before live inventory
+     selections finished loading or the earlier request temporarily failed. */
+  if(!records.length){
+    const response = await fetch(
+      CONFIGURATOR_API + '/inventory-availability',
+      {
+        method:'POST',
+        cache:'no-store',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({brandId:'STIHL'})
+      }
+    );
+    const result = await response.json().catch(() => ({}));
+    if(!response.ok){
+      throw new Error(
+        result.error ||
+        `Inventory availability returned HTTP ${response.status}`
+      );
+    }
+
+    const wanted = inventorySkuKey(skuOf(tool));
+    const matchingRow = (Array.isArray(result.availability)
+      ? result.availability
+      : []
+    ).find(row => inventorySkuKey(row?.sku) === wanted);
+
+    records = (Array.isArray(matchingRow?.selections)
+      ? matchingRow.selections
+      : []
+    ).map(selection => ({
+      InventoryID:clean(selection?.selectionId),
+      SKU:clean(matchingRow?.sku) || skuOf(tool),
+      Quantity:Math.max(Number(selection?.quantity) || 0, 0),
+      Status:'IN STOCK',
+      PricingGroup:clean(selection?.pricingGroup),
+      InboundFreight:Math.max(Number(selection?.factoryFreight) || 0, 0)
+    })).filter(record =>
+      record.InventoryID && record.Quantity > 0
+    );
+
+    if(matchingRow){
+      if(!(state.inventoryAvailability instanceof Map)){
+        state.inventoryAvailability = new Map();
+      }
+      state.inventoryAvailability.set(
+        wanted,
+        Math.max(Number(matchingRow.quantity) || 0, 0)
+      );
+      if(!(state.inventoryAvailabilitySelections instanceof Map)){
+        state.inventoryAvailabilitySelections = new Map();
+      }
+      state.inventoryAvailabilitySelections.set(
+        wanted,
+        records.map(record => ({
+          inventoryId:record.InventoryID,
+          quantity:record.Quantity,
+          pricingGroup:record.PricingGroup,
+          factoryFreight:record.InboundFreight
+        }))
+      );
+    }
+  }
+
+  const pricedRecords = await Promise.all(records.map(async record => {
+    const [cashPricing, creditPricing] = await Promise.all([
+      priceTagCustomerPricing(tool, 'cash', null, record),
+      priceTagCustomerPricing(tool, 'credit', null, record)
+    ]);
+    const price =
+      money(creditPricing.customerLinePrice) ||
+      money(creditPricing.customerUnitPrice) ||
+      money(creditPricing.baseUnitPrice) ||
+      priceOf(tool);
+    const cashPrice =
+      money(cashPricing.customerLinePrice) ||
+      money(cashPricing.customerUnitPrice) ||
+      price;
+    return {
+      record:{
+        ...record,
+        InventoryCashPrice:cashPrice,
+        InventoryCreditPrice:price
+      },
+      price,
+      cashPrice,
+      quantity:Math.max(Number(record.Quantity) || 0, 1)
+    };
+  }));
+
+  const grouped = new Map();
+  pricedRecords.forEach(entry => {
+    const key = money(entry.price).toFixed(2);
+    if(!grouped.has(key)){
+      grouped.set(key, {
+        price:money(entry.price),
+        cashPrice:money(entry.cashPrice),
+        quantity:0,
+        records:[]
+      });
+    }
+    const group = grouped.get(key);
+    group.quantity += entry.quantity;
+    group.records.push(entry.record);
+  });
+
+  return [...grouped.values()].sort((a, b) => a.price - b.price);
+}
+
+async function chooseInventoryPriceGroupForTool(tool){
+  if(!tool) return null;
+
+  let groups = [];
+  try{
+    groups = await inventoryPriceGroupsForTool(tool);
+  }catch(error){
+    console.error('Inventory price groups could not be loaded:', error);
+    alert('In-stock pricing could not be loaded. Please try again.');
+    return null;
+  }
+
+  if(!groups.length){
+    alert('No in-stock unit is currently available for this model.');
+    return null;
+  }
+
+  if(groups.length === 1){
+    return {
+      record:{
+        ...groups[0].records[0],
+        QuantityAvailableAtPrice:groups[0].quantity,
+        InventoryCustomerPrice:groups[0].price,
+        InventoryCashPrice:groups[0].cashPrice,
+        InventoryCreditPrice:groups[0].price
+      },
+      quantity:groups[0].quantity,
+      price:groups[0].price
+    };
+  }
+
+  return new Promise(resolve => {
+    const modal = document.createElement('div');
+    modal.className = 'stihl-dealer-modal';
+    modal.style.display = 'flex';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.innerHTML = `
+      <div class="stihl-dealer-box" style="width:min(560px,calc(100vw - 28px));">
+        <h3 style="margin-top:0;">Choose In-Stock Price</h3>
+        <p>Select the available price you want to view for ${escapeHtml(displayProductTitle(tool))}.</p>
+        <div style="display:grid;gap:10px;margin-top:18px;">
+          ${groups.map((group, index) => `
+            <button type="button" class="stihl-btn" data-price-group="${index}" style="text-align:left;">
+              <strong>${fmtMoney(group.price)}</strong><br>
+              ${group.quantity} unit${group.quantity === 1 ? '' : 's'} available at this price
+              ${document.body.classList.contains('dealer-mode') ? `
+                <small style="display:block;margin-top:4px;">
+                  ${group.records.map(record =>
+                    escapeHtml(clean(record.SerialNumber) || clean(record.InventoryID))
+                  ).join(' • ')}
+                </small>
+              ` : ''}
+            </button>
+          `).join('')}
+        </div>
+        <button type="button" data-price-cancel style="margin-top:12px;">Cancel</button>
+      </div>`;
+
+    const finish = selection => {
+      modal.remove();
+      resolve(selection);
+    };
+
+    modal.querySelectorAll('[data-price-group]').forEach(button => {
+      button.addEventListener('click', () => {
+        const group = groups[Number(button.dataset.priceGroup)];
+        finish({
+          record:{
+            ...group.records[0],
+            QuantityAvailableAtPrice:group.quantity,
+            InventoryCustomerPrice:group.price,
+            InventoryCashPrice:group.cashPrice,
+            InventoryCreditPrice:group.price
+          },
+          quantity:group.quantity,
+          price:group.price
+        });
+      });
+    });
+    modal.querySelector('[data-price-cancel]')?.addEventListener('click', () => finish(null));
+    modal.addEventListener('click', event => {
+      if(event.target === modal) finish(null);
+    });
+    modal.addEventListener('keydown', event => {
+      if(event.key === 'Escape') finish(null);
+    });
+    document.body.appendChild(modal);
+    modal.querySelector('[data-price-group]')?.focus();
+  });
 }
 
 function chooseToolInventoryMode(tool){
   const availableQuantity = toolInventoryChoiceQuantity(tool);
   const selectedInventoryRecord =
     preferredInventoryRecordForSku(skuOf(tool));
+  const selectedPriceQuantity =
+    clean(state.selectedPriceInventoryRecord?.InventoryID).toUpperCase() ===
+    clean(selectedInventoryRecord?.InventoryID).toUpperCase()
+      ? Math.max(Number(state.selectedPriceQuantityAvailable) || 0, 0)
+      : 0;
+  const displayedAvailableQuantity =
+    selectedPriceQuantity || availableQuantity;
 
   if(availableQuantity <= 0 || !selectedInventoryRecord){
     return Promise.resolve({mode:'orderable', record:null});
@@ -16098,10 +16504,13 @@ function chooseToolInventoryMode(tool){
         </h3>
 
         <p style="line-height:1.5;">
-          ${availableQuantity} unit${availableQuantity === 1 ? '' : 's'}
-          ${availableQuantity === 1 ? 'is' : 'are'} currently available with
-          inventory-specific pricing. An in-stock configuration is limited
-          to one physical unit.
+          ${displayedAvailableQuantity} unit${displayedAvailableQuantity === 1 ? '' : 's'}
+          ${displayedAvailableQuantity === 1 ? 'is' : 'are'} currently available
+          at this in-stock price.
+          ${document.body.classList.contains('dealer-mode')
+            ? `Each physical in-stock unit remains a separate configuration
+               so its exact cost and freight stay attached.`
+            : `Additional units may be ordered at standard pricing.`}
         </p>
 
         <div style="display:grid;gap:10px;margin-top:18px;">
@@ -19449,6 +19858,14 @@ function paymentDiscountAmount(baseAmount){
       enforceLineDiscountProfitProtection();
       populateBidFleetPrograms();
 
+      const summaryHeading = $('stihl-summary-heading');
+      if(summaryHeading){
+        summaryHeading.textContent =
+          document.body.classList.contains('dealer-mode')
+            ? 'Quote Summary'
+            : 'Configuration Summary';
+      }
+
       const specialOrderFreightBox = $('stihl-special-order-freight');
 
 if(specialOrderFreightBox){
@@ -19832,6 +20249,10 @@ const selectedSerialNumber =
 
 const selectedInventoryId =
   clean(line.inventoryId);
+const quantityAvailableAtPrice = Math.max(
+  Number(line.inventoryRecord?.QuantityAvailableAtPrice) || 0,
+  0
+);
 
       const includedTooltip =
   childItems.length ||
@@ -20082,6 +20503,14 @@ ${packageFreightNotice ? `
                     ? `Serial ${escapeHtml(selectedSerialNumber)}`
                     : 'Serial number not entered'}
                   • Inventory ID ${escapeHtml(selectedInventoryId)}
+                </div>
+              ` : ''}
+
+              ${selectedInventoryId && quantityAvailableAtPrice > 0 ? `
+                <div style="margin-top:4px;font-size:12px;color:#1f7a3a;font-weight:900;">
+                  ${quantityAvailableAtPrice}
+                  unit${quantityAvailableAtPrice === 1 ? '' : 's'}
+                  available at this in-stock price
                 </div>
               ` : ''}
             </div>

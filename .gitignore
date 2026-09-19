@@ -4,4 +4,4 @@ PRICE-TAG-AUTOMATION-SETUP.txt
 PriceTagPublisher.bas
 Publish-PriceTags.cmd
 Publish-PriceTags.ps1
-Sync-Private-Configurator.ps1
+Sync-Private-Configurator*.ps1Sync-Private-Configurator.ps1.before-*
