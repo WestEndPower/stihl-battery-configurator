@@ -783,7 +783,13 @@ body.dealer-mode .dealer-only{
 
 <div class="stihl-series-buttons" id="stihl-power-buttons"></div>
 
+<div class="stihl-series-buttons" id="stihl-use-class-buttons" style="display:none;"></div>
+
+<div class="stihl-series-buttons" id="stihl-engine-brand-buttons" style="display:none;"></div>
+
 <div class="stihl-series-buttons" id="stihl-system-buttons" style="display:none;"></div>
+
+<div class="stihl-series-buttons" id="stihl-cutting-width-buttons" style="display:none;"></div>
 
 <label for="stihl-tool-select">Equipment Model</label>
 
@@ -1774,9 +1780,13 @@ const state = {
   inventory: [],
   inventoryAvailability: null,
   inventoryAvailabilitySelections: new Map(),
+  inventoryOnOrder: new Map(),
   selectedTool: null,
+  selectedUseClassButton: '',
   selectedSystemButton: '',
-  selectedPowerButton: 'STOCK',
+  selectedCuttingWidthButton: '',
+  selectedEngineBrandButton: '',
+  selectedPowerButton: '',
   activeFinancingSelector: '',
   cart: []
 };
@@ -5955,6 +5965,7 @@ async function loadInventoryAvailability(){
       ? result.availability
       : [];
     const bySku = new Map();
+    const onOrderBySku = new Map();
     const selectionsBySku = new Map();
 
     availability.forEach(row => {
@@ -5963,6 +5974,10 @@ async function loadInventoryAvailability(){
       if(!key) return;
 
       bySku.set(key, quantity);
+      onOrderBySku.set(
+        key,
+        Math.max(Number(row?.onOrderQuantity) || 0, 0)
+      );
       selectionsBySku.set(
         key,
         (Array.isArray(row?.selections) ? row.selections : [])
@@ -5977,11 +5992,13 @@ async function loadInventoryAvailability(){
     });
 
     state.inventoryAvailabilitySelections = selectionsBySku;
+    state.inventoryOnOrder = onOrderBySku;
 
     return bySku;
   }catch(error){
     console.warn('Live inventory availability unavailable:', error);
     state.inventoryAvailabilitySelections = new Map();
+    state.inventoryOnOrder = new Map();
     return null;
   }finally{
     clearTimeout(timeout);
@@ -6866,8 +6883,11 @@ if($('stihl-bid-program-select')){
 
       $('stihl-search').addEventListener('input', renderTools);
 $('stihl-category').addEventListener('change', () => {
+  state.selectedUseClassButton = '';
   state.selectedSystemButton = '';
-  state.selectedPowerButton = 'STOCK';
+  state.selectedCuttingWidthButton = '';
+  state.selectedEngineBrandButton = '';
+  state.selectedPowerButton = '';
   state.selectedTool = null;
   $('stihl-tool-select').value = '';
   renderPowerButtons();
@@ -6889,6 +6909,11 @@ if($('stihl-power-buttons')){
     btn.classList.add('active');
 
     state.selectedPowerButton = clean(btn.dataset.power);
+
+    state.selectedUseClassButton = '';
+    state.selectedSystemButton = '';
+    state.selectedCuttingWidthButton = '';
+    state.selectedEngineBrandButton = '';
 
     updateSystemButtonVisibility();
 
@@ -6913,8 +6938,64 @@ if($('stihl-system-buttons')){
 
     state.selectedSystemButton = clean(btn.dataset.system);
 
+    state.selectedCuttingWidthButton = '';
+
     state.selectedTool = null;
 
+    renderMowerAttributeButtons();
+    renderTools();
+    renderToolDetails();
+    renderAllOptions();
+    renderKMARuntimeMatrix();
+  });
+}
+
+if($('stihl-use-class-buttons')){
+  $('stihl-use-class-buttons').addEventListener('click', event => {
+    const btn = event.target.closest('.stihl-series-btn');
+    if(!btn) return;
+    state.selectedUseClassButton = clean(btn.dataset.useClass);
+    state.selectedSystemButton = '';
+    state.selectedCuttingWidthButton = '';
+    state.selectedEngineBrandButton = '';
+    state.selectedTool = null;
+    renderMowerUseClassButtons();
+    renderSystemButtons();
+    renderMowerAttributeButtons();
+    renderTools();
+    renderToolDetails();
+    renderAllOptions();
+    renderKMARuntimeMatrix();
+  });
+}
+
+if($('stihl-cutting-width-buttons')){
+  $('stihl-cutting-width-buttons').addEventListener('click', event => {
+    const btn = event.target.closest('.stihl-series-btn');
+    if(!btn) return;
+    state.selectedCuttingWidthButton = clean(btn.dataset.cuttingWidth);
+    state.selectedTool = null;
+    renderMowerAttributeButtons();
+    renderTools();
+    renderToolDetails();
+    renderAllOptions();
+    renderKMARuntimeMatrix();
+  });
+}
+
+if($('stihl-engine-brand-buttons')){
+  $('stihl-engine-brand-buttons').addEventListener('click', event => {
+    const btn = event.target.closest('.stihl-series-btn');
+    if(!btn) return;
+    const selected = clean(btn.dataset.engineBrand);
+    state.selectedEngineBrandButton =
+      state.selectedEngineBrandButton.toUpperCase() === selected.toUpperCase()
+        ? '' : selected;
+    state.selectedSystemButton = '';
+    state.selectedCuttingWidthButton = '';
+    state.selectedTool = null;
+    renderSystemButtons();
+    renderMowerAttributeButtons();
     renderTools();
     renderToolDetails();
     renderAllOptions();
@@ -8270,154 +8351,221 @@ function renderCategories(){
   );
 }
 
-    function renderPowerButtons(){
+function mowerCategoryKey(value){
+  return clean(value).toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();
+}
 
-  const category = clean($('stihl-category')?.value);
+function isMowerFilterCategory(category){
+  const key = mowerCategoryKey(category);
+  return key.includes('MOWER') || key.includes('ZERO TURN');
+}
 
-  const preferredPowerOrder = [
-    'Gas',
-    'Battery',
-    'Electric'
-  ];
+function mowerPowerType(tool){
+  const value = clean(tool?.PowerType).toUpperCase();
+  if(value.includes('BATTERY') || value.includes('CORDLESS')) return 'Battery';
+  if(value.includes('DIESEL')) return 'Diesel';
+  if(value.includes('GAS')) return 'Gas';
+  const engine = clean(tool?.EngineBrand || tool?.EngineManufacturer || tool?.EngineMake);
+  if(engine.toUpperCase() === 'YANMAR') return 'Diesel';
+  return engine ? 'Gas' : '';
+}
 
-  const categoryTools = state.tools.filter(tool =>
-    !category || clean(tool.Category) === category
-  );
-
-  const availablePowers = [
-    ...new Set(
-      categoryTools
-        .map(tool => clean(tool.PowerType))
-        .filter(power =>
-          preferredPowerOrder.some(preferred =>
-            preferred.toUpperCase() === power.toUpperCase()
-          )
-        )
-    )
-  ];
-
-  const powers = availablePowers.sort((a, b) => {
-    const aIndex = preferredPowerOrder.findIndex(
-      power => power.toUpperCase() === a.toUpperCase()
-    );
-    const bIndex = preferredPowerOrder.findIndex(
-      power => power.toUpperCase() === b.toUpperCase()
-    );
-
-    if(aIndex !== -1 || bIndex !== -1){
-      return (
-        (aIndex === -1 ? preferredPowerOrder.length : aIndex) -
-        (bIndex === -1 ? preferredPowerOrder.length : bIndex)
-      );
+function mowerSpecValue(tool, wantedLabel){
+  const wanted = clean(wantedLabel).toUpperCase();
+  for(let index = 1; index <= 10; index += 1){
+    if(clean(tool?.[`SpecLabel${index}`]).toUpperCase() === wanted){
+      return clean(tool?.[`SpecValue${index}`]);
     }
-
-    return a.localeCompare(b);
-  });
-
-  const validPowerFilters = [
-    'STOCK',
-    ...powers.map(power => power.toUpperCase())
-  ];
-
-  if(!validPowerFilters.includes(state.selectedPowerButton.toUpperCase())){
-    state.selectedPowerButton = 'STOCK';
   }
+  return '';
+}
 
-  $('stihl-power-buttons').innerHTML =
-    `
-      <button
-        type="button"
-        class="stihl-series-btn ${state.selectedPowerButton === 'STOCK' ? 'active' : ''}"
-        data-power="STOCK">
-        In Stock
-      </button>
-    ` +
+function mowerSeries(tool){
+  const explicit = clean(tool?.Series);
+  if(explicit) return explicit;
+  const model = clean(tool?.Model).toUpperCase();
+  const match = model.match(/^(RZA|RZ)\s*(\d)/);
+  return match ? `${match[1]}${match[2]}00` : '';
+}
 
-    powers.map(power => `
-      <button
-        type="button"
-        class="stihl-series-btn ${state.selectedPowerButton.toUpperCase() === power.toUpperCase() ? 'active' : ''}"
-        data-power="${power}">
-        ${power}
-      </button>
-    `).join('');
+function mowerUseClass(tool){
+  const text = [tool?.UseType, tool?.CustomerType, tool?.Classification,
+    tool?.Market, tool?.Grade, tool?.SubCategory, tool?.Type, tool?.Tags]
+    .map(clean).join(' ').toUpperCase();
+  if(text.includes('COMMERCIAL')) return 'Commercial';
+  if(text.includes('RESIDENTIAL') || text.includes('HOMEOWNER')) return 'Residential';
+  const series = mowerSeries(tool).toUpperCase();
+  if(series === 'RZ100' || series === 'RZ200') return 'Residential';
+  if(/^RZA?\d00$/.test(series)) return 'Commercial';
+  return '';
+}
 
+function mowerEngineBrand(tool){
+  const explicit = clean(tool?.EngineBrand || tool?.EngineManufacturer || tool?.EngineMake);
+  if(explicit) return explicit;
+  const engine = mowerSpecValue(tool, 'Engine').toUpperCase();
+  if(engine.includes('BRIGGS')) return 'Briggs & Stratton';
+  if(engine.includes('KAWASAKI')) return 'Kawasaki';
+  if(engine.includes('VANGUARD')) return 'Vanguard';
+  if(engine.includes('KOHLER')) return 'Kohler';
+  if(engine.includes('YANMAR')) return 'Yanmar';
+  return '';
+}
+
+function mowerCuttingWidth(tool){
+  const raw = clean(tool?.MowerSize || tool?.DeckSize || tool?.CuttingWidth || tool?.CutWidth || mowerSpecValue(tool, 'Mower Deck'));
+  const number = Number(raw.replace(/[^0-9.]/g,''));
+  if(Number.isFinite(number) && number > 0) return String(number);
+  const modelMatch = clean(tool?.Model).toUpperCase().match(/^(?:RZA|RZ)\s*\d(\d{2})/);
+  return modelMatch ? String(Number(modelMatch[1])) : raw.replace(/\"/g,'');
+}
+
+function mowerOnOrderQuantity(tool){
+  const key = inventorySkuKey(tool?.SKU);
+  return state.inventoryOnOrder instanceof Map && key
+    ? Math.max(Number(state.inventoryOnOrder.get(key)) || 0, 0) : 0;
+}
+
+function onlineItemOnOrder(item){
+  return mowerOnOrderQuantity(item) > 0;
+}
+
+function onlineItemMatchesAvailability(item, value){
+  const selected = clean(value).toUpperCase();
+  if(selected === 'STOCK') return onlineItemInStock(item);
+  if(selected === 'ON ORDER') return onlineItemOnOrder(item);
+  if(selected === 'RESIDENTIAL' || selected === 'COMMERCIAL'){
+    return mowerUseClass(item).toUpperCase() === selected;
+  }
+  return true;
+}
+
+function naturalFilterSort(a, b){
+  return String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:'base'});
+}
+
+    function renderPowerButtons(){
+  const category = clean($('stihl-category')?.value);
+  const preferredPowerOrder = ['Battery','Gas','Diesel'];
+  const categoryTools = state.tools.filter(tool => !category || clean(tool.Category) === category);
+  const powers = preferredPowerOrder.filter(power =>
+    categoryTools.some(tool => mowerPowerType(tool).toUpperCase() === power.toUpperCase())
+  );
+  const valid = ['', ...powers.map(value => value.toUpperCase())];
+  if(!valid.includes(state.selectedPowerButton.toUpperCase())) state.selectedPowerButton = '';
+  $('stihl-power-buttons').innerHTML = `
+    <button type="button" class="stihl-series-btn ${state.selectedPowerButton ? '' : 'active'}" data-power="">All Models</button>` +
+    powers.map(power => `<button type="button" class="stihl-series-btn ${state.selectedPowerButton.toUpperCase() === power.toUpperCase() ? 'active' : ''}" data-power="${power}">${power}</button>`).join('');
+  $('stihl-power-buttons').style.display = 'flex';
   updateSystemButtonVisibility();
 }
 
 function updateSystemButtonVisibility(){
+  renderMowerUseClassButtons();
   renderSystemButtons();
+  renderMowerAttributeButtons();
 }
 
-    function renderSystemButtons(){
-  const systemBox = $('stihl-system-buttons');
-  if(!systemBox) return;
-
+function renderSystemButtons(){
+  const box = $('stihl-system-buttons');
+  if(!box) return;
   const category = clean($('stihl-category')?.value);
-  const categoryKey = category.toUpperCase();
-
-  let preferredSeries = [];
+  const mowerCategory = isMowerFilterCategory(category);
+  const battery = state.selectedPowerButton.toUpperCase() === 'BATTERY';
+  let values = [];
   let allLabel = '';
-  let filterField = 'Series';
-
-  if(state.selectedPowerButton.toUpperCase() === 'BATTERY'){
-    preferredSeries = ['AS','AK','AP','AR'];
+  let field = 'Series';
+  const zeroTurnCategory = mowerCategoryKey(category).includes('ZERO TURN');
+  if(mowerCategory && battery && !zeroTurnCategory){
+    values = ['AI','AS','AK','AP'];
     allLabel = 'All Battery Systems';
-    filterField = 'System';
-  }else if(categoryKey.includes('COMPACT TRACTOR')){
-    preferredSeries = ['SA','YT','YM','SM'];
-    allLabel = 'All Compact Tractors';
-    filterField = 'System';
-  }else if(categoryKey.includes('UTV')){
-    preferredSeries = ['Bull','LongHorn','Brahma'];
-    allLabel = 'All UTVs';
+    field = 'System';
+  }else if(mowerCategory){
+    values = [...new Set(state.tools.filter(tool => clean(tool.Category) === category)
+      .map(mowerSeries).filter(Boolean))].sort(naturalFilterSort);
+    allLabel = 'All Series';
+  }else if(battery){
+    values = ['AI','AS','AK','AP'];
+    allLabel = 'All Battery Systems';
+    field = 'System';
   }
-
-  if(!preferredSeries.length){
-    systemBox.style.display = 'none';
-    state.selectedSystemButton = '';
-    systemBox.innerHTML = '';
-    return;
+  const filterUsesBatterySystem = battery && !zeroTurnCategory;
+  const available = new Set(state.tools.filter(tool =>
+    (!category || clean(tool.Category) === category) &&
+    (!state.selectedPowerButton || mowerPowerType(tool).toUpperCase() === state.selectedPowerButton.toUpperCase()) &&
+    (!state.selectedUseClassButton || onlineItemMatchesAvailability(tool, state.selectedUseClassButton)) &&
+    (!state.selectedEngineBrandButton || mowerEngineBrand(tool).toUpperCase() === state.selectedEngineBrandButton.toUpperCase())
+  ).map(tool => clean(filterUsesBatterySystem ? tool.System : mowerSeries(tool)).toUpperCase()).filter(Boolean));
+  values = values.filter(value => available.has(value.toUpperCase()));
+  if(!values.length){
+    box.style.display = 'none'; box.innerHTML = ''; state.selectedSystemButton = ''; return;
   }
+  if(state.selectedSystemButton && !values.some(value => value.toUpperCase() === state.selectedSystemButton.toUpperCase())) state.selectedSystemButton = '';
+  box.innerHTML = `<button type="button" class="stihl-series-btn ${state.selectedSystemButton ? '' : 'active'}" data-system="">${allLabel}</button>` +
+    values.map(value => `<button type="button" class="stihl-series-btn ${state.selectedSystemButton.toUpperCase() === value.toUpperCase() ? 'active' : ''}" data-system="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join('');
+  box.style.display = 'flex';
+}
 
-  const availableSeries = new Set(
-    state.tools
-      .filter(tool =>
-        (!categoryKey || clean(tool.Category).toUpperCase() === categoryKey) &&
-        (
-          state.selectedPowerButton.toUpperCase() !== 'BATTERY' ||
-          clean(tool.PowerType).toUpperCase() === 'BATTERY'
-        )
-      )
-      .map(tool => clean(tool[filterField]).toUpperCase())
-      .filter(Boolean)
+function renderMowerUseClassButtons(){
+  const box = $('stihl-use-class-buttons');
+  if(!box) return;
+  const category = clean($('stihl-category')?.value);
+  if(!isMowerFilterCategory(category)){
+    box.style.display = 'none'; box.innerHTML = ''; state.selectedUseClassButton = ''; return;
+  }
+  const tools = state.tools.filter(tool => clean(tool.Category) === category);
+  const hasStock = tools.some(onlineItemInStock);
+  const hasOnOrder = tools.some(onlineItemOnOrder);
+  const classes = ['Residential','Commercial'].filter(value =>
+    tools.some(tool => mowerUseClass(tool).toUpperCase() === value.toUpperCase())
   );
+  const selected = state.selectedUseClassButton.toUpperCase();
+  const valid = ['', ...(hasStock ? ['STOCK'] : []), ...(hasOnOrder ? ['ON ORDER'] : []), ...classes.map(value => value.toUpperCase())];
+  if(!valid.includes(selected)) state.selectedUseClassButton = '';
+  const allLabel = mowerCategoryKey(category).includes('ZERO TURN') ? 'All Zero Turns' : 'All Mowers';
+  box.innerHTML = `<button type="button" class="stihl-series-btn ${state.selectedUseClassButton ? '' : 'active'}" data-use-class="">${allLabel}</button>` +
+    (hasStock ? `<button type="button" class="stihl-series-btn ${selected === 'STOCK' ? 'active' : ''}" data-use-class="STOCK">In Stock</button>` : '') +
+    (hasOnOrder ? `<button type="button" class="stihl-series-btn ${selected === 'ON ORDER' ? 'active' : ''}" data-use-class="ON ORDER">On Order</button>` : '') +
+    classes.map(value => `<button type="button" class="stihl-series-btn ${selected === value.toUpperCase() ? 'active' : ''}" data-use-class="${value}">${value}</button>`).join('');
+  box.style.display = 'flex';
+}
 
-  const series = preferredSeries.filter(item =>
-    availableSeries.has(item.toUpperCase())
-  );
-
-  if(
-    state.selectedSystemButton &&
-    !series.some(item =>
-      item.toUpperCase() === state.selectedSystemButton.toUpperCase()
-    )
-  ){
-    state.selectedSystemButton = '';
+function renderMowerAttributeButtons(){
+  const widthBox = $('stihl-cutting-width-buttons');
+  const engineBox = $('stihl-engine-brand-buttons');
+  if(!widthBox || !engineBox) return;
+  const category = clean($('stihl-category')?.value);
+  if(!isMowerFilterCategory(category)){
+    widthBox.style.display = 'none'; engineBox.style.display = 'none';
+    widthBox.innerHTML = ''; engineBox.innerHTML = '';
+    state.selectedCuttingWidthButton = ''; state.selectedEngineBrandButton = ''; return;
   }
-
-  systemBox.innerHTML =
-    `<button type="button" class="stihl-series-btn ${state.selectedSystemButton ? '' : 'active'}" data-system="">${allLabel}</button>` +
-    series.map(item => `
-      <button
-        type="button"
-        class="stihl-series-btn ${state.selectedSystemButton.toUpperCase() === item.toUpperCase() ? 'active' : ''}"
-        data-system="${escapeHtml(item)}">
-        ${escapeHtml(item)}
-      </button>
-    `).join('');
-
-  systemBox.style.display = 'flex';
+  const preceding = state.tools.filter(tool =>
+    clean(tool.Category) === category &&
+    (!state.selectedPowerButton || mowerPowerType(tool).toUpperCase() === state.selectedPowerButton.toUpperCase()) &&
+    (!state.selectedUseClassButton || onlineItemMatchesAvailability(tool, state.selectedUseClassButton))
+  );
+  const widths = [...new Set(preceding.filter(tool =>
+    (!state.selectedEngineBrandButton || mowerEngineBrand(tool).toUpperCase() === state.selectedEngineBrandButton.toUpperCase()) &&
+    (!state.selectedSystemButton || (
+      clean(state.selectedPowerButton).toUpperCase() === 'BATTERY' &&
+      !mowerCategoryKey(category).includes('ZERO TURN')
+        ? clean(tool.System).toUpperCase() === state.selectedSystemButton.toUpperCase()
+        : mowerSeries(tool).toUpperCase() === state.selectedSystemButton.toUpperCase()
+    ))
+  ).map(mowerCuttingWidth).filter(Boolean))].sort(naturalFilterSort);
+  const engines = [...new Set(preceding.map(mowerEngineBrand).filter(Boolean))]
+    .sort((a,b) => a.localeCompare(b, undefined, {sensitivity:'base'}));
+  if(state.selectedCuttingWidthButton && !widths.includes(state.selectedCuttingWidthButton)) state.selectedCuttingWidthButton = '';
+  if(state.selectedEngineBrandButton && !engines.some(value => value.toUpperCase() === state.selectedEngineBrandButton.toUpperCase())) state.selectedEngineBrandButton = '';
+  widthBox.innerHTML = `<button type="button" class="stihl-series-btn ${state.selectedCuttingWidthButton ? '' : 'active'}" data-cutting-width="">All Sizes</button>` +
+    widths.map(value => `<button type="button" class="stihl-series-btn ${state.selectedCuttingWidthButton === value ? 'active' : ''}" data-cutting-width="${escapeHtml(value)}">${escapeHtml(value)}&quot;</button>`).join('');
+  engineBox.innerHTML = `<button type="button" class="stihl-series-btn ${state.selectedEngineBrandButton ? '' : 'active'}" data-engine-brand="">All Engines</button>` +
+    engines.map(value => `<button type="button" class="stihl-series-btn ${state.selectedEngineBrandButton.toUpperCase() === value.toUpperCase() ? 'active' : ''}" data-engine-brand="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join('');
+  widthBox.style.display = widths.length ? 'flex' : 'none';
+  const showEngines = state.selectedPowerButton.toUpperCase() !== 'BATTERY' && engines.length;
+  if(!showEngines) state.selectedEngineBrandButton = '';
+  engineBox.style.display = showEngines ? 'flex' : 'none';
 }
     function toolSearchText(t){
       return [skuOf(t), clean(t.StihlID), clean(t.Model), nameOf(t), clean(t.Category), clean(t.SubCategory), clean(t.Series), clean(t.System), clean(t.Type), clean(t.Tags)].join(' ').toLowerCase();
@@ -8444,9 +8592,10 @@ function renderTools(){
       state.selectedSystemButton
     );
 
-  const categoryUsesSystemFilter =
-    category.toUpperCase().includes('COMPACT TRACTOR') ||
-    power.toUpperCase() === 'BATTERY';
+  const mowerCategory = isMowerFilterCategory(category);
+  const useClass = clean(state.selectedUseClassButton);
+  const cuttingWidth = clean(state.selectedCuttingWidthButton);
+  const engineBrand = clean(state.selectedEngineBrandButton);
 
   const list =
     state.tools.filter(tool => {
@@ -8462,13 +8611,7 @@ function renderTools(){
         Current Promotions is a special filter.
         Otherwise match the normal PowerType.
       */
-      if(power === 'STOCK'){
-
-        if(!onlineItemInStock(tool)){
-          return false;
-        }
-
-      }else if(power === 'PROMOTIONS'){
+      if(power === 'PROMOTIONS'){
 
         if(!toolHasCurrentPromotion(tool)){
           return false;
@@ -8476,7 +8619,7 @@ function renderTools(){
 
       }else if(
         power &&
-        clean(tool.PowerType) !== power
+        mowerPowerType(tool).toUpperCase() !== power.toUpperCase()
       ){
         return false;
       }
@@ -8484,14 +8627,19 @@ function renderTools(){
       if(
         system &&
         clean(
-          categoryUsesSystemFilter
+          power.toUpperCase() === 'BATTERY' &&
+          !mowerCategoryKey(category).includes('ZERO TURN')
             ? tool.System
-            : tool.Series
+            : mowerSeries(tool)
         ).toUpperCase() !==
         system.toUpperCase()
       ){
         return false;
       }
+
+      if(useClass && !onlineItemMatchesAvailability(tool, useClass)) return false;
+      if(cuttingWidth && mowerCuttingWidth(tool) !== cuttingWidth) return false;
+      if(engineBrand && mowerEngineBrand(tool).toUpperCase() !== engineBrand.toUpperCase()) return false;
 
       if(
         q &&
@@ -8501,6 +8649,18 @@ function renderTools(){
       }
 
       return true;
+    })
+    .sort((a, b) => {
+      if(!mowerCategory) return 0;
+
+      const seriesCompare = naturalFilterSort(mowerSeries(a), mowerSeries(b));
+
+      if(seriesCompare !== 0) return seriesCompare;
+
+      return naturalFilterSort(
+        clean(a.Model) || nameOf(a),
+        clean(b.Model) || nameOf(b)
+      );
     });
 
   $('stihl-tool-select').innerHTML =
