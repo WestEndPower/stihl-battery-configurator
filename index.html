@@ -8856,6 +8856,35 @@ ${imageOf(t) ? `
 
 ${renderAvailability(t)}
 
+${clean(t.ProductURL) ? `
+<div style="
+  display:flex;
+  justify-content:center;
+  margin:10px 0 0;
+">
+  <a
+    href="${escapeHtml(clean(t.ProductURL))}"
+    target="_blank"
+    rel="noopener noreferrer"
+    style="
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:44px;
+      padding:10px 18px;
+      border:2px solid #111;
+      border-radius:8px;
+      background:#fff;
+      color:#111;
+      font-size:14px;
+      font-weight:900;
+      text-decoration:none;
+    ">
+    View STIHL Product Details
+  </a>
+</div>
+` : ''}
+
 ${liveInventoryQuantity(t) > 0 && selectedInventoryPricingForTool(t) ? `
   <div style="display:flex;justify-content:center;margin:10px 0 0;">
     <button
