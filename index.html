@@ -10756,18 +10756,23 @@ function renderAvailability(item){
       `
       : '';
 
+  const normallyStockedLocations = [
+    Number(clean(item.QtyNewMilford)) > 0 ? 'New Milford' : '',
+    Number(clean(item.QtyDanbury)) > 0 ? 'Danbury' : ''
+  ].filter(Boolean);
+
   const normalStockHtml =
     !hasLiveInStock && normallyStocked
       ? `
         <div style="
           width:100%;
           display:block;
-          font-size:15px;
-          font-weight:800;
+          font-size:18px;
+          font-weight:900;
           color:#1f7a3a;
           margin-bottom:${note ? '8px' : '0'};
         ">
-          Contact us for estimated availability
+          &#10003; Normally Stocked In: ${normallyStockedLocations.join(' & ')}
         </div>
       `
       : '';
