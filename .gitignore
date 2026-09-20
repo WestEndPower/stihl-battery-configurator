@@ -5,3 +5,15 @@ PriceTagPublisher.bas
 Publish-PriceTags.cmd
 Publish-PriceTags.ps1
 Sync-Private-Configurator*.ps1Sync-Private-Configurator.ps1.before-*
+
+# Local backup / working files
+*.before-*
+*.before-*.xlsm
+*.before-*.html
+*.before-*.ps1
+*.before-dealerspike-catalog-links
+
+# Dealer Spike generated reports
+WestEnd-STIHL-Catalog.json
+WestEnd-STIHL-Catalog-Report.csv
+catalog-link-reports/
