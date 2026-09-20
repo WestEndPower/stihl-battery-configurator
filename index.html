@@ -6015,12 +6015,12 @@ function liveInventoryQuantity(item){
   const key = inventorySkuKey(item.SKU);
 
   /*
-    Once the live inventory request succeeds, its SKU map is authoritative.
-    A missing SKU means zero available, not "fall back to workbook quantity."
-    This keeps stale QtyNewMilford/QtyDanbury values from placing models in
-    the In Stock filter when no selectable physical inventory unit exists.
+    Match Toro availability behavior:
+    inventory.csv is authoritative only when the SKU is actually present.
+    A missing SKU means there is no live unit count available, so the
+    normal-stock flags in products.csv may still be used for messaging.
   */
-  if(!key || !state.inventoryAvailability.has(key)) return 0;
+  if(!key || !state.inventoryAvailability.has(key)) return null;
 
   return Math.max(
     Number(state.inventoryAvailability.get(key)) || 0,
@@ -10688,62 +10688,46 @@ function renderAvailability(item){
   }
 
   const liveQuantity = liveInventoryQuantity(item);
+  const onOrderQuantity = mowerOnOrderQuantity(item);
 
-  if(!isTrue(item.DisplayAvailability) && liveQuantity === null){
-    return '';
-  }
+  const normallyStocked =
+    Number(clean(item.QtyNewMilford)) > 0 ||
+    Number(clean(item.QtyDanbury)) > 0;
 
-  const nm = isTrue(item.QtyNewMilford);
-  const db = isTrue(item.QtyDanbury);
   const note =
-  clean(item.AvailabilityNote) === '0'
-    ? ''
-    : clean(item.AvailabilityNote);
+    clean(item.AvailabilityNote) === '0'
+      ? ''
+      : clean(item.AvailabilityNote);
 
-  const stores = [];
+  const hasLiveInStock =
+    liveQuantity !== null &&
+    liveQuantity > 0;
 
-  if(nm){
-    stores.push(`
-      <a class="stihl-store-link"
-         href="https://www.google.com/maps/search/?api=1&query=West+End+Power+Equipment+265+Danbury+Road+New+Milford+CT+06776"
-         target="_blank"
-         rel="noopener"
-         data-tooltip="West End Power Equipment&#10;265 Danbury Road&#10;New Milford, CT 06776&#10;&#10;Sales • Parts • Service&#10;&#10;Click for directions">
-         New Milford
-      </a>
-    `);
-  }
+  const hasOnOrder =
+    onOrderQuantity > 0;
 
-  if(db){
-    stores.push(`
-      <a class="stihl-store-link"
-        href="https://www.google.com/maps/search/?api=1&query=West+End+Power+Equipment+56+Beaver+Brook+Road+Danbury+CT+06810"
-         target="_blank"
-         rel="noopener"
-         data-tooltip="West End Power Equipment&#10;56 Beaver Brook Road&#10;Danbury, CT 06810&#10;&#10;Sales • Parts • Service&#10;&#10;Click for directions">
-         Danbury
-      </a>
-    `);
-  }
-
-  if(!stores.length && liveQuantity === null){
+  if(
+    !isTrue(item.DisplayAvailability) &&
+    !hasLiveInStock &&
+    !hasOnOrder &&
+    !normallyStocked
+  ){
     return '';
   }
 
-  const liveInventoryHtml =
-    liveQuantity !== null
+  const inStockHtml =
+    hasLiveInStock
       ? `
         <div style="
           width:100%;
           display:block;
-          white-space:nowrap;
           font-size:18px;
           font-weight:900;
           color:#1f7a3a;
-          margin-bottom:${stores.length || note ? '8px' : '0'};
+          margin-bottom:8px;
         ">
-          ✓ ${liveQuantity} In Stock
-          ${liveQuantity > 0 && !selectedInventoryPricingForTool(item) ? `
+          &#10003; In Stock: ${liveQuantity} available
+          ${!selectedInventoryPricingForTool(item) ? `
             <span aria-hidden="true"> — </span>
             <button
               type="button"
@@ -10756,49 +10740,69 @@ function renderAvailability(item){
       `
       : '';
 
-  const stockedLocationHtml =
-    stores.length
+  const onOrderHtml =
+    hasOnOrder
       ? `
         <div style="
           width:100%;
           display:block;
-          white-space:nowrap;
-          font-size:${liveQuantity !== null ? '14px' : '18px'};
-          font-weight:${liveQuantity !== null ? '700' : '900'};
-          color:#1f7a3a;
-          margin-bottom:${note ? '8px' : '0'};
+          font-size:18px;
+          font-weight:900;
+          color:#8a5a00;
+          margin-bottom:8px;
         ">
-          ${liveQuantity !== null ? 'Normally stocked in:' : '✓ Normally Stocked In:'}
-          ${stores.join(' & ')}
+          On Order: ${onOrderQuantity} incoming
         </div>
       `
       : '';
 
+  const normalStockHtml =
+    !hasLiveInStock && normallyStocked
+      ? `
+        <div style="
+          width:100%;
+          display:block;
+          font-size:15px;
+          font-weight:800;
+          color:#1f7a3a;
+          margin-bottom:${note ? '8px' : '0'};
+        ">
+          Contact us for estimated availability
+        </div>
+      `
+      : '';
+
+  const borderColor =
+    hasLiveInStock ? '#1f7a3a' : '#b7791f';
+
+  const backgroundColor =
+    hasLiveInStock ? '#f3fbf5' : '#fffaf0';
+
   return `
-  <div style="
-    width:100%;
-    display:block;
-    border:2px solid #1f7a3a;
-    background:#f3fbf5;
-    margin-top:12px;
-    padding:10px 12px;
-    border-radius:12px;
-    box-sizing:border-box;
-    text-align:center;
-  ">
+    <div style="
+      width:100%;
+      display:block;
+      border:2px solid ${borderColor};
+      background:${backgroundColor};
+      margin-top:12px;
+      padding:10px 12px;
+      border-radius:12px;
+      box-sizing:border-box;
+      text-align:center;
+    ">
+      ${inStockHtml}
+      ${onOrderHtml}
+      ${normalStockHtml}
 
-    ${liveInventoryHtml}
-    ${stockedLocationHtml}
-
-    ${note ? `
-      <div class="stihl-small">
-        ${escapeHtml(note)}
-      </div>
-    ` : ''}
-
-  </div>
-`;
+      ${note ? `
+        <div class="stihl-small">
+          ${escapeHtml(note)}
+        </div>
+      ` : ''}
+    </div>
+  `;
 }
+
 async function printSalesSheet(dealerWorksheet = false){
 
   const isDealer = dealerWorksheet;
