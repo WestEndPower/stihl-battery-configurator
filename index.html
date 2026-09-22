@@ -23336,6 +23336,12 @@ function generateDealerSpikeWebpage(){
   const choiceGuide=renderWebpageChoiceGuide(products);
   const buyingGuide=renderWebpageBuyingGuide();
   const faq=renderWebpageFaq();
+  const interactiveCatalogHtml=
+    interactiveCatalog &&
+    window.WestEndWebCatalog &&
+    typeof window.WestEndWebCatalog.buildGeneratedCatalog==='function'
+      ? window.WestEndWebCatalog.buildGeneratedCatalog(products,category)
+      : '';
   const updatedLabel=new Date().toLocaleDateString('en-US',{
     year:'numeric',
     month:'long',
@@ -23439,6 +23445,7 @@ function generateDealerSpikeWebpage(){
   ${buyingGuide}
   ${seriesComparison}
   ${inventoryComparison}
+  ${interactiveCatalogHtml}
   ${inventorySection}
   ${choiceGuide}
   ${otherComparison}
