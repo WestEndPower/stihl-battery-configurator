@@ -69,7 +69,13 @@
         return Math.max(0, Number(window.webpageInventoryQuantity(item)) || 0);
       }
     }catch(e){}
-    return Math.max(0,(Number(item && item.QtyDanbury)||0)+(Number(item && item.QtyNewMilford)||0));
+    return 0;
+  }
+  function normalStockLocations(item){
+    var locations=[];
+    if((Number(item && item.QtyDanbury)||0)>0) locations.push('Danbury');
+    if((Number(item && item.QtyNewMilford)||0)>0) locations.push('New Milford');
+    return locations;
   }
   function onOrder(item){
     try{
@@ -140,6 +146,7 @@
           image:'',
           stock:0,
           order:0,
+          normalLocations:new Set(),
           minPrice:Infinity
         });
       }
@@ -147,6 +154,7 @@
       f.items.push(item);
       f.stock += inStock(item);
       f.order += onOrder(item);
+      normalStockLocations(item).forEach(function(location){f.normalLocations.add(location);});
       f.minPrice = Math.min(f.minPrice,currentPrice(item) || Infinity);
       if(!f.image){
         var img=itemImage(item);
@@ -192,6 +200,7 @@
         return (Number(a.SortOrder)||99999)-(Number(b.SortOrder)||99999);
       });
       if(!Number.isFinite(f.minPrice)) f.minPrice=0;
+      f.normalLocations=Array.from(f.normalLocations);
       f.specs=extractSpecs(f.items[0]||{});
     });
     var powerRank={ELECTRIC:1,BATTERY:2,GAS:3};
@@ -381,6 +390,9 @@
     if(f.stock>0 && f.order>0) return '✓ In Stock: '+f.stock+' available · On Order: '+f.order;
     if(f.stock>0) return '✓ In Stock: '+f.stock+' available';
     if(f.order>0) return 'On Order: '+f.order+' incoming';
+    if(f.normalLocations && f.normalLocations.length){
+      return 'Normally Stocked: '+f.normalLocations.join(' & ');
+    }
     return 'Available to Order';
   }
   function renderFamilyPrices(f){
