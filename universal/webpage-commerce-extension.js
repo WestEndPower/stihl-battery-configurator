@@ -30,12 +30,9 @@
     return (m[1].toUpperCase() + ' ' + m[2].toUpperCase().replace(/\s+/g,' ')).trim();
   }
   function familyName(item){
-    var model = clean(item && item.Model);
+    var model = clean(item && item.Model).replace(/^M3S\b/i,'MS').replace(/\s+/g,' ');
     var descCode = productCodeFromDescription(item);
-    if(descCode && model && norm(descCode) !== norm(model)){
-      if(/^STIHL\b/i.test(clean(item.Description))) return descCode;
-    }
-    if(model) return model.replace(/\s+/g,' ');
+    if(model) return model;
     if(descCode) return descCode;
     return clean(item && item.Description) || clean(item && item.SKU) || 'Product';
   }
