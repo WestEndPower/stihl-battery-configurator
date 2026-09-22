@@ -194,8 +194,12 @@
       if(!Number.isFinite(f.minPrice)) f.minPrice=0;
       f.specs=extractSpecs(f.items[0]||{});
     });
+    var powerRank={ELECTRIC:1,BATTERY:2,GAS:3};
     return Array.from(map.values()).sort(function(a,b){
-      return a.name.localeCompare(b.name,undefined,{numeric:true,sensitivity:'base'});
+      var pa=powerRank[clean(a.power).toUpperCase()]||99;
+      var pb=powerRank[clean(b.power).toUpperCase()]||99;
+      return pa-pb ||
+        a.name.localeCompare(b.name,undefined,{numeric:true,sensitivity:'base'});
     });
   }
   function kitIncludes(item){
