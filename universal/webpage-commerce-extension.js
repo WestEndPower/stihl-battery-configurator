@@ -504,8 +504,11 @@
     activeSales.sort(function(a,b){return b.sale.savings-a.sale.savings;});
     var topSale=activeSales[0]||null;
     var dollar=String.fromCharCode(36);
+    var hasToolSale=activeSales.some(function(x){return !x.variant.isKit;});
+    var hasPackageSale=activeSales.some(function(x){return x.variant.isKit;});
+    var promoCondition=hasToolSale && hasPackageSale ? '' : (hasPackageSale ? 'Package Purchase Required' : (hasToolSale ? 'Tool-Only Purchase' : ''));
     var promoOverlay=topSale
-      ? '<span class="wep-promo-overlay"><strong>Save '+dollar+Number(topSale.sale.savings||0).toFixed(2)+(topSale.sale.end?' thru '+esc(shortDate(topSale.sale.end)):'')+'</strong><small>Now Only '+dollar+Number(topSale.sale.sale||0).toFixed(2)+'</small></span>'
+      ? '<span class="wep-promo-overlay"><strong>Save '+dollar+Number(topSale.sale.savings||0).toFixed(2)+(topSale.sale.end?' thru '+esc(shortDate(topSale.sale.end)):'')+'</strong>'+(promoCondition?'<small>'+esc(promoCondition)+'</small>':'')+'</span>'
       : '';
     var image=f.image
       ? '<img src="'+esc(f.image)+'" alt="'+esc(f.name)+'" loading="lazy">'
@@ -528,7 +531,7 @@
         '<div class="wep-smart-actions">'+
           '<a href="product-options.html?sku='+encodeURIComponent(first.sku)+'&category='+encodeURIComponent(f.category)+'" data-options="'+esc(f.key)+'">View Options</a>'+
           (clean(f.power).toUpperCase()==='BATTERY'
-            ? '<a href="'+esc(first.configure||'#')+'" data-runtime="'+esc(f.key)+'">Run / Charge Times</a>'
+            ? '<a href="'+esc(first.configure||'#')+'" data-runtime="'+esc(f.key)+'">Run/Charge Times</a>'
             : '')+
           '<button type="button" data-add-cart="'+esc(f.key)+'">Add to Cart</button>'+
         '</div>'+
