@@ -235,7 +235,7 @@
   }
   function pageData(products){
     var families=groupProducts(products);
-    var liveState=(typeof state!=='undefined' && state) ? state : null;
+    var liveState=window.WestEndConfiguratorState || ((typeof state!=='undefined' && state) ? state : null);
     var batteries=activeList(liveState && liveState.batteries)
       .map(function(x){return optionPayload(x,'battery');})
       .filter(function(x){return x.price>0;});
