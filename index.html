@@ -23292,13 +23292,14 @@ function generateDealerSpikeWebpage(){
   );
 
   const singularCategory=webpageSingularCategory(category);
+  const interactiveCatalog=!!$('stihl-webpage-smart-catalog')?.checked;
   const seriesComparison=renderWebpageSeriesComparison(products);
   const inventoryComparison=renderWebpageComparison(inventoryProducts,{
     headingId:'wep-inventory-comparison-heading',
     title:`Compare ${configuratorBrandName()} ${singularCategory} Models Available Now & On Order`,
     introduction:'Compare the models currently in stock or already on order before reviewing the complete active lineup.'
   });
-  const inventorySection=renderWebpageFlatSection(
+  const inventorySection=interactiveCatalog ? '' : renderWebpageFlatSection(
     `${configuratorBrandName()} ${category} Available Now & On Order`,
     'View price tags, promotions, payment options and configuration details for models currently in stock or on order.',
     inventoryProducts
@@ -23308,7 +23309,7 @@ function generateDealerSpikeWebpage(){
     title:`Compare Additional Active ${configuratorBrandName()} ${singularCategory} Models`,
     introduction:'Compare the remaining active models available to order.'
   });
-  const otherSection=inventoryOnly ? '' : renderWebpageSection(
+  const otherSection=(inventoryOnly || interactiveCatalog) ? '' : renderWebpageSection(
     `Additional Active ${configuratorBrandName()} ${category}`,
     'View price tags, promotions, payment options and configuration details for additional active models available to order.',
     other
