@@ -184,6 +184,9 @@
           description:clean(item.Description),
           price:currentPrice(item),
           msrp:money(item.MSRP),
+          salePrice:money(item.SalePrice),
+          saleStart:clean(item.SaleStartDate),
+          saleEnd:clean(item.SaleEndDate),
           stock:inStock(item),
           order:onOrder(item),
           system:clean(item.System)||f.system,
@@ -395,20 +398,52 @@
     }
     return 'Available to Order';
   }
+  function saleInfo(v){
+    if(!v) return null;
+    var regular=Number(v.msrp||0);
+    var sale=Number(v.salePrice||0);
+    if(!(regular>0 && sale>0 && sale<regular)) return null;
+    var now=new Date();
+    function parse(raw,endOfDay){
+      raw=clean(raw);
+      if(!raw) return null;
+      var p=raw.split('-').map(Number);
+      if(p.length!==3) return null;
+      return new Date(p[0],p[1]-1,p[2],endOfDay?23:0,endOfDay?59:0,endOfDay?59:0);
+    }
+    var start=parse(v.saleStart,false);
+    var end=parse(v.saleEnd,true);
+    if(start && now<start) return null;
+    if(end && now>end) return null;
+    return {regular:regular,sale:sale,savings:regular-sale,end:v.saleEnd};
+  }
+  function shortDate(raw){
+    raw=clean(raw);
+    if(!raw) return '';
+    var p=raw.split('-').map(Number);
+    if(p.length!==3) return raw;
+    return new Date(p[0],p[1]-1,p[2]).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  }
   function renderFamilyPrices(f){
     var tool=f.variants.find(function(v){return !v.isKit;});
     var kit=f.variants.find(function(v){return v.isKit;});
     var dollar=String.fromCharCode(36);
     var out='<div class="wep-price-lines">';
     if(tool){
-      out+='<div class="wep-price-choice wep-tool-choice"><span class="wep-choice-kicker">TOOL ONLY</span><p><strong>'+dollar+Number(tool.price||0).toFixed(2)+'</strong></p>';
+      var toolSale=saleInfo(tool);
+      out+='<div class="wep-price-choice wep-tool-choice"><span class="wep-choice-kicker">TOOL ONLY</span><p>'+
+        (toolSale ? '<del>'+dollar+toolSale.regular.toFixed(2)+'</del><strong>'+dollar+toolSale.sale.toFixed(2)+'</strong>' : '<strong>'+dollar+Number(tool.price||0).toFixed(2)+'</strong>')+
+        '</p>';
       if(clean(f.power).toUpperCase()==='BATTERY'){
         out+='<small>Battery &amp; Charger Optional</small>';
       }
       out+='</div>';
     }
     if(kit){
-      out+='<div class="wep-price-choice wep-kit-choice"><span class="wep-choice-kicker">PACKAGE PRICING</span><p><strong>'+dollar+Number(kit.price||0).toFixed(2)+'</strong></p>';
+      var kitSale=saleInfo(kit);
+      out+='<div class="wep-price-choice wep-kit-choice"><span class="wep-choice-kicker">PACKAGE PRICING</span><p>'+
+        (kitSale ? '<del>'+dollar+kitSale.regular.toFixed(2)+'</del><strong>'+dollar+kitSale.sale.toFixed(2)+'</strong>' : '<strong>'+dollar+Number(kit.price||0).toFixed(2)+'</strong>')+
+        '</p>';
       if(kit.packageIncludes){
         out+='<small>Includes '+esc(kit.packageIncludes)+'</small>';
       }
