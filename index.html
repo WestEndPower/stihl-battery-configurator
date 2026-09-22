@@ -22997,34 +22997,58 @@ function generateDealerSpikeWebpage(){
 
   function renderWebpageComparison(items,options={}){
     if(!items.length) return '';
-    const columns=webpageComparisonColumns(items);
+
+    const familyMap=new Map();
+    [...items].sort(webpageCompareForDisplay).forEach(item=>{
+      const rawModel=clean(item.Model)||clean(item.Description)||skuOf(item);
+      const model=rawModel.replace(/^M3S\b/i,'MS').replace(/\s+/g,' ');
+      const key=model.toUpperCase().replace(/[^A-Z0-9]+/g,'');
+      if(!familyMap.has(key)){
+        familyMap.set(key,{model,items:[]});
+      }
+      familyMap.get(key).items.push(item);
+    });
+
+    const families=[...familyMap.values()];
+    const representatives=families.map(family=>family.items[0]);
+    const columns=webpageComparisonColumns(representatives);
     const headingId=clean(options.headingId)||'wep-compare-heading';
     const title=clean(options.title)||`Compare ${configuratorBrandName()} ${webpageSingularCategory(category)} Models`;
-    const introduction=clean(options.introduction)||'Compare current prices, availability and key specifications. Open any model to review its complete configuration and payment options.';
-    const rows=[...items]
-      .sort(webpageCompareForDisplay)
-      .map(item=>{
-        const sku=skuOf(item);
-        const model=clean(item.Model)||clean(item.Description)||sku;
-        const promotion=webpagePromotionData(item);
-        const configure=
-          `${WEBPAGE_PUBLIC_CONFIG_URL}?category=${encodeURIComponent(category)}`+
-          `&sku=${encodeURIComponent(sku)}`;
+    const introduction=clean(options.introduction)||'Compare current prices, availability and key specifications. Each model appears once; choose the exact configuration after opening the model.';
 
-        return `<tr>`+
-          `<th scope="row">${escapeHtml(model)}</th>`+
-          columns.map(column=>
-            `<td data-label="${escapeHtml(column.label)}">`+
-            `${escapeHtml(column.value(item)||'—')}</td>`
-          ).join('')+
-          `<td data-label="Price"><strong>${promotion.currentPrice>0
-            ? fmtMoney(promotion.currentPrice)
-            : 'Contact Us'}</strong></td>`+
-          `<td data-label="Availability">${escapeHtml(webpageAvailabilityLabel(item))}</td>`+
-          `<td data-label="Compare"><a href="${escapeHtml(configure)}" `+
-          `target="_blank" rel="noopener">View Model</a></td>`+
-          `</tr>`;
-      }).join('');
+    const rows=families.map(family=>{
+      const representative=family.items[0];
+      const prices=family.items
+        .map(item=>webpagePromotionData(item).currentPrice)
+        .filter(price=>price>0)
+        .sort((a,b)=>a-b);
+      const startingPrice=prices.length ? prices[0] : 0;
+      const inStock=family.items.reduce((total,item)=>total+webpageInventoryQuantity(item),0);
+      const onOrder=family.items.reduce((total,item)=>total+webpageOnOrderQuantity(item),0);
+      const availability=inStock>0
+        ? `${inStock} In Stock${onOrder>0?`, ${onOrder} On Order`:''}`
+        : onOrder>0
+          ? `${onOrder} On Order`
+          : 'Available to Order';
+      const sku=skuOf(representative);
+      const configure=
+        `${WEBPAGE_PUBLIC_CONFIG_URL}?category=${encodeURIComponent(category)}`+
+        `&sku=${encodeURIComponent(sku)}`;
+
+      return `<tr>`+
+        `<th scope="row">${escapeHtml(family.model)}</th>`+
+        columns.map(column=>
+          `<td data-label="${escapeHtml(column.label)}">`+
+          `${escapeHtml(column.value(representative)||'—')}</td>`
+        ).join('')+
+        `<td data-label="Price"><strong>${startingPrice>0
+          ? fmtMoney(startingPrice)
+          : 'Contact Us'}</strong></td>`+
+        `<td data-label="Availability">${escapeHtml(availability)}</td>`+
+        `<td data-label="Details"><a href="${escapeHtml(configure)}" `+
+        `target="_blank" rel="noopener">View Model</a></td>`+
+        `</tr>`;
+    }).join('');
 
     return `<section class="wep-seo-section wep-comparison" aria-labelledby="${escapeHtml(headingId)}">`+
       `<h2 id="${escapeHtml(headingId)}">${escapeHtml(title)}</h2>`+
@@ -23032,7 +23056,7 @@ function generateDealerSpikeWebpage(){
       `<div class="wep-table-wrap"><table>`+
       `<thead><tr><th scope="col">Model</th>`+
       columns.map(column=>`<th scope="col">${escapeHtml(column.label)}</th>`).join('')+
-      `<th scope="col">Current Price</th><th scope="col">Availability</th>`+
+      `<th scope="col">Starting Price</th><th scope="col">Availability</th>`+
       `<th scope="col">Details</th></tr></thead>`+
       `<tbody>${rows}</tbody></table></div></section>`;
   }
