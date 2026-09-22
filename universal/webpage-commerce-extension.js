@@ -383,6 +383,11 @@
   api.familyName=familyName;
   api.variantBaseLabel=variantBaseLabel;
   api.groupProducts=groupProducts;
+  api.buildGeneratedCatalog=function(products,category){
+    var data=pageData(products||[]);
+    if(!data.families.length) return '';
+    return smartCss()+renderSmartMarkup(data,clean(category)||'Equipment')+runtimeScript(data);
+  };
   api.enhanceGeneratedPage=enhanceGeneratedPage;
   api.install=wire;
 
