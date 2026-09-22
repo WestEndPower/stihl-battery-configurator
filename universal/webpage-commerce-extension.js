@@ -259,6 +259,16 @@
     if(f.order>0) return 'On Order: '+f.order+' incoming';
     return 'Available to Order';
   }
+  function renderFamilyPrices(f){
+    var tool=f.variants.find(function(v){return !v.isKit;});
+    var kit=f.variants.find(function(v){return v.isKit;});
+    var dollar=String.fromCharCode(36);
+    var out='<div class="wep-price-lines">';
+    if(tool) out+='<p><span>Tool Only</span><strong>'+dollar+Number(tool.price||0).toFixed(2)+'</strong></p>';
+    if(kit) out+='<p><span>Package / Kit</span><strong>'+dollar+Number(kit.price||0).toFixed(2)+'</strong></p>';
+    if(!tool && !kit) out+='<p><span>Starting at</span><strong>'+dollar+Number(f.minPrice||0).toFixed(2)+'</strong></p>';
+    return out+'</div>';
+  }
   function renderInitialOptions(f,data){
     var first=f.variants[0]||{};
     if(first.isKit){
@@ -293,9 +303,8 @@
         '<p class="wep-smart-eyebrow">'+esc([f.power,f.subcategory].filter(Boolean).join(' · '))+'</p>'+
         '<h3>'+esc(f.name)+'</h3>'+
         '<p class="wep-smart-stock">'+esc(stockText(f))+'</p>'+
-        '<p class="wep-smart-price">Starting at <strong>$'+Number(f.minPrice||0).toFixed(2)+'</strong></p>'+
+        renderFamilyPrices(f)+
         '<label>Choose configuration<select class="wep-variant" data-family="'+esc(f.key)+'">'+variantOptions+'</select></label>'+
-        '<div class="wep-smart-battery-zone" data-family="'+esc(f.key)+'">'+renderInitialOptions(f,data)+'</div>'+
         '<div class="wep-smart-total" data-total="'+esc(f.key)+'">Selected total: $'+Number(first.price||0).toFixed(2)+'</div>'+
         '<div class="wep-main-qty"><label>Qty <input type="number" min="1" max="99" value="1" data-main-qty="'+esc(f.key)+'"></label></div>'+
         '<div class="wep-smart-actions">'+
