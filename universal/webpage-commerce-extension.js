@@ -252,8 +252,18 @@
     var batteries=((liveState && liveState.batteries)||[]);
     var chargers=((liveState && liveState.chargers)||[]);
     return {
-      batteryBySku:new Map(batteries.map(function(x){return [norm(x.SKU),x];})),
-      chargerBySku:new Map(chargers.map(function(x){return [norm(x.SKU),x];})),
+      batteryBySku:new Map(batteries.flatMap(function(x){
+        return [
+          [norm(x.StihlID||x.SKU),x],
+          [norm(x.SKU),x]
+        ];
+      })),
+      chargerBySku:new Map(chargers.flatMap(function(x){
+        return [
+          [norm(x.StihlID||x.SKU),x],
+          [norm(x.SKU),x]
+        ];
+      })),
       batteryById:new Map(batteries.map(function(x){return [clean(x.BatteryID).toUpperCase(),x];})),
       chargerById:new Map(chargers.map(function(x){return [clean(x.ChargerID).toUpperCase(),x];}))
     };
@@ -269,7 +279,12 @@
       ...((liveState && liveState.accessories)||[]),
       ...((liveState && liveState.parts)||[])
     ];
-    var bySku=new Map(pools.map(function(item){return [norm(item.SKU),item];}));
+    var bySku=new Map(pools.flatMap(function(item){
+      return [
+        [norm(item.StihlID||item.SKU),item],
+        [norm(item.SKU),item]
+      ];
+    }));
     var packageByParent=new Map(packages.map(function(row){return [norm(row.ParentSKU),row];}));
     var compatByTool=new Map(compatibility.map(function(row){return [norm(row.ToolSKU),row];}));
 
