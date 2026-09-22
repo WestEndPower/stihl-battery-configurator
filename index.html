@@ -23025,11 +23025,17 @@ function generateDealerSpikeWebpage(){
       const startingPrice=prices.length ? prices[0] : 0;
       const inStock=family.items.reduce((total,item)=>total+webpageInventoryQuantity(item),0);
       const onOrder=family.items.reduce((total,item)=>total+webpageOnOrderQuantity(item),0);
+      const stockedLocations=[...new Set(family.items.flatMap(item=>[
+        Number(clean(item.QtyNewMilford))>0 ? 'New Milford' : '',
+        Number(clean(item.QtyDanbury))>0 ? 'Danbury' : ''
+      ]).filter(Boolean))];
       const availability=inStock>0
         ? `${inStock} In Stock${onOrder>0?`, ${onOrder} On Order`:''}`
         : onOrder>0
           ? `${onOrder} On Order`
-          : 'Available to Order';
+          : stockedLocations.length
+            ? `Normally Stocked: ${stockedLocations.join(' & ')}`
+            : 'Available to Order';
       const sku=skuOf(representative);
       const configure=
         `${WEBPAGE_PUBLIC_CONFIG_URL}?category=${encodeURIComponent(category)}`+
