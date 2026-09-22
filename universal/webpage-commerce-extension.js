@@ -255,7 +255,26 @@
     if(f.order>0) return 'On Order: '+f.order+' incoming';
     return 'Available to Order';
   }
-  function renderFamilyCard(f){
+  function renderInitialOptions(f,data){
+    var first=f.variants[0]||{};
+    if(first.isKit){
+      return first.kitIncludes
+        ? '<div class="wep-kit-includes"><strong>Factory kit includes:</strong> '+esc(first.kitIncludes)+'</div>'
+        : '';
+    }
+    var batteries=(data.batteries||[]).filter(function(x){return compatibleBySystem(first.system,x.system);});
+    var chargers=(data.chargers||[]).filter(function(x){return compatibleBySystem(first.system,x.system);});
+    if(!batteries.length && !chargers.length) return '';
+    return '<div class="wep-smart-option-row">'+
+      (batteries.length
+        ? '<label>Battery<select data-battery="'+esc(f.key)+'"><option value="">No added battery</option>'+selectOptions(batteries,'')+'</select></label>'
+        : '')+
+      (chargers.length
+        ? '<label>Charger<select data-charger="'+esc(f.key)+'"><option value="">No added charger</option>'+selectOptions(chargers,'')+'</select></label>'
+        : '')+
+      '</div>';
+  }
+  function renderFamilyCard(f,data){
     var first=f.variants[0]||{};
     var image=f.image
       ? '<img src="'+esc(f.image)+'" alt="'+esc(f.name)+'" loading="lazy">'
@@ -272,7 +291,7 @@
         '<p class="wep-smart-stock">'+esc(stockText(f))+'</p>'+
         '<p class="wep-smart-price">Starting at <strong>$'+Number(f.minPrice||0).toFixed(2)+'</strong></p>'+
         '<label>Choose configuration<select class="wep-variant" data-family="'+esc(f.key)+'">'+variantOptions+'</select></label>'+
-        '<div class="wep-smart-battery-zone" data-family="'+esc(f.key)+'"></div>'+
+        '<div class="wep-smart-battery-zone" data-family="'+esc(f.key)+'">'+renderInitialOptions(f,data)+'</div>'+
         '<div class="wep-smart-total" data-total="'+esc(f.key)+'">Selected total: $'+Number(first.price||0).toFixed(2)+'</div>'+
         '<div class="wep-smart-actions">'+
           '<button type="button" data-add-cart="'+esc(f.key)+'">Add to Cart</button>'+
@@ -298,7 +317,7 @@
         '<label class="wep-search-label">Search<input id="wep-smart-search" type="search" placeholder="Model or keyword"></label>'+
       '</div>'+
       '<div class="wep-smart-results"><span id="wep-result-count">'+data.families.length+'</span> product families</div>'+
-      '<div class="wep-smart-grid" id="wep-smart-grid">'+data.families.map(renderFamilyCard).join('')+'</div>'+
+      '<div class="wep-smart-grid" id="wep-smart-grid">'+data.families.map(function(f){return renderFamilyCard(f,data);}).join('')+'</div>'+
       '<div class="wep-compare-bar" id="wep-compare-bar" hidden><span><strong id="wep-compare-count">0</strong> selected</span><button type="button" id="wep-open-compare">Compare Selected</button><button type="button" id="wep-clear-compare">Clear</button></div>'+
       '<aside class="wep-cart" id="wep-cart"><div class="wep-cart-head"><h2>Cart</h2><span id="wep-cart-count">0 items</span></div><div id="wep-cart-lines"><p class="wep-cart-empty">Your cart is empty.</p></div><div class="wep-cart-footer"><strong id="wep-cart-total">$0.00</strong><p>Use Build &amp; Price on each line to continue into the configurator and quote system.</p></div></aside>'+
       '<dialog id="wep-compare-dialog"><form method="dialog"><button class="wep-dialog-close" aria-label="Close">×</button></form><h2>Compare Selected Models</h2><div id="wep-compare-table"></div></dialog>'+
