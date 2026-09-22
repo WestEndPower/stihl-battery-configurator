@@ -219,19 +219,29 @@
   }
   function optionPayload(x,type){
     var label=clean(x.Model)||clean(x.BatteryID)||clean(x.ChargerName)||clean(x.ChargerID)||clean(x.Description)||clean(x.SKU);
+    var system=clean(x.System);
+    if(type==='battery'){
+      var batteryId=clean(x.BatteryID)||clean(x.Model)||clean(x.Description);
+      var match=batteryId.match(/\b(AS|AK|AP|AR)\b/i) || batteryId.match(/^\s*(AS|AK|AP|AR)/i);
+      if(match) system=match[1].toUpperCase();
+    }
     return {
       type:type,
       sku:clean(x.SKU),
       label:label,
       price:money(x.SalePrice)>0?money(x.SalePrice):money(x.MSRP),
-      system:clean(x.System)
+      system:system
     };
   }
   function pageData(products){
     var families=groupProducts(products);
     var liveState=(typeof state!=='undefined' && state) ? state : null;
-    var batteries=activeList(liveState && liveState.batteries).map(function(x){return optionPayload(x,'battery');});
-    var chargers=activeList(liveState && liveState.chargers).map(function(x){return optionPayload(x,'charger');});
+    var batteries=activeList(liveState && liveState.batteries)
+      .map(function(x){return optionPayload(x,'battery');})
+      .filter(function(x){return x.price>0;});
+    var chargers=activeList(liveState && liveState.chargers)
+      .map(function(x){return optionPayload(x,'charger');})
+      .filter(function(x){return x.price>0;});
     return {families:families,batteries:batteries,chargers:chargers};
   }
   function selectOptions(list,selected){
