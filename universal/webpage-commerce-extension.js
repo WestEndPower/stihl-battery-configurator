@@ -248,8 +248,20 @@
     if(charger) return charger+' Charger';
     return clean(item.Model || item.ChargerName || item.Description || item.SKU);
   }
+  function buildComponentLookups(liveState){
+    var batteries=((liveState && liveState.batteries)||[]);
+    var chargers=((liveState && liveState.chargers)||[]);
+    return {
+      batteryBySku:new Map(batteries.map(function(x){return [norm(x.SKU),x];})),
+      chargerBySku:new Map(chargers.map(function(x){return [norm(x.SKU),x];})),
+      batteryById:new Map(batteries.map(function(x){return [clean(x.BatteryID).toUpperCase(),x];})),
+      chargerById:new Map(chargers.map(function(x){return [clean(x.ChargerID).toUpperCase(),x];}))
+    };
+  }
   function enrichPackageVariants(families,liveState){
     var packages=(liveState && liveState.packages)||[];
+    var compatibility=(liveState && liveState.compatibility)||[];
+    var lookups=buildComponentLookups(liveState);
     var pools=[
       ...((liveState && liveState.batteries)||[]),
       ...((liveState && liveState.chargers)||[]),
@@ -259,6 +271,7 @@
     ];
     var bySku=new Map(pools.map(function(item){return [norm(item.SKU),item];}));
     var packageByParent=new Map(packages.map(function(row){return [norm(row.ParentSKU),row];}));
+    var compatByTool=new Map(compatibility.map(function(row){return [norm(row.ToolSKU),row];}));
 
     families.forEach(function(family){
       var toolVariant=family.variants.find(function(v){return !v.isKit;});
@@ -282,6 +295,8 @@
             var qty=Math.max(0,Number(clean(row[prefix+'Qty'+i]))||0);
             if(!componentSku || qty<=0) continue;
             var item=bySku.get(norm(componentSku));
+            if(!item && prefix==='Battery') item=lookups.batteryBySku.get(norm(componentSku))||null;
+            if(!item && prefix==='Charger') item=lookups.chargerBySku.get(norm(componentSku))||null;
             var name=item ? packageItemName(item) : componentSku;
             var price=item ? currentPrice(item) : 0;
             included.push({type:prefix,sku:componentSku,qty:qty,name:name,price:price});
@@ -297,6 +312,36 @@
         v.separatePrice=separateBase;
         v.packageSavings=Math.max(0,separateBase-Number(v.price||0));
       });
+
+      if(toolVariant && !family.variants.some(function(v){return v.isKit;})){
+        var compat=compatByTool.get(norm(toolVariant.sku));
+        if(compat){
+          var batteryId=clean(compat.RecommendedBatteryID1).toUpperCase();
+          var chargerId=clean(compat.RecommendedChargerID1).toUpperCase();
+          var batteryQty=Math.max(1,Number(clean(compat.RecommendedBatteryQty1))||1);
+          var chargerQty=Math.max(1,Number(clean(compat.RecommendedChargerQty1))||1);
+          var battery=lookups.batteryById.get(batteryId)||null;
+          var charger=lookups.chargerById.get(chargerId)||null;
+          if(battery || charger){
+            var items=[];
+            var total=Number(toolVariant.price||0);
+            if(battery){
+              var bp=currentPrice(battery);
+              items.push({qty:batteryQty,name:packageItemName(battery)});
+              total+=bp*batteryQty;
+            }
+            if(charger){
+              var cp=currentPrice(charger);
+              items.push({qty:chargerQty,name:packageItemName(charger)});
+              total+=cp*chargerQty;
+            }
+            family.recommendedPackage={
+              price:total,
+              includes:items.map(function(x){return (x.qty>1?x.qty+' × ':'')+x.name;}).join(' + ')
+            };
+          }
+        }
+      }
     });
     return families;
   }
@@ -342,6 +387,13 @@
       }
       if(Number(kit.packageSavings||0)>0){
         out+='<small class="wep-save">Save '+dollar+Number(kit.packageSavings).toFixed(2)+' vs. purchasing separately</small>';
+      }
+      out+='</div>';
+    }
+    else if(f.recommendedPackage){
+      out+='<div class="wep-price-choice wep-kit-choice"><span class="wep-choice-kicker">RECOMMENDED PACKAGE</span><p><strong>'+dollar+Number(f.recommendedPackage.price||0).toFixed(2)+'</strong></p>';
+      if(f.recommendedPackage.includes){
+        out+='<small>Includes '+esc(f.recommendedPackage.includes)+'</small>';
       }
       out+='</div>';
     }
