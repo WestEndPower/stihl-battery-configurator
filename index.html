@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-configurator-brand="STIHL">
 <head>
   <!-- =========================================================
@@ -676,7 +676,7 @@ body.dealer-mode .dealer-only{
     id="dealerModeBtn"
     class="stihl-dealer-btn"
     type="button">
-    🔒 Dealer Mode
+    ðŸ”’ Dealer Mode
 </button>
 
 <div id="dealerModeModal" class="stihl-dealer-modal">
@@ -3163,7 +3163,7 @@ return `
         font-size:15px;
         font-weight:900;
       ">
-        Bid / Fleet Detail — Dealer Use Only
+        Bid / Fleet Detail â€” Dealer Use Only
       </div>
 
       <div style="padding:8px 12px;font-size:12px;">
@@ -3235,7 +3235,7 @@ function dealerKitBreakdownPrintHtml(){
     blocks.push(`
       <div style="margin-top:18px;border:2px solid #1f7a3a;border-radius:10px;overflow:hidden;page-break-inside:avoid;">
         <div style="background:#1f7a3a;color:#fff;padding:8px 12px;font-size:15px;font-weight:900;">
-          Dealer Kit Breakdown — ${escapeHtml(clean(line.item.Model) || skuOf(line.item))}
+          Dealer Kit Breakdown â€” ${escapeHtml(clean(line.item.Model) || skuOf(line.item))}
         </div>
 
         ${kitRows.dealerOrderSavings > 0.005 ? `
@@ -3977,7 +3977,7 @@ function populateBidFleetPrograms(){
 
         return `
           <option value="${escapeHtml(clean(program.ProgramID))}">
-            ${escapeHtml(clean(program.ProgramName))} — ${fmtMoney(amount)}
+            ${escapeHtml(clean(program.ProgramName))} â€” ${fmtMoney(amount)}
           </option>
         `;
       })
@@ -5856,7 +5856,7 @@ const offerColumns =
       line-height:1.2;
     ">
       Current Factory Offers${offerDate
-        ? ` • Valid Through ${escapeHtml(offerDate)}`
+        ? ` â€¢ Valid Through ${escapeHtml(offerDate)}`
         : ''}
     </div>
 
@@ -9423,7 +9423,7 @@ function openOnlineOrderModal(item){
             line-height:1;
             cursor:pointer;
           ">
-          ×
+          Ã—
         </button>
 
         <div style="
@@ -10403,7 +10403,7 @@ ${transitText ? `
           color:#222;
           margin-bottom:8px;
         ">
-          Important — Please Confirm Before Ordering
+          Important â€” Please Confirm Before Ordering
         </div>
 
         <div style="
@@ -10872,7 +10872,7 @@ function renderAvailability(item){
         ">
           &#10003; In Stock: ${liveQuantity} available
           ${!selectedInventoryPricingForTool(item) ? `
-            <span aria-hidden="true"> — </span>
+            <span aria-hidden="true"> â€” </span>
             <button
               type="button"
               id="stihl-view-inventory-pricing"
@@ -11070,7 +11070,7 @@ const printFinanceProgram =
     printedSaleRecord.status === 'deposit'
       ? 'Deposit Receipt'
       : printedSaleRecord.status === 'paid'
-        ? 'Sales Order — Paid in Full'
+        ? 'Sales Order â€” Paid in Full'
         : 'Customer Quote';
 
   const paymentRecordBlock =
@@ -11133,13 +11133,13 @@ const printFinanceProgram =
                           'T00:00:00'
                         ).toLocaleDateString()
                       )
-                    : '—'}
+                    : 'â€”'}
                 </td>
 
                 <td>
                   ${printedSaleRecord.reference
                     ? escapeHtml(printedSaleRecord.reference)
-                    : '—'}
+                    : 'â€”'}
                 </td>
 
                 <td style="
@@ -11733,7 +11733,7 @@ ${isDealer ? dealerKitBreakdownPrintHtml() : ''}
     <div>
       Terms:
       <strong>
-        ${money(printFinanceProgram.APR)}% APR •
+        ${money(printFinanceProgram.APR)}% APR â€¢
         ${escapeHtml(clean(printFinanceProgram.TermMonths))} months
       </strong>
     </div>
@@ -12453,7 +12453,7 @@ function priceTagBatteryChargeTime(
   chargerCode
 ){
   if(!battery || !chargerCode){
-    return '—';
+    return 'â€”';
   }
 
   const wanted =
@@ -12493,7 +12493,7 @@ function priceTagBatteryChargeTime(
     }
   }
 
-  return '—';
+  return 'â€”';
 }
 
 async function printPriceTag(
@@ -12855,7 +12855,7 @@ const kitPerformanceHtml =
             </div>
           ` : ''}
 
-          ${kitChargeTime && kitChargeTime !== '—' ? `
+          ${kitChargeTime && kitChargeTime !== 'â€”' ? `
             <div class="tag-kit-item">
               <span>Charge to 80% / 100%</span>
               <strong>
@@ -12892,7 +12892,7 @@ const runtimeFootnote =
             Current Factory Offers
             ${
               data.validThrough
-                ? ` • Valid Through ${escapeHtml(data.validThrough)}`
+                ? ` â€¢ Valid Through ${escapeHtml(data.validThrough)}`
                 : ''
             }
           </div>
@@ -16178,7 +16178,7 @@ function renderFinancingOptions(){
     const monthlyText =
       protectedPricing &&
       visibleCartLineCount <= 1
-        ? ` • ${fmtMoney(
+        ? ` â€¢ ${fmtMoney(
             protectedPricing.monthly
           )}/mo`
         : "";
@@ -16198,16 +16198,16 @@ function renderFinancingOptions(){
     const scoreText = scoreIsEntered
       ? ''
       : scoreMin > 0 && scoreMax > 0
-        ? ` • Score ${scoreMin}-${scoreMax}`
+        ? ` â€¢ Score ${scoreMin}-${scoreMax}`
         : scoreMin > 0
-          ? ` • Score ${scoreMin}+`
+          ? ` â€¢ Score ${scoreMin}+`
           : scoreMax > 0
-            ? ` • Score up to ${scoreMax}`
+            ? ` â€¢ Score up to ${scoreMax}`
             : '';
 
     return `
       <option value="${escapeHtml(id)}">
-        ${money(p.APR)}% APR • ${clean(p.TermMonths)} mo${monthlyText}${scoreText}
+        ${money(p.APR)}% APR â€¢ ${clean(p.TermMonths)} mo${monthlyText}${scoreText}
       </option>
     `;
   };
@@ -16576,7 +16576,7 @@ async function chooseInventoryPriceGroupForTool(tool){
                 <small style="display:block;margin-top:4px;">
                   ${group.records.map(record =>
                     escapeHtml(clean(record.SerialNumber) || clean(record.InventoryID))
-                  ).join(' • ')}
+                  ).join(' â€¢ ')}
                 </small>
               ` : ''}
             </button>
@@ -16683,7 +16683,7 @@ function chooseToolInventoryMode(tool){
               ? `Serial ${escapeHtml(selectedSerialNumber)}`
               : 'Serial number not entered'}
             ${selectedInventoryId
-              ? ` • Inventory ID ${escapeHtml(selectedInventoryId)}`
+              ? ` â€¢ Inventory ID ${escapeHtml(selectedInventoryId)}`
               : ''}
           </p>
         ` : ''}
@@ -17034,7 +17034,7 @@ function renderAllOptions(){
     batteries.map(battery => {
 
       const runtime = state.selectedTool
-        ? ' — Runtime: ' +
+        ? ' â€” Runtime: ' +
           runtimeText(
             state.selectedTool,
             clean(battery.BatteryID) || skuOf(battery)
@@ -17043,7 +17043,7 @@ function renderAllOptions(){
 
       return `
         <option value="${escapeHtml(skuOf(battery))}">
-          ${escapeHtml(nameOf(battery))} —
+          ${escapeHtml(nameOf(battery))} â€”
           ${fmtMoney(priceOf(battery))}
           ${escapeHtml(runtime)}
         </option>
@@ -17053,7 +17053,7 @@ function renderAllOptions(){
 
     function renderChargerOptions(){
       const chargers = compatibleChargers(state.selectedTool);
-      $('stihl-charger-select').innerHTML = '<option value="">Choose charger</option>' + chargers.map(c => `<option value="${escapeHtml(skuOf(c))}">${escapeHtml(nameOf(c))} — ${fmtMoney(priceOf(c))}</option>`).join('');
+      $('stihl-charger-select').innerHTML = '<option value="">Choose charger</option>' + chargers.map(c => `<option value="${escapeHtml(skuOf(c))}">${escapeHtml(nameOf(c))} â€” ${fmtMoney(priceOf(c))}</option>`).join('');
     }
 
 function compatibilityKey(v){
@@ -17601,7 +17601,7 @@ function updateCartLineQuantity(cartIndex, nextQty){
         <option value="${escapeHtml(
           'accessory|' + skuOf(accessory)
         )}">
-          ${escapeHtml(nameOf(accessory))} —
+          ${escapeHtml(nameOf(accessory))} â€”
           ${fmtMoney(priceOf(accessory))}
         </option>
       `)
@@ -17662,7 +17662,7 @@ function updateCartLineQuantity(cartIndex, nextQty){
         <option value="${escapeHtml(
           'variant-index|' + state.attachments.indexOf(attachment)
         )}">
-          ${escapeHtml(nameOf(attachment))} —
+          ${escapeHtml(nameOf(attachment))} â€”
           ${fmtMoney(priceOf(attachment))}
         </option>
       `)
@@ -17777,7 +17777,7 @@ const rows = state.kmaRuntimes.filter(row =>
     : '';
 
   if(!isTrue(r[`${code}_Compatible`]) && !low && !high && !note){
-    return `<td style="${includedStyle}">—</td>`;
+    return `<td style="${includedStyle}">â€”</td>`;
   }
 
   let runtime = 'Varies';
@@ -18259,7 +18259,7 @@ function printRuntimeChart(){
   identification.textContent =
     'Model: ' +
     clean(tool.Model) +
-    ' • SKU #: ' +
+    ' â€¢ SKU #: ' +
     (
       clean(tool.StihlID) ||
       skuOf(tool)
@@ -18345,7 +18345,7 @@ function renderWeightOptions(tool){
   if(!batteryCodes.length) return '';
 
   function batteryChargeCost(battery){
-    if(!battery) return '—';
+    if(!battery) return 'â€”';
 
     const direct =
       clean(battery.CostToCharge) ||
@@ -18360,7 +18360,7 @@ function renderWeightOptions(tool){
       battery.WattHoursCapacity
     );
 
-    if(!wh) return '—';
+    if(!wh) return 'â€”';
 
     const cost =
       (wh / 1000) *
@@ -18370,7 +18370,7 @@ function renderWeightOptions(tool){
   }
 
   function batteryChargeTime(battery, chargerCode){
-    if(!battery || !chargerCode) return '—';
+    if(!battery || !chargerCode) return 'â€”';
 
     const wanted =
       clean(chargerCode).toUpperCase();
@@ -18397,11 +18397,11 @@ function renderWeightOptions(tool){
       if(time100) return time100;
     }
 
-    return '—';
+    return 'â€”';
   }
 
   function batteryCapacityText(battery){
-    if(!battery) return '—';
+    if(!battery) return 'â€”';
 
     const ah =
       clean(
@@ -18417,13 +18417,13 @@ function renderWeightOptions(tool){
         battery.WattHoursCapacity
       );
 
-    if(!ah && !wh) return '—';
+    if(!ah && !wh) return 'â€”';
 
-    return `${ah || '—'} / ${wh || '—'}`;
+    return `${ah || 'â€”'} / ${wh || 'â€”'}`;
   }
 
   function batteryRuntimeValue(code){
-    if(!tool || !code) return '—';
+    if(!tool || !code) return 'â€”';
 
     const low =
       clean(tool[code + 'RunTimeLow']);
@@ -18438,7 +18438,7 @@ function renderWeightOptions(tool){
     if(low) return low;
     if(high) return high;
 
-    return '—';
+    return 'â€”';
   }
 
   function operatingWeight(code){
@@ -18452,7 +18452,7 @@ function renderWeightOptions(tool){
       !Number.isFinite(toolWeight) ||
       !installedBatteryWeight
     ){
-      return '—';
+      return 'â€”';
     }
 
     return `${(
@@ -18625,7 +18625,7 @@ function renderWeightOptions(tool){
                 : '';
 
             const hasPublishedRuntime =
-  batteryRuntimeValue(code) !== '—';
+  batteryRuntimeValue(code) !== 'â€”';
 
 return `
   <tr data-has-runtime="${
@@ -19297,7 +19297,7 @@ function bidFleetLabel(){
 
   return `${clean(bidFleet.program.ProgramName)}${
     bidFleet.tier
-      ? ` • ${clean(bidFleet.tier)}`
+      ? ` â€¢ ${clean(bidFleet.tier)}`
       : ''
   }`;
 }
@@ -19368,36 +19368,36 @@ function approvalStatus(netMargin){
   const target = targetMarginPercent();
 
   if(netMargin >= target){
-    return '✓ Approved';
+    return 'âœ“ Approved';
   }
 
   if(netMargin >= target - 3){
-    return '⚠ Manager Review';
+    return 'âš  Manager Review';
   }
 
-  return '✖ Below Minimum';
+  return 'âœ– Below Minimum';
 }
 
 function profitMeter(netMargin){
   const target = targetMarginPercent();
 
   if(netMargin >= target + 7){
-    return '★★★★★ Excellent';
+    return 'â˜…â˜…â˜…â˜…â˜… Excellent';
   }
 
   if(netMargin >= target + 4){
-    return '★★★★ Strong';
+    return 'â˜…â˜…â˜…â˜… Strong';
   }
 
   if(netMargin >= target){
-    return '★★★ Acceptable';
+    return 'â˜…â˜…â˜… Acceptable';
   }
 
   if(netMargin >= target - 3){
-    return '★★ Manager Review';
+    return 'â˜…â˜… Manager Review';
   }
 
-  return '★ Below Minimum';
+  return 'â˜… Below Minimum';
 }
 
 function dealerRebateAmount(){
@@ -20265,11 +20265,11 @@ const replacementControls = childItems
                     const difference =
                       (priceOf(choice) - priceOf(baseItem)) *
                       (Number(child.qty) || 1);
-                    if(difference > 0) return ` — Included + ${fmtMoney(difference)}`;
-                    if(difference < 0) return ` — Included - ${fmtMoney(Math.abs(difference))}`;
-                    return ' — Included';
+                    if(difference > 0) return ` â€” Included + ${fmtMoney(difference)}`;
+                    if(difference < 0) return ` â€” Included - ${fmtMoney(Math.abs(difference))}`;
+                    return ' â€” Included';
                   })()
-                : ` — ${fmtMoney(priceOf(choice))}`}
+                : ` â€” ${fmtMoney(priceOf(choice))}`}
             </option>
           `).join('')}
         </select>
@@ -20655,7 +20655,7 @@ ${packageFreightNotice ? `
                   ${selectedSerialNumber
                     ? `Serial ${escapeHtml(selectedSerialNumber)}`
                     : 'Serial number not entered'}
-                  • Inventory ID ${escapeHtml(selectedInventoryId)}
+                  â€¢ Inventory ID ${escapeHtml(selectedInventoryId)}
                 </div>
               ` : ''}
 
@@ -20727,7 +20727,7 @@ ${packageFreightNotice ? `
                 cursor:pointer;
                 line-height:1;
               ">
-              ×
+              Ã—
             </button>
 
           </div>
@@ -20804,7 +20804,7 @@ ${packageFreightNotice ? `
               ${visibleKitRows.map(row => `
                 <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:2px 0;">
                   <span>
-                    ${row.qty > 1 ? `${row.qty} × ` : ''}${escapeHtml(row.desc)}
+                    ${row.qty > 1 ? `${row.qty} Ã— ` : ''}${escapeHtml(row.desc)}
                     <span style="color:#777;">${escapeHtml(row.stihlId)}</span>
                   </span>
                   <strong>${row.lineTotal > 0 ? fmtMoney(row.lineTotal) : 'N/C'}</strong>
@@ -21600,7 +21600,7 @@ if(fleetMsg){
     handheldText = 'Tier 2 Qualified';
   }else if(handheldTier1Qualified){
     handheldText =
-      `Tier 1 Qualified • Add ${fmtMoney(Math.max(0, tier2Handheld - handheldTotal))} for Tier 2`;
+      `Tier 1 Qualified â€¢ Add ${fmtMoney(Math.max(0, tier2Handheld - handheldTotal))} for Tier 2`;
   }else{
     handheldText =
       `Add ${fmtMoney(Math.max(0, tier1Handheld - handheldTotal))} for Tier 1`;
@@ -21614,7 +21614,7 @@ if(fleetMsg){
 
   zeroTurnText =
     needed > 0
-      ? `Tier 1 Qualified • Add ${needed} Zero-Turn${needed === 1 ? '' : 's'} for Tier 2`
+      ? `Tier 1 Qualified â€¢ Add ${needed} Zero-Turn${needed === 1 ? '' : 's'} for Tier 2`
       : 'Tier 2 Qualified';
 
 }else if(zeroTurnUnits <= 0){
@@ -21627,7 +21627,7 @@ if(fleetMsg){
 
 }else if(handheldTier1Qualified && zeroTurnUnits >= 1){
   zeroTurnText =
-    `Tier 1 Qualified • Add ${Math.max(0, tier2Units - zeroTurnUnits)} Zero-Turn${Math.max(0, tier2Units - zeroTurnUnits) === 1 ? '' : 's'} for Tier 2`;
+    `Tier 1 Qualified â€¢ Add ${Math.max(0, tier2Units - zeroTurnUnits)} Zero-Turn${Math.max(0, tier2Units - zeroTurnUnits) === 1 ? '' : 's'} for Tier 2`;
 
 }else{
   zeroTurnText =
@@ -22834,7 +22834,7 @@ function generateDealerSpikeWebpage(){
         : onOrderQuantity>0
           ? `${onOrderQuantity} currently on order`
           : normalStockLocations.length
-            ? `Normally stocked in ${normalStockLocations.join(' & ')} — contact us for estimated availability`
+            ? `Normally stocked in ${normalStockLocations.join(' & ')} â€” contact us for estimated availability`
             : 'Available to Order';
 
     const configure=
@@ -23047,7 +23047,7 @@ function generateDealerSpikeWebpage(){
         `<th scope="row">${escapeHtml(family.model)}</th>`+
         columns.map(column=>
           `<td data-label="${escapeHtml(column.label)}">`+
-          `${escapeHtml(column.value(representative)||'—')}</td>`
+          `${escapeHtml(column.value(representative)||'â€”')}</td>`
         ).join('')+
         `<td data-label="Price"><strong>${startingPrice>0
           ? fmtMoney(startingPrice)
@@ -23708,7 +23708,11 @@ function downloadDealerSpikeWebpage(){
 }
 
 function previewDealerSpikeWebpage(){
-  const html=clean($('stihl-webpage-code')?.value);
+  const html=clean($('stihl-webpage-code')?.value)
+    .replaceAll(
+      'https://www.westendpower.com/stihl-equipment-configurator/images/',
+      'images/'
+    );
 
   if(!html){
     $('stihl-webpage-status').className='stihl-error';
@@ -23858,8 +23862,8 @@ function dealerMode(on){
   if(btn){
     btn.textContent =
       on
-        ? "🔓 Dealer Mode Active"
-        : "🔒 Dealer Mode";
+        ? "ðŸ”“ Dealer Mode Active"
+        : "ðŸ”’ Dealer Mode";
 
     btn.classList.toggle(
       "active",
@@ -24477,3 +24481,5 @@ if(
   <script src="universal/webpage-commerce-extension.js"></script>
 </body>
 </html>
+
+
