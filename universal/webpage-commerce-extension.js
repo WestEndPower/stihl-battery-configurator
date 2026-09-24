@@ -145,7 +145,7 @@
         map.set(key,{
           key:key,
           name:familyName(item),
-          category:clean(item.Category),
+          category:clean(item.Category)==='Vauums' ? 'Vacuums' : clean(item.Category),
           subcategory:clean(item.SubCategory),
           power:clean(item.PowerType),
           system:clean(item.System),
@@ -1151,7 +1151,7 @@
     var scoped=(products||[]).filter(function(item){
       return batterySeries
         ? clean(item.System).toUpperCase()===batterySeries[1].toUpperCase()
-        : !selected || clean(item.Category).toLowerCase()===selected.toLowerCase();
+        : !selected || (clean(item.Category)==='Vauums' ? 'Vacuums' : clean(item.Category)).toLowerCase()===selected.toLowerCase();
     });
     var data=pageData(scoped);
     if(!data.families.length) return '';
