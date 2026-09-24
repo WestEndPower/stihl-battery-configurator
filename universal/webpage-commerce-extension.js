@@ -379,7 +379,7 @@
 
         v.packageItems=included;
         v.packageIncludes=included.map(function(x){
-          return (x.qty>1 ? x.qty+' ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ' : '')+x.name;
+          return (x.qty>1 ? x.qty+' \u00d7 ' : '')+x.name;
         }).join(' + ');
         var separateBase=(toolVariant ? Number(toolVariant.price||0) : 0)+componentTotal;
         v.separatePrice=separateBase;
@@ -413,7 +413,7 @@
             }
             family.recommendedPackage={
               price:total,
-              includes:items.map(function(x){return (x.qty>1?x.qty+' ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ':'')+x.name;}).join(' + ')
+              includes:items.map(function(x){return (x.qty>1?x.qty+' \u00d7 ':'')+x.name;}).join(' + ')
             };
             family.variants.push({
               sku:toolVariant.sku,label:'Package',description:toolVariant.description,
@@ -446,8 +446,8 @@
     }).join('');
   }
   function stockText(f){
-    if(f.stock>0 && f.order>0) return 'ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ In Stock: '+f.stock+' available &middot; On Order: '+f.order;
-    if(f.stock>0) return 'ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ In Stock: '+f.stock+' available';
+    if(f.stock>0 && f.order>0) return '\u2713 In Stock: '+f.stock+' available &middot; On Order: '+f.order;
+    if(f.stock>0) return '\u2713 In Stock: '+f.stock+' available';
     if(f.order>0) return 'On Order: '+f.order+' incoming';
     if(f.normalLocations && f.normalLocations.length){
       return 'Normally Stocked in '+f.normalLocations.join(' and ');
@@ -932,7 +932,7 @@
       '<div class="wep-smart-grid" id="wep-smart-grid">'+data.families.map(function(f){return renderFamilyCard(f,data);}).join('')+'</div>'+
       '<div class="wep-compare-bar" id="wep-compare-bar" hidden><span><strong id="wep-compare-count">0</strong> selected</span><button type="button" id="wep-open-compare">Compare Selected</button><button type="button" id="wep-clear-compare">Clear</button></div>'+
       '<aside class="wep-cart" id="wep-cart"><div class="wep-cart-head"><h2>Cart</h2><span id="wep-cart-count">0 items</span></div><div id="wep-cart-lines"><p class="wep-cart-empty">Your cart is empty.</p></div><div class="wep-cart-footer"><strong id="wep-cart-total">$0.00</strong><p>Use View Options before adding a model when you want batteries, chargers, accessories, attachments or parts included.</p></div></aside>'+
-      '<dialog id="wep-compare-dialog"><form method="dialog"><button class="wep-dialog-close" aria-label="Close">ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â</button></form><h2>Compare Selected Models</h2><div id="wep-compare-table"></div></dialog>'+
+      '<dialog id="wep-compare-dialog"><form method="dialog"><button class="wep-dialog-close" aria-label="Close">&times;</button></form><h2>Compare Selected Models</h2><div id="wep-compare-table"></div></dialog>'+
     '</section>';
   }
   function smartCss(){
