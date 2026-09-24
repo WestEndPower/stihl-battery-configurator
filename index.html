@@ -9388,7 +9388,8 @@ function renderOnlineOrderAction(item){
   if(
     configuratorHasCapability('onlineOrders', true) &&
     inStock &&
-    isTrue(item.BuyOnlineEligible)
+    String(item.Active ?? "").trim().toUpperCase() === "T" &&
+    String(item.BuyOnlineEligible ?? "").trim().toUpperCase() === "T"
   ){
     return `
       <div style="
