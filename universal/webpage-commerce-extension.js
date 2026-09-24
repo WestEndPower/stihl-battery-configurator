@@ -106,6 +106,7 @@
   }
   function configureUrl(item,category){
     var sku=clean(item && item.SKU);
+    category=clean(category)==='Vauums' ? 'Vacuums' : category;
     var base='https://www.westendpower.com/stihl-equipment-configurator/';
     try{
       if(typeof window.WEBPAGE_PUBLIC_CONFIG_URL !== 'undefined' && window.WEBPAGE_PUBLIC_CONFIG_URL){
