@@ -21,7 +21,13 @@ $catalog = (Get-Content -LiteralPath $mapPath -Raw | ConvertFrom-Json).products
 
 function Select-ProductLink($product, $urls) {
     $urls = @($urls | Where-Object { $_ -match '^https://www\.westendpower\.com/new-models/' } | Select-Object -Unique)
-    if ($urls.Count -eq 1) { return [string]$urls[0] }
+    if ($urls.Count -eq 1) {
+        $only = [string]$urls[0]
+        $type = ([string]$product.ProductType).Trim()
+        if ($type -eq 'Kit' -and $only -match 'unit-only|unit-batt|wo-batt|wout-batt') { return '' }
+        if ($type -eq 'Tool' -and $only -match 'set-w|set-battery|w-ap-|wap-|kit-') { return '' }
+        return $only
+    }
     if ($urls.Count -eq 0) { return '' }
     $type = ([string]$product.ProductType).Trim()
     if ($type -eq 'Tool') {
