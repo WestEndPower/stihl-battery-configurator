@@ -2,9 +2,10 @@
   "use strict";
   var DATA=window.WestEndCatalogData;
   if(!DATA || !Array.isArray(DATA.families)) return;
-  var KEY="westend-stihl-paid-cart-v1";
-  var API="https://westendpower-configurator-api.westendpower-nm.workers.dev";
-  var STRIPE="https://westendpower-stripe-checkout.westendpower-nm.workers.dev";
+  var TEST=/^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+  var KEY=TEST?"westend-stihl-paid-cart-test-v1":"westend-stihl-paid-cart-v1";
+  var API=TEST?"https://westendpower-configurator-api-cart-test.westendpower-nm.workers.dev":"https://westendpower-configurator-api.westendpower-nm.workers.dev";
+  var STRIPE=TEST?"https://westendpower-stripe-checkout-cart-test.westendpower-nm.workers.dev":"https://westendpower-stripe-checkout.westendpower-nm.workers.dev";
   var TERMS="All purchases are final. Please contact West End Power Equipment prior to ordering if you are unsure whether the item(s) selected are correct for or compatible with your application. I have read and understand these terms and have verified that the item(s) selected are correct for my application, or I have contacted West End Power Equipment to confirm fitment or compatibility.";
   function yes(v){return /^(T|TRUE|Y|YES|1)$/i.test(String(v||"").trim());}
   function qty(v){var n=Number(v);return Number.isInteger(n)&&n>0&&n<=10?n:0;}
@@ -47,7 +48,7 @@
   var page=document.querySelector(".wep-page")||document.body;
   var bar=document.createElement("div");bar.className="wep-paid-nav";
   var note=document.createElement("span");note.className="wep-paid-help";
-  note.textContent="Online payment for approved in-stock items";
+  note.textContent=TEST?"TEST MODE: Stripe test checkout":"Online payment for approved in-stock items";
   var view=document.createElement("button");view.type="button";
   view.addEventListener("click",openCart);
   bar.append(note,view);page.insertBefore(bar,page.firstChild);
@@ -104,7 +105,7 @@
     panel.replaceChildren();
     var close=el("button","×");close.type="button";close.className="wep-paid-close";
     close.setAttribute("aria-label","Close cart");close.onclick=closeCart;panel.appendChild(close);
-    panel.appendChild(el("h2","STIHL Cart"));
+    panel.appendChild(el("h2",TEST?"STIHL Cart — TEST MODE":"STIHL Cart"));
     var lines=cartLines(),sum=0;
     if(!lines.length)panel.appendChild(el("p","Your cart is empty. Choose an approved item to add it."));
     lines.forEach(function(entry){
@@ -189,7 +190,7 @@
         });
         var order=await response.json();
         if(!response.ok)throw Error(order.error||"Order verification failed.");
-        var checkoutResponse=await fetch(STRIPE+"/online-order-checkout",{
+        var checkoutResponse=await fetch(STRIPE+(TEST?"/online-order-checkout-test":"/online-order-checkout"),{
           method:"POST",headers:{"Content-Type":"application/json"},
           body:JSON.stringify({orderNumber:order.orderNumber,checkoutToken:order.checkoutToken})
         });
