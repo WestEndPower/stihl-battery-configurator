@@ -7,6 +7,11 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$Systems = @($Systems | ForEach-Object { ([string]$_) -split '[,;]' } | ForEach-Object { $_.Trim().ToUpperInvariant() } | Where-Object { $_ })
+if (-not $Systems.Count) { throw 'Specify at least one battery system.' }
+foreach ($system in $Systems) {
+    if ($system -notin @('AS', 'AK', 'AP', 'AR')) { throw "Unknown battery system: $system" }
+}
 $csvPath = Join-Path $Repository 'data\products.csv'
 $mapPath = Join-Path $Repository 'WestEnd-STIHL-Catalog.json'
 $reportPath = Join-Path $Repository ("STIHL-{0}-Product-Links-Review.csv" -f ($Systems -join '-'))
