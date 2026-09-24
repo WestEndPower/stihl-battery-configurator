@@ -26,8 +26,8 @@
     catch(e){showStatus("Unable to save the cart in this browser.");return false;}
   }
   function eligible(p){
-    return !!p&&yes(p.BuyOnlineEligible)&&
-      (!String(p.Active||"").trim()||yes(p.Active))&&
+    return !!p&&String(p.BuyOnlineEligible||"").trim().toUpperCase()==="T"&&
+      String(p.Active||"").trim().toUpperCase()==="T"&&
       (Number(p.QtyDanbury||0)+Number(p.QtyNewMilford||0)>0);
   }
   function variantProduct(card){
