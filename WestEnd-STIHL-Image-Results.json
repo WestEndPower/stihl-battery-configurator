@@ -1,0 +1,744 @@
+{
+  "collectedAt": "2026-09-24T15:57:33.001Z",
+  "results": [
+    {
+      "model": "BGA 100",
+      "urls": [],
+      "status": "No catalog page",
+      "image": "",
+      "source": ""
+    },
+    {
+      "model": "BGA 160",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-bga-160-unit-only-29386284b",
+        "https://www.westendpower.com/new-models/stihl-bga-160-set-wbattery-charger-29386291b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/065ae88d-ce58-4e97-9202-23293fcefb3b.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-bga-160-unit-only-29386284b",
+      "width": 728,
+      "height": 480
+    },
+    {
+      "model": "BGA 200",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-bga-200-unit-only-29386304b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/d923695c-eabb-495d-8475-6989e258e095.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-bga-200-unit-only-29386304b",
+      "width": 728,
+      "height": 480
+    },
+    {
+      "model": "BGA 250",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-bga-250-unit-only-29386294b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/af7a26a1-71c0-4bf0-b11a-34769d6eceff.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-bga-250-unit-only-29386294b",
+      "width": 728,
+      "height": 480
+    },
+    {
+      "model": "BGA 300",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-bga-300-unit-only-29386356b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/0591032e-d189-4bd4-a744-0be929c574c4.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-bga-300-unit-only-29386356b",
+      "width": 728,
+      "height": 480
+    },
+    {
+      "model": "BGA 86",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-bga-86-unit-only-29386229b",
+        "https://www.westendpower.com/new-models/stihl-bga-86-set-wbattery-charger-29386233b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/5b0fdb4e-53aa-45f5-b88c-d962c638bd6e.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-bga-86-unit-only-29386229b",
+      "width": 728,
+      "height": 480
+    },
+    {
+      "model": "BRA 200",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-bra-200-unit-only-29386359b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/ee5426ec-13e2-4899-adf6-142e9f56c812.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-bra-200-unit-only-29386359b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "BRA 280",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-bra-280-unit-only-29386362b",
+        "https://www.westendpower.com/new-models/stihl-bra-280-set-wbattery-charger-29386366b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/b31e6bf3-706c-4911-90f4-6bb49de6ee54.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-bra-280-unit-only-29386362b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "BRA 500",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-bra-500-unit-only-29386345b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/8031b48d-f0d7-4434-ae82-7d22c496397f.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-bra-500-unit-only-29386345b",
+      "width": 728,
+      "height": 480
+    },
+    {
+      "model": "BRA 600",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-bra-600-unit-only-29386347b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/9e6f3459-4f98-43a4-a572-8e196d92c39e.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-bra-600-unit-only-29386347b",
+      "width": 728,
+      "height": 480
+    },
+    {
+      "model": "BTA 140",
+      "urls": [],
+      "status": "No catalog page",
+      "image": "",
+      "source": ""
+    },
+    {
+      "model": "FCA 135",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-fca-135-unit-only-battery-powered-edger-29386302b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/02ed27cd-c2c4-4bd3-8e85-cc4e3b66f92a.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-fca-135-unit-only-battery-powered-edger-29386302b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "FCA 140",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-fca-140-unit-only-battery-powered-edger-29386306b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/41f66344-7274-4617-b772-a9bca4d1c986.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-fca-140-unit-only-battery-powered-edger-29386306b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "FSA 110 R",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-fsa-110-r-unit-only-29386135b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/71d1681b-fe77-42c2-82ee-4ca9dc90ba8f.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-fsa-110-r-unit-only-29386135b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "FSA 120",
+      "urls": [],
+      "status": "No catalog page",
+      "image": "",
+      "source": ""
+    },
+    {
+      "model": "FSA 120 R",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-fsa-120-r-unit-only-29386145b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/48a55830-6e0e-441c-bfb4-af4a55333e6f.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-fsa-120-r-unit-only-29386145b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "FSA 135",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-fsa-135-unit-only-29386011b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/ed49a451-8d57-46ff-8823-4e9d998c4cbb.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-fsa-135-unit-only-29386011b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "FSA 135 R",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-fsa-135-r-unit-only-29385671b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/f5aec94f-3b14-4360-bf50-246909a19ba1.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-fsa-135-r-unit-only-29385671b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "FSA 200",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-fsa-200-unit-only-29386166b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/6f0fd546-9d21-400a-9208-071fb02aad81.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-fsa-200-unit-only-29386166b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "FSA 200 R",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-fsa-200-r-unit-only-29386159b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/e882f6c8-784e-4f46-85c7-2cd6f0c0b837.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-fsa-200-r-unit-only-29386159b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "FSA 400",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-fsa-400-unit-only-29386170b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/2908d4c2-38c4-46da-b28b-bf443726d751.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-fsa-400-unit-only-29386170b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "FSA 400 K",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-fsa-400-k-unit-only-29386177b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/4011c1d9-1907-4d10-97e3-cb7e0e87097d.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-fsa-400-k-unit-only-29386177b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "FSA 65",
+      "urls": [],
+      "status": "No catalog page",
+      "image": "",
+      "source": ""
+    },
+    {
+      "model": "FSA 86 R",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-fsa-86-r-unit-only-29386012b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/c16e2aa1-1084-4219-b063-3f2be8fe4937.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-fsa-86-r-unit-only-29386012b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "HLA 135 K",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-hla-135-k-0-unit-batt-powered-extended-reach-29386175b",
+        "https://www.westendpower.com/new-models/stihl-hla-135-k-145-unit-battpowered-extended-reach-29386179b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/80ca7bec-9c1b-4ea6-9f74-321543cedaec.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-hla-135-k-0-unit-batt-powered-extended-reach-29386175b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "HLA 66",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-hla-66-unit-only-battpowered-extended-reach-29386163b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/65ecf239-4a2d-4cd4-a0e9-40b3a4225f25.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-hla-66-unit-only-battpowered-extended-reach-29386163b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "HLA 86",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-hla-86-unit-only-battery-powered-extended-reach-29386168b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/0722e723-5eb3-4d6a-8ef2-df149ad848cb.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-hla-86-unit-only-battery-powered-extended-reach-29386168b",
+      "width": 1200,
+      "height": 788
+    },
+    {
+      "model": "HSA 100",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-hsa-100-unit-only-battery-powered-hedge-trimmer-29386095b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/bd71a912-a606-4da5-aa1d-fc861070295d.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-hsa-100-unit-only-battery-powered-hedge-trimmer-29386095b",
+      "width": 1200,
+      "height": 788
+    },
+    {
+      "model": "HSA 130 R",
+      "urls": [],
+      "status": "No catalog page",
+      "image": "",
+      "source": ""
+    },
+    {
+      "model": "HSA 130 T",
+      "urls": [],
+      "status": "No catalog page",
+      "image": "",
+      "source": ""
+    },
+    {
+      "model": "HSA 140 R",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-hsa-140-runit-only-battery-powered-hedge-trimmer-29386103b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/107b3678-e69b-42be-a1bf-e3ceff1cf403.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-hsa-140-runit-only-battery-powered-hedge-trimmer-29386103b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "HSA 140 T",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-hsa-140-tunit-only-battery-powered-hedge-trimmer-29386099b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/27024291-d0bf-4169-a96f-2302dc4f9f7e.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-hsa-140-tunit-only-battery-powered-hedge-trimmer-29386099b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "HSA 150 R",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-hsa-150-runit-only-battery-powered-hedge-trimmer-29386143b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/e2632c34-1f35-4a93-b4e2-c876e1d3c0f7.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-hsa-150-runit-only-battery-powered-hedge-trimmer-29386143b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "HSA 150 T",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-hsa-150-t-40-unit-only-hedge-trimmer-29386133b",
+        "https://www.westendpower.com/new-models/stihl-hsa-150-tunit-only-battery-powered-hedge-trimmer-29386130b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/49d13862-fdac-4843-8a08-f2eb06142c07.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-hsa-150-t-40-unit-only-hedge-trimmer-29386133b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "HSA 94 R",
+      "urls": [],
+      "status": "No catalog page",
+      "image": "",
+      "source": ""
+    },
+    {
+      "model": "HTA 135",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-hta-135-battery-powered-pole-pruner-29385026b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/5b987487-2877-4486-89fd-039b4ca55007.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-hta-135-battery-powered-pole-pruner-29385026b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "HTA 150",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-hta-150-battery-powered-pole-pruner-29385053b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/c99d2e5a-fe83-4c66-8072-b0353f236f2f.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-hta-150-battery-powered-pole-pruner-29385053b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "HTA 66",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-hta-66-battery-powered-pole-pruner-29385047b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/46307b9b-576d-418d-bbc4-bb33eb4dc6ee.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-hta-66-battery-powered-pole-pruner-29385047b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "HTA 86",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-hta-86-battery-powered-pole-pruner-29385051b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/dd4c721c-b40f-4b88-a9c3-7563101f6f39.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-hta-86-battery-powered-pole-pruner-29385051b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "KGA 770",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-kga-770-unit-only-29387363b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/31cbb7c1-2e6e-4259-84ed-b01f3cd7fd89.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-kga-770-unit-only-29387363b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "KMA 120 R",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-kma-120-r-unit-only-battery-kombisystem-29386338b",
+        "https://www.westendpower.com/new-models/stihl-kma-120-r-set-wbatt-charger-fs-km-kombisystem-29386343b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/18e6aaba-0155-4d26-99cb-a1ecffadbf20.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-kma-120-r-unit-only-battery-kombisystem-29386338b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "KMA 135 R",
+      "urls": [],
+      "status": "No catalog page",
+      "image": "",
+      "source": ""
+    },
+    {
+      "model": "KMA 200 R",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-kma-200-r-unit-only-battery-kombisystem-29386350b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/48f5d963-9907-44aa-8784-e61b61a9deec.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-kma-200-r-unit-only-battery-kombisystem-29386350b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "MSA 160 C- B",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-msa-160-c-b-12-wo-batt-chrg-29381736b",
+        "https://www.westendpower.com/new-models/stihl-msa-160-c-b-14-wo-batt-chrg-29381742b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/5a5b4a97-97d6-4c23-a090-3387ad580ec9.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-msa-160-c-b-12-wo-batt-chrg-29381736b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "MSA 161 T",
+      "urls": [],
+      "status": "No catalog page",
+      "image": "",
+      "source": ""
+    },
+    {
+      "model": "MSA 190 T",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-msa-190-t-unit-only-battery-powered-chainsaw-29381765b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/3788ce45-ec3e-40fc-9a47-5adff9d6935a.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-msa-190-t-unit-only-battery-powered-chainsaw-29381765b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "MSA 200 C-B",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-msa-200-c-b-w12-battery-powered-chainsaw-29381750b",
+        "https://www.westendpower.com/new-models/stihl-msa-200-c-b-w14-battery-powered-chainsaw-29381746b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/62a1a56c-c1f4-4e7d-b9b6-02de3c13cf13.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-msa-200-c-b-w12-battery-powered-chainsaw-29381750b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "MSA 220 C-B",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-msa-220-c-b-14-wo-batt-chrg-29381763b",
+        "https://www.westendpower.com/new-models/stihl-msa-220-c-b-16-wo-batt-chrg-29381760b",
+        "https://www.westendpower.com/new-models/stihl-msa-220-c-b-18-wo-batt-chrg-29381764b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/772a7517-8e47-4574-862d-7cae73031e40.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-msa-220-c-b-14-wo-batt-chrg-29381763b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "MSA 220 TC-O",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-msa-220-tc-o-12-61ps3-29382283b",
+        "https://www.westendpower.com/new-models/stihl-msa-220-tc-o-12-61ps3-29384263b",
+        "https://www.westendpower.com/new-models/stihl-msa-220-tc-o-14-61ps3-29382287b",
+        "https://www.westendpower.com/new-models/stihl-msa-220-tc-o-14-61ps3-29384275b",
+        "https://www.westendpower.com/new-models/stihl-msa-220-tc-o-16-61ps3-29382290b",
+        "https://www.westendpower.com/new-models/stihl-msa-220-tc-o-16-61ps3-29384276b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/126c61aa-162e-40b2-8c5f-4c8089f41543.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-msa-220-tc-o-12-61ps3-29382283b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "MSA 300",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-msa-300-c-o-16-battery-powered-chainsaw-29382291b",
+        "https://www.westendpower.com/new-models/stihl-msa-300-c-o-18-battery-powered-chainsaw-29382459b",
+        "https://www.westendpower.com/new-models/stihl-msa-300-c-o-20-battery-powered-chainsaw-29382461b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/7858f540-b024-4c05-bc92-a30b65644a7f.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-msa-300-c-o-16-battery-powered-chainsaw-29382291b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "RAM 510",
+      "urls": [],
+      "status": "No catalog page",
+      "image": "",
+      "source": ""
+    },
+    {
+      "model": "REA 100",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-rea-100-unit-only-29386510b",
+        "https://www.westendpower.com/new-models/stihl-rea-100-set-wbattery-charger-29386515b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/f426d920-b571-4c7e-acae-f7e28354bf87.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-rea-100-unit-only-29386510b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "RMA 453 PV",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-rma-453-pv-unit-only-battery-powered-lawn-mower-29381311b",
+        "https://www.westendpower.com/new-models/stihl-rma-453-pv-set-battery-powered-lawn-mower-29381315b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/bdc40328-a7f5-4c9c-bca6-a7329fd02613.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-rma-453-pv-unit-only-battery-powered-lawn-mower-29381311b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "RMA 510",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-rma-510-unit-only-battery-powered-lawn-mower-29381322b",
+        "https://www.westendpower.com/new-models/stihl-rma-510-w-ap-300-s-a-battery-powered-lawn-mower-29381467b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/7f762c16-e88b-4490-94eb-be7a012adeda.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-rma-510-unit-only-battery-powered-lawn-mower-29381322b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "RMA 510 V",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-rma-510-v-unit-only-battery-powered-lawn-mower-29381464b",
+        "https://www.westendpower.com/new-models/stihl-rma-510-v-wap-300-battery-powered-lawn-mower-29381472b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/a6bae9b3-c2fe-4df7-9dfb-10c265f33ebd.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-rma-510-v-unit-only-battery-powered-lawn-mower-29381464b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "RMA 7 RV",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-rma-7-rv-unit-only-battery-mulching-lawn-mower-29381476b",
+        "https://www.westendpower.com/new-models/stihl-rma-7-rv-set-battery-mulching-lawn-mower-29381477b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/3114a11d-2063-4afe-a180-47e4a7b3925b.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-rma-7-rv-unit-only-battery-mulching-lawn-mower-29381476b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "RMA 756 V",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-rma-756-v-unit-only-battery-powered-lawn-mower-29381479b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/e751ed41-1e0d-4e31-a75a-1cf32c8c440f.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-rma-756-v-unit-only-battery-powered-lawn-mower-29381479b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "RMA 765 V",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-rma-765-v-unit-only-battery-powered-lawn-mower-29381483b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/62fb6167-dc5a-40ef-8d21-afa533f0779b.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-rma-765-v-unit-only-battery-powered-lawn-mower-29381483b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "SEA 100",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-sea-100-battery-vacuum-unit-only-wetdry-vacuum-29386534b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/91f9ce5c-fdfb-46cd-850a-8a6b0064e71e.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-sea-100-battery-vacuum-unit-only-wetdry-vacuum-29386534b",
+      "width": 1200,
+      "height": 792
+    },
+    {
+      "model": "SFA 120",
+      "urls": [],
+      "status": "No catalog page",
+      "image": "",
+      "source": ""
+    },
+    {
+      "model": "SHA 140",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-sha-140-unit-only-29386370b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/d6129885-b20b-40fd-bbef-a55b8e21626d.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-sha-140-unit-only-29386370b",
+      "width": 800,
+      "height": 528
+    },
+    {
+      "model": "TSA 230",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-tsa-230-battery-stihl-cutquik-29385551b"
+      ],
+      "status": "No product image",
+      "image": "",
+      "source": ""
+    },
+    {
+      "model": "TSA 300",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-tsa-300-stihl-cutquik-unit-only-29385556b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/a60b3482-8c20-4cf0-a416-f00e681c8c5a.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-tsa-300-stihl-cutquik-unit-only-29385556b",
+      "width": 728,
+      "height": 480
+    },
+    {
+      "model": "TSA 350",
+      "urls": [],
+      "status": "No catalog page",
+      "image": "",
+      "source": ""
+    },
+    {
+      "model": "TSA 500",
+      "urls": [
+        "https://www.westendpower.com/new-models/stihl-tsa-500-battery-stihl-cutquik-unit-only-29385558b"
+      ],
+      "status": "Matched",
+      "image": "https://cdnmedia.endeavorsuite.com/images/catalogs/25264/products/detail/124417af-432d-4ec2-a19f-65d13d98a736.jpg",
+      "source": "Product JSON-LD",
+      "page": "https://www.westendpower.com/new-models/stihl-tsa-500-battery-stihl-cutquik-unit-only-29385558b",
+      "width": 728,
+      "height": 480
+    }
+  ]
+}
