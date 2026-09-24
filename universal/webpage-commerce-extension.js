@@ -1098,9 +1098,12 @@
     if(!textarea || !clean(textarea.value)) return;
     if(textarea.value.indexOf('id="wep-smart-catalog"')>=0) return;
     if(typeof window.webpageProducts !== 'function') return;
-    var category=clean(document.getElementById('stihl-webpage-category') && document.getElementById('stihl-webpage-category').value) || 'Equipment';
+    var pageType=clean(document.getElementById('stihl-webpage-page-type') && document.getElementById('stihl-webpage-page-type').value);
+    var category=pageType==='series' && typeof window.webpagePageLabel==='function'
+      ? clean(window.webpagePageLabel())
+      : clean(document.getElementById('stihl-webpage-category') && document.getElementById('stihl-webpage-category').value) || 'Equipment';
     var products=window.webpageProducts().filter(function(item){
-      return clean(item.Category).toLowerCase()===category.toLowerCase();
+      return pageType==='series' || clean(item.Category).toLowerCase()===category.toLowerCase();
     });
     if(!products || !products.length) return;
     var data=pageData(products);
@@ -1143,8 +1146,11 @@
   api.groupProducts=groupProducts;
   api.buildGeneratedCatalog=function(products,category){
     var selected=clean(category);
+    var batterySeries=selected.match(/^(AS|AK|AP|AR) Battery System$/i);
     var scoped=(products||[]).filter(function(item){
-      return !selected || clean(item.Category).toLowerCase()===selected.toLowerCase();
+      return batterySeries
+        ? clean(item.System).toUpperCase()===batterySeries[1].toUpperCase()
+        : !selected || clean(item.Category).toLowerCase()===selected.toLowerCase();
     });
     var data=pageData(scoped);
     if(!data.families.length) return '';
