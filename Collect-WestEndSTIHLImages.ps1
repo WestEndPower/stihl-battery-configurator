@@ -98,21 +98,30 @@ if (-not $products.Count -or -not ($products[0].PSObject.Properties.Name -contai
 $map = Get-Content -LiteralPath $mapPath -Raw | ConvertFrom-Json
 $selected = @($products | Where-Object {
     ([string]$_.Active).Trim().ToUpperInvariant() -ne 'F' -and
-    ([string]$_.Series).Trim().ToUpperInvariant() -eq 'AP'
+    (([string]$_.Series).Trim().ToUpperInvariant() -eq 'AP' -or
+     ([string]$_.System).Trim().ToUpperInvariant() -eq 'AP')
 })
 $models = @($selected | ForEach-Object { ([string]$_.Model).Trim() } | Where-Object { $_ } | Sort-Object -Unique)
-$tasks = foreach ($model in $models) {
+Write-Host "Products read: $($products.Count); AP rows: $($selected.Count); AP models: $($models.Count)"
+if (-not $models.Count) {
+    throw 'No AP models found in products.csv. Check the Series and System columns; no data was changed.'
+}
+$tasks = @(foreach ($model in $models) {
     $property = $map.products.PSObject.Properties[$model]
     $urls = if ($property) { @($property.Value | Where-Object { $_ }) } else { @() }
     # Prefer tool-only photography to a picture of a package or battery kit.
     $urls = @($urls | Sort-Object -Property @{Expression={ if ($_ -match 'unit-only|tool-only') { 0 } else { 1 } }}, @{Expression={ $_ }})
     [pscustomobject]@{ model=$model; urls=$urls }
-}
+})
 
 $temp = Join-Path $env:TEMP ('STIHL-Images-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $temp -Force | Out-Null
 $inputPath = Join-Path $temp 'models.json'
-[IO.File]::WriteAllText($inputPath, ($tasks | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
+$json = ConvertTo-Json -InputObject $tasks -Depth 8
+if ([string]::IsNullOrWhiteSpace($json)) { throw 'Could not serialize AP model list; no data was changed.' }
+[IO.File]::WriteAllText($inputPath, $json, [Text.UTF8Encoding]::new($false))
+$check = Get-Content -LiteralPath $inputPath -Raw | ConvertFrom-Json
+if (@($check).Count -ne $tasks.Count) { throw 'AP model list verification failed; no data was changed.' }
 $edge = $null
 try {
     $profile = Join-Path $env:LOCALAPPDATA 'WestEndPower\DealerSpikeImageBrowser'
