@@ -3,6 +3,7 @@ param(
     [string]$Repository = "C:\NMWEPE\GitHub\stihl configurator\stihl-battery-configurator",
     [string]$Workbook = "C:\Users\NM-Office\Desktop\STIHL Configurator\STIHL-Master.xlsm",
     [switch]$Apply,
+    [switch]$UseSavedResults,
     [int]$DebugPort = 9335
 )
 
@@ -114,34 +115,44 @@ $tasks = @(foreach ($model in $models) {
     [pscustomobject]@{ model=$model; urls=$urls }
 })
 
-$temp = Join-Path $env:TEMP ('STIHL-Images-' + [guid]::NewGuid().ToString('N'))
-New-Item -ItemType Directory -Path $temp -Force | Out-Null
-$inputPath = Join-Path $temp 'models.json'
-$json = ConvertTo-Json -InputObject $tasks -Depth 8
-if ([string]::IsNullOrWhiteSpace($json)) { throw 'Could not serialize AP model list; no data was changed.' }
-[IO.File]::WriteAllText($inputPath, $json, [Text.UTF8Encoding]::new($false))
-$check = Get-Content -LiteralPath $inputPath -Raw | ConvertFrom-Json
-if (@($check).Count -ne $tasks.Count) { throw 'AP model list verification failed; no data was changed.' }
-$edge = $null
-try {
-    $profile = Join-Path $env:LOCALAPPDATA 'WestEndPower\DealerSpikeImageBrowser'
-    New-Item -ItemType Directory -Path $profile -Force | Out-Null
-    $seed = 'https://www.westendpower.com/new-models/stihl-165'
-    $edge = Start-Process -FilePath (Get-EdgePath) -ArgumentList @(
-        "--remote-debugging-port=$DebugPort", "--user-data-dir=`"$profile`"",
-        '--no-first-run', '--no-default-browser-check', $seed
-    ) -PassThru
-    & node.exe $nodePath $DebugPort $inputPath $resultPath
-    if ($LASTEXITCODE -ne 0) { throw 'Image scan failed; no data was changed.' }
+if ($UseSavedResults) {
+    if (-not (Test-Path -LiteralPath $resultPath)) { throw "Saved image results not found: $resultPath" }
+    Write-Host "Using tested image results: $resultPath"
 }
-finally {
-    if ($edge -and -not $edge.HasExited) { Stop-Process -Id $edge.Id -Force -ErrorAction SilentlyContinue }
-    Remove-Item -LiteralPath $temp -Recurse -Force -ErrorAction SilentlyContinue
+else {
+    $temp = Join-Path $env:TEMP ('STIHL-Images-' + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $temp -Force | Out-Null
+    $inputPath = Join-Path $temp 'models.json'
+    $json = ConvertTo-Json -InputObject $tasks -Depth 8
+    if ([string]::IsNullOrWhiteSpace($json)) { throw 'Could not serialize AP model list; no data was changed.' }
+    [IO.File]::WriteAllText($inputPath, $json, [Text.UTF8Encoding]::new($false))
+    $check = Get-Content -LiteralPath $inputPath -Raw | ConvertFrom-Json
+    if (@($check).Count -ne $tasks.Count) { throw 'AP model list verification failed; no data was changed.' }
+    $edge = $null
+    try {
+        $profile = Join-Path $env:LOCALAPPDATA 'WestEndPower\DealerSpikeImageBrowser'
+        New-Item -ItemType Directory -Path $profile -Force | Out-Null
+        $seed = 'https://www.westendpower.com/new-models/stihl-165'
+        $edge = Start-Process -FilePath (Get-EdgePath) -ArgumentList @(
+            "--remote-debugging-port=$DebugPort", "--user-data-dir=`"$profile`"",
+            '--no-first-run', '--no-default-browser-check', $seed
+        ) -PassThru
+        & node.exe $nodePath $DebugPort $inputPath $resultPath
+        if ($LASTEXITCODE -ne 0) { throw 'Image scan failed; no data was changed.' }
+    }
+    finally {
+        if ($edge -and -not $edge.HasExited) { Stop-Process -Id $edge.Id -Force -ErrorAction SilentlyContinue }
+        Remove-Item -LiteralPath $temp -Recurse -Force -ErrorAction SilentlyContinue
+    }
 }
 
 $results = @( (Get-Content -LiteralPath $resultPath -Raw | ConvertFrom-Json).results )
 $byModel = @{}
 foreach ($item in $results) { $byModel[[string]$item.model] = $item }
+if ($UseSavedResults -and $Apply) {
+    $missing = @($models | Where-Object { -not $byModel.ContainsKey($_) })
+    if ($missing.Count) { throw "Saved scan is missing current AP models: $($missing -join ', '). No data was changed." }
+}
 $report = foreach ($product in $selected) {
     $model = ([string]$product.Model).Trim()
     $found = $byModel[$model]
