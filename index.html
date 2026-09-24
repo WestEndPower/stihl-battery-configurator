@@ -23448,7 +23448,7 @@ function generateDealerSpikeWebpage(){
   }
 
   const WEBPAGE_PUBLIC_CONFIG_URL=
-    'https://www.westendpower.com/stihl-equipment-configurator/';
+    'https://westendpower.github.io/stihl-battery-configurator/';
 
   function absoluteWebpageUrl(value){
     const url=clean(value);
@@ -23691,7 +23691,7 @@ function generateDealerSpikeWebpage(){
       ? (
           /^https?:\/\//i.test(rawImage)
             ? rawImage
-            : `https://www.westendpower.com/stihl-equipment-configurator/${rawImage.replace(/^\.?\//,'')}`
+            : `https://westendpower.github.io/stihl-battery-configurator/${rawImage.replace(/^\.?\//,'')}`
         )
       : '';
     const details=absoluteWebpageUrl(item.ProductURL);
@@ -24697,7 +24697,7 @@ function downloadDealerSpikeWebpage(){
 function previewDealerSpikeWebpage(){
   const html=clean($('stihl-webpage-code')?.value)
     .replaceAll(
-      'https://www.westendpower.com/stihl-equipment-configurator/images/',
+      'https://westendpower.github.io/stihl-battery-configurator/images/',
       'images/'
     );
 
