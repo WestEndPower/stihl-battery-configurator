@@ -2,13 +2,14 @@
 param(
     [string]$Repository = 'C:\NMWEPE\GitHub\stihl configurator\stihl-battery-configurator',
     [string]$Workbook = 'C:\Users\NM-Office\Desktop\STIHL Configurator\STIHL-Master.xlsm',
+    [string[]]$Systems = @('AP'),
     [switch]$Apply
 )
 
 $ErrorActionPreference = 'Stop'
 $csvPath = Join-Path $Repository 'data\products.csv'
 $mapPath = Join-Path $Repository 'WestEnd-STIHL-Catalog.json'
-$reportPath = Join-Path $Repository 'STIHL-AP-Product-Links-Review.csv'
+$reportPath = Join-Path $Repository ("STIHL-{0}-Product-Links-Review.csv" -f ($Systems -join '-'))
 foreach ($path in @($csvPath, $mapPath)) {
     if (-not (Test-Path -LiteralPath $path)) { throw "Missing file: $path" }
 }
@@ -43,7 +44,7 @@ function Select-ProductLink($product, $urls) {
 
 $proposed = @{}
 $report = foreach ($product in $products) {
-    if (([string]$product.System).Trim() -ne 'AP') { continue }
+    if (([string]$product.System).Trim() -notin $Systems) { continue }
     $sku = ([string]$product.SKU).Trim()
     $model = ([string]$product.Model).Trim()
     $existing = ([string]$product.ProductURL).Trim()
@@ -62,7 +63,7 @@ $report = foreach ($product in $products) {
     }
 }
 $report | Export-Csv -LiteralPath $reportPath -NoTypeInformation -Encoding UTF8
-Write-Host "AP product links ready: $($proposed.Count)"
+Write-Host "Product links ready for $($Systems -join ', '): $($proposed.Count)"
 Write-Host "Review report: $reportPath"
 $report | Group-Object Status | Sort-Object Name | ForEach-Object { Write-Host ("{0}: {1}" -f $_.Name, $_.Count) }
 if (-not $Apply) { Write-Host 'PREVIEW ONLY. Run again with -Apply after reviewing the report.'; return }
