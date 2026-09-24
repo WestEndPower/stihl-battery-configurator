@@ -870,6 +870,40 @@
       return ra-rb || a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'});
     });
   }
+  function accessoryMarkup(data,category){
+    var match=/^(AS|AK|AP|AR) Battery System$/i.exec(clean(category));
+    if(!match) return '';
+    var system=match[1].toUpperCase();
+    function compatible(items){
+      return (items||[]).filter(function(item){
+        return clean(item.system).toUpperCase().split(/[|,;/]+/).map(function(x){return x.trim();}).indexOf(system)>=0;
+      }).slice().sort(function(a,b){
+        return clean(a.label).localeCompare(clean(b.label),undefined,{numeric:true,sensitivity:'base'});
+      });
+    }
+    function panel(kind,items){
+      return '<section class="wep-accessory-panel" data-accessory-panel="'+kind+'" hidden>'+
+        '<h3>'+system+' '+(kind==='batteries'?'Batteries':'Chargers')+'</h3>'+
+        '<p>Compatible with the '+system+' battery system. Contact West End Power to confirm availability.</p>'+
+        '<div class="wep-accessory-grid">'+items.map(function(item){
+          return '<article class="wep-accessory-card"><h4>'+esc(item.label)+'</h4>'+
+            '<strong>'+Number(item.price||0).toLocaleString('en-US',{style:'currency',currency:'USD'})+'</strong></article>';
+        }).join('')+'</div></section>';
+    }
+    return '<nav class="wep-accessory-nav" aria-label="Browse '+system+' battery system">'+
+      '<button type="button" data-shop-view="tools" aria-pressed="true">Equipment</button>'+
+      '<button type="button" data-shop-view="batteries" aria-pressed="false">Batteries</button>'+
+      '<button type="button" data-shop-view="chargers" aria-pressed="false">Chargers</button></nav>'+
+      panel('batteries',compatible(data.batteries))+panel('chargers',compatible(data.chargers));
+  }
+  function accessoryScript(){
+    return '<script>(function(){var root=document.getElementById("wep-smart-catalog");if(!root)return;'+
+      'var buttons=root.querySelectorAll("[data-shop-view]"),panels=root.querySelectorAll("[data-accessory-panel]");'+
+      'Array.prototype.forEach.call(buttons,function(button){button.addEventListener("click",function(){var view=button.getAttribute("data-shop-view");'+
+      'root.classList.toggle("wep-show-accessories",view!=="tools");'+
+      'Array.prototype.forEach.call(buttons,function(b){b.setAttribute("aria-pressed",String(b===button))});'+
+      'Array.prototype.forEach.call(panels,function(p){p.hidden=p.getAttribute("data-accessory-panel")!==view})})})})()</script>';
+  }
   function renderSmartMarkup(data,category){
     var isSeriesPage=/^(AS|AK|AP|AR) Battery System$/i.test(clean(category));
     var filterCategory=function(value){return clean(value).replace(/^Vauums$/i,'Vacuums');};
@@ -924,6 +958,7 @@
     }).join('');
     return '<section id="wep-smart-catalog" class="wep-smart-catalog" data-filter-scope="'+(isSeriesPage?'category':'subcategory')+'">'+
       '<div class="wep-smart-heading"><p>'+ (isSeriesPage?'Shop by category, availability or model.':'Shop by type, power source, availability or model.') +'</p><h2>'+esc(category)+' &mdash; Filter, Compare &amp; Configure</h2></div>'+
+      accessoryMarkup(data,category)+
       '<div class="wep-smart-toolbar">'+
         '<div'+(isSeriesPage?' class="wep-category-row"':'')+'><strong>'+(isSeriesPage?'Category':'Type')+'</strong><div class="wep-filter-buttons" id="wep-type-filters">'+typeButtons+'</div></div>'+ (isSeriesPage?'<div class="wep-subcategory-row" id="wep-subcategory-row" hidden><strong>Subcategory</strong><div class="wep-filter-buttons" id="wep-subcategory-filters"></div></div>':'')+
         (powers.length>1?'<div><strong>Power</strong><div class="wep-filter-buttons" id="wep-power-filters">'+powerButtons+'</div></div>':'')+
@@ -950,6 +985,7 @@
     '.wep-smart-heading p{margin:0 0 4px;color:#606974}'+
     '.wep-smart-heading h2{margin:0;font-size:30px}'+
 
+    '.wep-accessory-nav{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 16px}.wep-accessory-nav button{padding:10px 18px;border:2px solid #238b45;border-radius:7px;background:#fff;color:#183623;font-size:16px;font-weight:800;cursor:pointer}.wep-accessory-nav button[aria-pressed="true"]{background:#238b45;color:#fff}.wep-accessory-panel[hidden]{display:none!important}.wep-accessory-panel{margin:0 0 20px;padding:20px;border:1px solid #d2d6db;border-radius:10px;background:#fafbfc}.wep-accessory-panel h3{margin:0 0 6px;font-size:24px}.wep-accessory-panel p{margin:0 0 18px}.wep-accessory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.wep-accessory-card{border:1px solid #cbd3d8;border-radius:8px;padding:17px;background:#fff}.wep-accessory-card h4{margin:0 0 12px;font-size:18px}.wep-accessory-card strong{font-size:20px}.wep-smart-catalog.wep-show-accessories .wep-smart-toolbar,.wep-smart-catalog.wep-show-accessories .wep-smart-results,.wep-smart-catalog.wep-show-accessories .wep-smart-grid,.wep-smart-catalog.wep-show-accessories .wep-compare-bar,.wep-smart-catalog.wep-show-accessories .wep-cart{display:none!important}'+
     '.wep-smart-toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:14px;border:1px solid #d2d6db;border-radius:10px;background:#fafbfc}'+
     '.wep-filter-buttons{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}'+
     '.wep-category-row,.wep-subcategory-row{grid-column:1/-1}.wep-subcategory-row[hidden]{display:none!important}'+
@@ -1114,7 +1150,7 @@
     });
     if(!products || !products.length) return;
     var data=pageData(products);
-    var insertion=smartCss()+renderSmartMarkup(data,category)+runtimeScript(data);
+    var insertion=smartCss()+renderSmartMarkup(data,category)+runtimeScript(data)+accessoryScript();
     var marker='</div>';
     var pos=textarea.value.lastIndexOf(marker);
     textarea.value = pos>=0
@@ -1160,7 +1196,7 @@
     });
     var data=pageData(scoped);
     if(!data.families.length) return '';
-    return smartCss()+renderSmartMarkup(data,clean(category)||'Equipment')+runtimeScript(data);
+    return smartCss()+renderSmartMarkup(data,clean(category)||'Equipment')+runtimeScript(data)+accessoryScript();
   };
   api.enhanceGeneratedPage=enhanceGeneratedPage;
   api.install=wire;
