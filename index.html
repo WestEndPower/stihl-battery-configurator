@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-configurator-brand="STIHL">
 <head>
   <!-- =========================================================
@@ -734,8 +734,31 @@ body.dealer-mode .dealer-only{
   <div class="stihl-dealer-box">
     <h3 style="margin-top:0;">Build / Update STIHL Dealer Spike Webpage</h3>
     <div class="stihl-webpage-fields">
-      <div><label for="stihl-webpage-category">Category</label><select id="stihl-webpage-category"></select></div>
-      <div><label for="stihl-webpage-filter">Products</label><select id="stihl-webpage-filter"><option value="inventory">In Stock &amp; On Order</option><option value="active">All Active</option></select></div>
+      <div>
+        <label for="stihl-webpage-page-type">Page Type</label>
+        <select id="stihl-webpage-page-type">
+          <option value="category">Category Page</option>
+          <option value="series">Battery Series Page</option>
+        </select>
+      </div>
+
+      <div id="stihl-webpage-series-page-wrap" style="display:none;">
+        <label for="stihl-webpage-battery-series">Battery Series</label>
+        <select id="stihl-webpage-battery-series"></select>
+      </div>
+
+      <div id="stihl-webpage-category-wrap">
+        <label for="stihl-webpage-category">Category</label>
+        <select id="stihl-webpage-category"></select>
+      </div>
+
+      <div>
+        <label for="stihl-webpage-filter">Products</label>
+        <select id="stihl-webpage-filter">
+          <option value="inventory">In Stock &amp; On Order</option>
+          <option value="active">All Active</option>
+        </select>
+      </div>
 
  <div style="grid-column:1/-1;">
    <label>Specifications to Display</label>
@@ -825,8 +848,121 @@ body.dealer-mode .dealer-only{
         Enter 0 or leave blank to exclude a group.
         Make at least one positive selection in Power Type, Series, or Subcategory.
       </div>
-      <div><label for="stihl-webpage-filename">Page File Name</label><input id="stihl-webpage-filename" value="equipment-in-stock-ct"></div>
-      <div><label for="stihl-webpage-url">Published Page URL</label><input id="stihl-webpage-url" value="https://www.westendpower.com/equipment-in-stock-ct"></div>
+      <div style="grid-column:1/-1;border:1px solid #cfd4da;border-radius:10px;padding:14px;background:#fafbfc;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+          <div>
+            <strong style="font-size:16px;">Website / SEO Publishing Fields</strong>
+            <div class="stihl-small">Values are recommended automatically and can be edited before publishing.</div>
+          </div>
+
+          <label style="display:flex;align-items:center;gap:7px;margin:0;padding:7px 10px;border:1px solid #ccc;border-radius:8px;background:#fff;">
+            <input
+              id="stihl-webpage-platform-dealerspike"
+              type="checkbox"
+              checked
+              style="width:auto;margin:0;">
+            Dealer Spike
+          </label>
+        </div>
+
+        <div style="display:grid;gap:12px;">
+
+          <div>
+            <label for="stihl-webpage-page-title">*Page Title</label>
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:7px;">
+              <input id="stihl-webpage-page-title">
+              <button
+                type="button"
+                class="stihl-webpage-copy-seo"
+                data-copy-target="stihl-webpage-page-title">
+                Copy
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label for="stihl-webpage-title-tag">HTML Title Tag Text</label>
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:7px;">
+              <input id="stihl-webpage-title-tag" maxlength="80">
+              <button
+                type="button"
+                class="stihl-webpage-copy-seo"
+                data-copy-target="stihl-webpage-title-tag">
+                Copy
+              </button>
+            </div>
+            <small id="stihl-webpage-title-tag-count"></small>
+          </div>
+
+          <div>
+            <label for="stihl-webpage-filename">*Page File Name</label>
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:7px;">
+              <input id="stihl-webpage-filename" value="equipment-in-stock-ct">
+              <button
+                type="button"
+                class="stihl-webpage-copy-seo"
+                data-copy-target="stihl-webpage-filename">
+                Copy
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label for="stihl-webpage-meta-description">Meta Description</label>
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:7px;">
+              <input id="stihl-webpage-meta-description" maxlength="250">
+              <button
+                type="button"
+                class="stihl-webpage-copy-seo"
+                data-copy-target="stihl-webpage-meta-description">
+                Copy
+              </button>
+            </div>
+            <small id="stihl-webpage-meta-description-count"></small>
+          </div>
+
+          <div>
+            <label for="stihl-webpage-meta-keywords">Meta Keywords</label>
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:7px;">
+              <input id="stihl-webpage-meta-keywords" maxlength="250">
+              <button
+                type="button"
+                class="stihl-webpage-copy-seo"
+                data-copy-target="stihl-webpage-meta-keywords">
+                Copy
+              </button>
+            </div>
+            <small id="stihl-webpage-meta-keywords-count"></small>
+          </div>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;">
+            <button
+              class="stihl-btn light"
+              id="stihl-webpage-copy-all-seo"
+              type="button">
+              Copy All SEO Fields
+            </button>
+
+            <button
+              class="stihl-btn light"
+              id="stihl-webpage-reset-settings"
+              type="button">
+              Reset Saved Settings
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <div style="grid-column:1/-1;">
+        <label for="stihl-webpage-url">Published Page URL</label>
+        <input
+          id="stihl-webpage-url"
+          value="https://www.westendpower.com/equipment-in-stock-ct">
+        <small>
+          Used by the configurator for canonical links, promotion reminders and cross-page navigation.
+        </small>
+      </div>
     </div>
     <button class="stihl-btn" id="stihl-generate-webpage" type="button">Generate Page</button>
     <div id="stihl-webpage-status" class="stihl-note">Choose a category and generate the current page.</div>
@@ -9228,6 +9364,21 @@ function onlineItemInStock(item){
   );
 }
 
+function onlineCheckoutAvailability(item){
+  const liveQuantity=liveInventoryQuantity(item);
+  const locations=[
+    Number(clean(item?.QtyNewMilford))>0 ? 'New Milford' : '',
+    Number(clean(item?.QtyDanbury))>0 ? 'Danbury' : ''
+  ].filter(Boolean);
+  const count=liveQuantity!==null && liveQuantity>0
+    ? `<strong>&#10003; In Stock: ${liveQuantity} available</strong>`
+    : '<strong>Confirm current availability</strong>';
+  const locationText=locations.length
+    ? `<div style="margin-top:4px;color:#444;font-size:13px">Typically stocked in ${escapeHtml(locations.join(' and '))}. Confirm pickup location before collection.</div>`
+    : '<div style="margin-top:4px;color:#444;font-size:13px">We will confirm the pickup location before collection.</div>';
+  return `<div style="margin:0 0 16px;padding:11px 13px;border:1px solid #b9d8bd;border-radius:8px;background:#f3fbf5;color:#1f6b34;font-size:15px">${count}${locationText}</div>`;
+}
+
 function renderOnlineOrderAction(item){
   if(!item) return '';
 
@@ -9451,6 +9602,8 @@ function openOnlineOrderModal(item){
         ">
           SKU: ${escapeHtml(skuOf(item))}
         </div>
+
+        ${onlineCheckoutAvailability(item)}
 
         <div style="
           display:flex;
@@ -22170,12 +22323,104 @@ const PUBLIC_CONFIG_URL =
     .split('?')[0]
     .split('#')[0];
 
+function webpagePageType(){
+  return clean($('stihl-webpage-page-type')?.value) || 'category';
+}
+
+function webpageBatterySeries(){
+  return clean($('stihl-webpage-battery-series')?.value).toUpperCase();
+}
+
+function webpageAvailableBatterySeries(){
+  const rank={AS:1,AK:2,AP:3,AR:4};
+
+  return [...new Set(
+    (state.tools || [])
+      .filter(item=>isTrue(item.Active))
+      .map(item=>clean(item.System).toUpperCase())
+      .filter(value=>['AS','AK','AP','AR'].includes(value))
+  )].sort((a,b)=>
+    (rank[a]||99)-(rank[b]||99) ||
+    a.localeCompare(b)
+  );
+}
+
+function populateWebpageBatterySeries(){
+  const select=$('stihl-webpage-battery-series');
+
+  if(!select) return;
+
+  const current=clean(select.value).toUpperCase();
+  const values=webpageAvailableBatterySeries();
+
+  select.innerHTML=values
+    .map(value=>
+      `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`
+    )
+    .join('');
+
+  if(current && values.includes(current)){
+    select.value=current;
+  }else if(values.includes('AP')){
+    select.value='AP';
+  }else if(values.length){
+    select.value=values[0];
+  }
+}
+
+function updateWebpagePageTypeUI(){
+  const seriesMode=webpagePageType()==='series';
+
+  const categoryWrap=$('stihl-webpage-category-wrap');
+  const seriesWrap=$('stihl-webpage-series-page-wrap');
+
+  if(categoryWrap){
+    categoryWrap.style.display=seriesMode ? 'none' : '';
+  }
+
+  if(seriesWrap){
+    seriesWrap.style.display=seriesMode ? '' : 'none';
+  }
+
+  if(seriesMode){
+    populateWebpageBatterySeries();
+  }
+}
+
+function webpagePageLabel(){
+  if(webpagePageType()==='series'){
+    const series=webpageBatterySeries() || 'Battery';
+    return `${series} Battery System`;
+  }
+
+  return clean($('stihl-webpage-category')?.value) || 'Equipment';
+}
+
+function webpageSettingsScope(){
+  return webpagePageType()==='series'
+    ? `BatterySeries:${webpageBatterySeries()}`
+    : clean($('stihl-webpage-category')?.value);
+}
+
 function webpageProducts(){
+  const pageType=webpagePageType();
   const category=clean($('stihl-webpage-category')?.value);
+  const batterySeries=webpageBatterySeries();
   const inventoryOnly=clean($('stihl-webpage-filter')?.value)==='inventory';
 
   return state.tools.filter(item=>{
-    if(clean(item.Category)!==category) return false;
+
+    if(pageType==='series'){
+      if(
+        !batterySeries ||
+        clean(item.System).toUpperCase()!==batterySeries
+      ){
+        return false;
+      }
+    }else{
+      if(clean(item.Category)!==category) return false;
+    }
+
     if(!isTrue(item.Active)) return false;
 
     if(
@@ -22183,7 +22428,17 @@ function webpageProducts(){
       !isTrue(item.DisplayAvailability)
     ) return false;
 
-    if(!webpageItemIncludedByOrders(item)) return false;
+    /*
+      Category pages keep the dealer-selected include/order rules.
+      Series pages intentionally include every matching active tool
+      across all categories.
+    */
+    if(
+      pageType!=='series' &&
+      !webpageItemIncludedByOrders(item)
+    ){
+      return false;
+    }
 
     return !inventoryOnly ||
       onlineItemInStock(item) ||
@@ -22222,7 +22477,7 @@ function webpageSelectedSpecLabels(){
 }
 
 function saveWebpageSpecSelections(){
-  const category=clean($('stihl-webpage-category')?.value);
+  const category=webpageSettingsScope();
 
   if(category){
     webpageSpecSelectionsByCategory.set(
@@ -22236,7 +22491,7 @@ function populateWebpageSpecs(useRecommended=false){
   const container=$('stihl-webpage-specs');
   if(!container) return;
 
-  const category=clean($('stihl-webpage-category')?.value);
+  const category=webpageSettingsScope();
   const labels=webpageAvailableSpecLabels();
   const saved=webpageSpecSelectionsByCategory.get(category);
 
@@ -22322,10 +22577,13 @@ function populateWebpageCategories(){
 
 function webpageCategoryProducts(){
   const category=clean($('stihl-webpage-category')?.value);
+  const batterySeries=webpageBatterySeries();
 
   return state.tools.filter(item=>
     isTrue(item.Active) &&
-    clean(item.Category)===category
+    (webpagePageType()==='series'
+      ? clean(item.System).toUpperCase()===batterySeries
+      : clean(item.Category)===category)
   );
 }
 
@@ -22528,15 +22786,634 @@ function webpageCompareForDisplay(a,b){
   return webpageCompareModels(a,b);
 }
 
+const WEBPAGE_BUILDER_STORAGE_PREFIX='westEndWebpageBuilder:v1';
+
+function webpageBuilderLastCategoryKey(){
+  return `${WEBPAGE_BUILDER_STORAGE_PREFIX}:${configuratorBrandId()}:lastCategory`;
+}
+
+function webpageBuilderStorageKey(category){
+  return `${WEBPAGE_BUILDER_STORAGE_PREFIX}:${configuratorBrandId()}:${clean(category)||'Equipment'}`;
+}
+
+function webpageBuilderRead(category){
+  try{
+    return JSON.parse(
+      localStorage.getItem(
+        webpageBuilderStorageKey(category)
+      ) || 'null'
+    );
+  }catch(error){
+    console.warn('Unable to read saved webpage settings:',error);
+    return null;
+  }
+}
+
+function webpageBuilderOrderSnapshot(field){
+  const container=webpageOrderContainer(field);
+
+  if(!container) return [];
+
+  return [...container.querySelectorAll('input[data-webpage-value]')]
+    .map(input=>({
+      value:clean(input.dataset.webpageValue),
+      order:clean(input.value)
+    }));
+}
+
+function webpageBuilderApplyOrder(field,rows){
+  const container=webpageOrderContainer(field);
+
+  if(!container || !Array.isArray(rows)) return;
+
+  const values=new Map(
+    rows.map(row=>[
+      clean(row.value),
+      clean(row.order)
+    ])
+  );
+
+  container
+    .querySelectorAll('input[data-webpage-value]')
+    .forEach(input=>{
+      const value=clean(input.dataset.webpageValue);
+
+      if(values.has(value)){
+        input.value=values.get(value);
+      }
+    });
+}
+
+function webpageBuilderHas(obj,key){
+  return Boolean(
+    obj &&
+    Object.prototype.hasOwnProperty.call(obj,key)
+  );
+}
+
+function webpageBuilderSetValue(id,obj,key){
+  const element=$(id);
+
+  if(
+    element &&
+    webpageBuilderHas(obj,key)
+  ){
+    element.value=
+      obj[key] === null ||
+      obj[key] === undefined
+        ? ''
+        : String(obj[key]);
+  }
+}
+
+function webpageSeoCategoryPhrase(category){
+  const value=clean(category);
+
+  const aliases={
+    'Augers':'Augers',
+    'Blowers':'Leaf Blowers',
+    'Chainsaws':'Chainsaws',
+    'Concrete Saws':'Concrete Saws',
+    'Cut-Off Saws':'Cut-Off Saws',
+    'Drills':'Drills',
+    'Edgers':'Edgers',
+    'Hedge Trimmers':'Hedge Trimmers',
+    'Inflators':'Inflators',
+    'KombiSystem':'KombiSystem Equipment',
+    'Lawn Mowers':'Lawn Mowers',
+    'Pole Pruners':'Pole Pruners',
+    'Power Supply':'Portable Power',
+    'Pressure Washers':'Pressure Washers',
+    'Shredder Vacs':'Shredder Vacs',
+    'Snow Blowers':'Snow Blowers',
+    'Sprayers':'Sprayers',
+    'Stand-Ons':'Stand-On Mowers',
+    'Sweepers':'Sweepers',
+    'Tillers':'Tillers',
+    'Trimmers':'Trimmers',
+    'Vacuums':'Vacuums',
+    'Vauums':'Vacuums',
+    'Water Pumps':'Water Pumps',
+    'Water Tanks':'Water Tanks',
+    'Zero-Turns':'Zero Turn Mowers'
+  };
+
+  return aliases[value] || value || 'Equipment';
+}
+
+function webpageSeoTrim(text,maxLength){
+  const value=clean(text);
+
+  if(value.length<=maxLength){
+    return value;
+  }
+
+  const shortened=value.slice(0,maxLength+1);
+  const lastSpace=shortened.lastIndexOf(' ');
+
+  return (
+    lastSpace>Math.floor(maxLength*.75)
+      ? shortened.slice(0,lastSpace)
+      : shortened.slice(0,maxLength)
+  )
+    .replace(/[,\s]+$/,'')
+    .trim();
+}
+
+function recommendedWebpageSeo(){
+  const category=webpagePageLabel();
+
+  const brand=configuratorBrandName();
+  const brandId=configuratorBrandId();
+  const phrase=webpageSeoCategoryPhrase(category);
+
+  const pageTitle=
+    `${brand} ${phrase} for Sale in Connecticut`;
+
+  let titleTag=
+    `${brand} ${phrase} for Sale in CT | West End Power`;
+
+  if(titleTag.length>60){
+    titleTag=
+      `${brand} ${phrase} CT | West End Power`;
+  }
+
+  titleTag=webpageSeoTrim(titleTag,60);
+
+  const slug=
+    `${webpageSlug(brandId)}-${webpageSlug(phrase)}-connecticut`;
+
+  const metaDescription=webpageSeoTrim(
+    `Shop ${brand} ${phrase.toLowerCase()} at West End Power Equipment in New Milford and Danbury, CT. Compare models, prices, packages, specifications and availability.`,
+    160
+  );
+
+  const metaKeywords=webpageSeoTrim(
+    `${brand} ${phrase} CT, ${brand} ${phrase} Connecticut, `+
+    `${phrase} for sale CT, ${brand} dealer Connecticut, `+
+    `West End Power Equipment, New Milford CT, Danbury CT`,
+    250
+  );
+
+  return {
+    pageTitle,
+    titleTag,
+    filename:slug,
+    metaDescription,
+    metaKeywords,
+    pageUrl:`https://www.westendpower.com/${slug}`
+  };
+}
+
+function updateWebpageSeoCounts(){
+  const title=clean($('stihl-webpage-title-tag')?.value);
+  const description=clean($('stihl-webpage-meta-description')?.value);
+  const keywords=clean($('stihl-webpage-meta-keywords')?.value);
+
+  if($('stihl-webpage-title-tag-count')){
+    $('stihl-webpage-title-tag-count').textContent=
+      `${title.length}/60 characters recommended`;
+  }
+
+  if($('stihl-webpage-meta-description-count')){
+    $('stihl-webpage-meta-description-count').textContent=
+      `${description.length}/160 recommended `+
+      `(Dealer Spike allows up to 250)`;
+  }
+
+  if($('stihl-webpage-meta-keywords-count')){
+    $('stihl-webpage-meta-keywords-count').textContent=
+      `${keywords.length}/250 characters`;
+  }
+}
+
+function saveWebpageBuilderSettings(){
+  const category=webpageSettingsScope();
+
+  if(!category) return;
+
+  const previous=
+    webpageBuilderRead(category) || {};
+
+  const smartCatalog=
+    $('stihl-webpage-smart-catalog');
+
+  const settings={
+    version:1,
+    category,
+    products:clean(
+      $('stihl-webpage-filter')?.value
+    ),
+    interactiveCatalog:smartCatalog
+      ? Boolean(smartCatalog.checked)
+      : (
+          webpageBuilderHas(
+            previous,
+            'interactiveCatalog'
+          )
+            ? Boolean(previous.interactiveCatalog)
+            : true
+        ),
+    specs:webpageSelectedSpecLabels(),
+    group1:clean(
+      $('stihl-webpage-group-1')?.value
+    ),
+    group2:clean(
+      $('stihl-webpage-group-2')?.value
+    ),
+    group3:clean(
+      $('stihl-webpage-group-3')?.value
+    ),
+    modelSort:clean(
+      $('stihl-webpage-model-sort')?.value
+    ),
+    columns:clean(
+      $('stihl-webpage-columns')?.value
+    ),
+    order:{
+      PowerType:
+        webpageBuilderOrderSnapshot('PowerType'),
+      Series:
+        webpageBuilderOrderSnapshot('Series'),
+      SubCategory:
+        webpageBuilderOrderSnapshot('SubCategory')
+    },
+    dealerSpike:
+      $('stihl-webpage-platform-dealerspike')
+        ? Boolean(
+            $('stihl-webpage-platform-dealerspike').checked
+          )
+        : true,
+    pageTitle:
+      $('stihl-webpage-page-title')?.value ?? '',
+    titleTag:
+      $('stihl-webpage-title-tag')?.value ?? '',
+    filename:
+      $('stihl-webpage-filename')?.value ?? '',
+    metaDescription:
+      $('stihl-webpage-meta-description')?.value ?? '',
+    metaKeywords:
+      $('stihl-webpage-meta-keywords')?.value ?? '',
+    pageUrl:
+      $('stihl-webpage-url')?.value ?? ''
+  };
+
+  try{
+    localStorage.setItem(
+      webpageBuilderStorageKey(category),
+      JSON.stringify(settings)
+    );
+
+    if(webpagePageType()!=='series'){
+      localStorage.setItem(webpageBuilderLastCategoryKey(),category);
+    }
+  }catch(error){
+    console.warn(
+      'Unable to save webpage builder settings:',
+      error
+    );
+  }
+}
+
+function restoreWebpageBuilderSettings(){
+  const category=webpageSettingsScope();
+
+  if(!category) return false;
+
+  const saved=webpageBuilderRead(category);
+
+  if(!saved){
+    updateWebpageSeoCounts();
+    return false;
+  }
+
+  webpageBuilderSetValue(
+    'stihl-webpage-filter',
+    saved,
+    'products'
+  );
+
+  webpageBuilderSetValue(
+    'stihl-webpage-group-1',
+    saved,
+    'group1'
+  );
+
+  webpageBuilderSetValue(
+    'stihl-webpage-group-2',
+    saved,
+    'group2'
+  );
+
+  webpageBuilderSetValue(
+    'stihl-webpage-group-3',
+    saved,
+    'group3'
+  );
+
+  webpageBuilderSetValue(
+    'stihl-webpage-model-sort',
+    saved,
+    'modelSort'
+  );
+
+  webpageBuilderSetValue(
+    'stihl-webpage-columns',
+    saved,
+    'columns'
+  );
+
+  if(Array.isArray(saved.specs)){
+    webpageSpecSelectionsByCategory.set(
+      category,
+      saved.specs
+    );
+
+    populateWebpageSpecs(false);
+  }
+
+  webpageBuilderApplyOrder(
+    'PowerType',
+    saved.order?.PowerType
+  );
+
+  webpageBuilderApplyOrder(
+    'Series',
+    saved.order?.Series
+  );
+
+  webpageBuilderApplyOrder(
+    'SubCategory',
+    saved.order?.SubCategory
+  );
+
+  if(
+    $('stihl-webpage-platform-dealerspike') &&
+    webpageBuilderHas(saved,'dealerSpike')
+  ){
+    $('stihl-webpage-platform-dealerspike').checked=
+      Boolean(saved.dealerSpike);
+  }
+
+  webpageBuilderSetValue(
+    'stihl-webpage-page-title',
+    saved,
+    'pageTitle'
+  );
+
+  webpageBuilderSetValue(
+    'stihl-webpage-title-tag',
+    saved,
+    'titleTag'
+  );
+
+  webpageBuilderSetValue(
+    'stihl-webpage-filename',
+    saved,
+    'filename'
+  );
+
+  webpageBuilderSetValue(
+    'stihl-webpage-meta-description',
+    saved,
+    'metaDescription'
+  );
+
+  webpageBuilderSetValue(
+    'stihl-webpage-meta-keywords',
+    saved,
+    'metaKeywords'
+  );
+
+  webpageBuilderSetValue(
+    'stihl-webpage-url',
+    saved,
+    'pageUrl'
+  );
+
+  const applySmartCatalog=()=>{
+    const smart=$(
+      'stihl-webpage-smart-catalog'
+    );
+
+    if(
+      smart &&
+      webpageBuilderHas(
+        saved,
+        'interactiveCatalog'
+      )
+    ){
+      smart.checked=
+        Boolean(saved.interactiveCatalog);
+    }
+  };
+
+  applySmartCatalog();
+  setTimeout(applySmartCatalog,0);
+  setTimeout(applySmartCatalog,50);
+
+  updateWebpageSeoCounts();
+
+  return true;
+}
+
+function restoreLastWebpageBuilderCategory(){
+  const select=$('stihl-webpage-category');
+
+  if(!select) return;
+
+  let savedCategory='';
+
+  try{
+    savedCategory=clean(
+      localStorage.getItem(
+        webpageBuilderLastCategoryKey()
+      )
+    );
+  }catch(error){}
+
+  if(
+    savedCategory &&
+    [...select.options].some(
+      option=>option.value===savedCategory
+    )
+  ){
+    select.value=savedCategory;
+  }
+}
+
+function resetCurrentWebpageBuilderSettings(){
+  const category=webpageSettingsScope();
+
+  if(!category) return;
+
+  try{
+    localStorage.removeItem(
+      webpageBuilderStorageKey(category)
+    );
+  }catch(error){}
+
+  webpageSpecSelectionsByCategory.delete(
+    category
+  );
+
+  if($('stihl-webpage-filter')){
+    $('stihl-webpage-filter').value='inventory';
+  }
+
+  if($('stihl-webpage-group-1')){
+    $('stihl-webpage-group-1').value='PowerType';
+  }
+
+  if($('stihl-webpage-group-2')){
+    $('stihl-webpage-group-2').value='Series';
+  }
+
+  if($('stihl-webpage-group-3')){
+    $('stihl-webpage-group-3').value='SubCategory';
+  }
+
+  if($('stihl-webpage-model-sort')){
+    $('stihl-webpage-model-sort').value='workbook';
+  }
+
+  if($('stihl-webpage-columns')){
+    $('stihl-webpage-columns').value='2';
+  }
+
+  if($('stihl-webpage-platform-dealerspike')){
+    $('stihl-webpage-platform-dealerspike').checked=true;
+  }
+
+  const smart=$('stihl-webpage-smart-catalog');
+
+  if(smart){
+    smart.checked=true;
+  }
+
+  populateWebpageDisplayOrders();
+  populateWebpageSpecs(true);
+  updateWebpageDefaults();
+
+  $('stihl-webpage-code').value='';
+  $('stihl-webpage-report').innerHTML='';
+
+  $('stihl-webpage-status').className=
+    'stihl-note';
+
+  $('stihl-webpage-status').textContent=
+    `Saved ${category} webpage settings reset.`;
+}
+
+async function copyWebpageSeoText(text){
+  const value=String(text ?? '');
+
+  try{
+    await navigator.clipboard.writeText(value);
+  }catch(error){
+    const temp=document.createElement('textarea');
+    temp.value=value;
+    temp.style.position='fixed';
+    temp.style.left='-9999px';
+    document.body.appendChild(temp);
+    temp.focus();
+    temp.select();
+    document.execCommand('copy');
+    temp.remove();
+  }
+}
+
+async function copyWebpageSeoField(id){
+  const element=$(id);
+
+  if(!element) return;
+
+  await copyWebpageSeoText(
+    element.value
+  );
+
+  $('stihl-webpage-status').className=
+    'stihl-success';
+
+  $('stihl-webpage-status').textContent=
+    'SEO field copied.';
+}
+
+async function copyAllWebpageSeoFields(){
+  const rows=[
+    [
+      '*Page Title',
+      $('stihl-webpage-page-title')?.value ?? ''
+    ],
+    [
+      'HTML Title Tag Text',
+      $('stihl-webpage-title-tag')?.value ?? ''
+    ],
+    [
+      '*Page File Name',
+      $('stihl-webpage-filename')?.value ?? ''
+    ],
+    [
+      'Meta Description',
+      $('stihl-webpage-meta-description')?.value ?? ''
+    ],
+    [
+      'Meta Keywords',
+      $('stihl-webpage-meta-keywords')?.value ?? ''
+    ]
+  ];
+
+  const output=rows
+    .map(row=>`${row[0]}\n${row[1]}`)
+    .join('\n\n');
+
+  await copyWebpageSeoText(output);
+
+  $('stihl-webpage-status').className=
+    'stihl-success';
+
+  $('stihl-webpage-status').textContent=
+    'All Dealer Spike SEO fields copied in order.';
+}
 function updateWebpageDefaults(){
-  const category=clean($('stihl-webpage-category')?.value)||'Equipment';
-  const slug=`${webpageSlug(configuratorBrandId())}-${webpageSlug(category)}-in-stock-ct`;
-  $('stihl-webpage-filename').value=slug;
-  $('stihl-webpage-url').value=`https://www.westendpower.com/${slug}`;
+  const seo=recommendedWebpageSeo();
+
+  if($('stihl-webpage-page-title')){
+    $('stihl-webpage-page-title').value=
+      seo.pageTitle;
+  }
+
+  if($('stihl-webpage-title-tag')){
+    $('stihl-webpage-title-tag').value=
+      seo.titleTag;
+  }
+
+  if($('stihl-webpage-filename')){
+    $('stihl-webpage-filename').value=
+      seo.filename;
+  }
+
+  if($('stihl-webpage-meta-description')){
+    $('stihl-webpage-meta-description').value=
+      seo.metaDescription;
+  }
+
+  if($('stihl-webpage-meta-keywords')){
+    $('stihl-webpage-meta-keywords').value=
+      seo.metaKeywords;
+  }
+
+  if($('stihl-webpage-url')){
+    $('stihl-webpage-url').value=
+      seo.pageUrl;
+  }
+
+  updateWebpageSeoCounts();
 }
 
 function generateDealerSpikeWebpage(){
-  const category=clean($('stihl-webpage-category')?.value);
+  const pageType=webpagePageType();
+  const category=webpagePageLabel();
   const inventoryOnly=clean($('stihl-webpage-filter')?.value)==='inventory';
 
   const groupLabels={
@@ -22551,7 +23428,7 @@ function generateDealerSpikeWebpage(){
     'SubCategory'
   ].some(field=>webpageConfiguredOrder(field).length>0);
 
-  if(!hasSelection){
+  if(pageType!=='series' && !hasSelection){
     $('stihl-webpage-status').className='stihl-error';
     $('stihl-webpage-status').textContent=
       'Select at least one Power Type, Series, or Subcategory to include.';
@@ -22785,6 +23662,19 @@ function generateDealerSpikeWebpage(){
       )+
       `</div>`;
   }
+  function webpageProductAltText(item){
+    const parts=[
+      configuratorBrandName(),
+      clean(item.Model),
+      clean(item.PowerType),
+      clean(item.SubCategory) || webpageSeoCategoryPhrase(category)
+    ]
+      .map(clean)
+      .filter(Boolean);
+
+    return [...new Set(parts)].join(' ');
+  }
+
   function renderWebpageCard(item){
     const sku=skuOf(item);
     const model=clean(item.Model);
@@ -22838,7 +23728,7 @@ function generateDealerSpikeWebpage(){
             : 'Available to Order';
 
     const configure=
-      `${WEBPAGE_PUBLIC_CONFIG_URL}?category=${encodeURIComponent(category)}`+
+      `${WEBPAGE_PUBLIC_CONFIG_URL}?category=${encodeURIComponent(clean(item.Category)||category)}`+
       `&sku=${encodeURIComponent(sku)}`;
 
     const price=
@@ -22846,12 +23736,18 @@ function generateDealerSpikeWebpage(){
 
 
 
-    return `<article class="wep-card">`+
+    return `<article class="wep-card" `+
+      `data-brand="${escapeHtml(configuratorBrandName())}" `+
+      `data-model="${escapeHtml(model)}" `+
+      `data-sku="${escapeHtml(sku)}" `+
+      `data-power="${escapeHtml(clean(item.PowerType))}" `+
+      `data-series="${escapeHtml(clean(item.Series))}" `+
+      `data-category="${escapeHtml(clean(item.Category)||category)}">`+
       `<div class="wep-media">`+
       (
         image
           ? `<img src="${escapeHtml(image)}" `+
-            `alt="${escapeHtml(title)}" loading="lazy">`
+            `alt="${escapeHtml(webpageProductAltText(item))}" loading="lazy">`
           : `<div class="wep-placeholder">Image Coming Soon</div>`
       )+
       promotionBadge+
@@ -23040,7 +23936,7 @@ function generateDealerSpikeWebpage(){
             : 'Available to Order';
       const sku=skuOf(representative);
       const configure=
-        `${WEBPAGE_PUBLIC_CONFIG_URL}?category=${encodeURIComponent(category)}`+
+        `${WEBPAGE_PUBLIC_CONFIG_URL}?category=${encodeURIComponent(clean(representative.Category)||category)}`+
         `&sku=${encodeURIComponent(sku)}`;
 
       return `<tr>`+
@@ -23145,7 +24041,7 @@ function generateDealerSpikeWebpage(){
         const sku=skuOf(item);
         const model=clean(item.Model)||clean(item.Description)||sku;
         const configure=
-          `${WEBPAGE_PUBLIC_CONFIG_URL}?category=${encodeURIComponent(category)}`+
+          `${WEBPAGE_PUBLIC_CONFIG_URL}?category=${encodeURIComponent(clean(item.Category)||category)}`+
           `&sku=${encodeURIComponent(sku)}`;
 
         return `<article><span>${escapeHtml(choice.label)}</span>`+
@@ -23328,12 +24224,23 @@ function generateDealerSpikeWebpage(){
       ? Number(clean($('stihl-webpage-columns')?.value))
       : 2;
   const pageUrl=clean($('stihl-webpage-url').value);
+
+  const dealerPageTitle=
+    clean($('stihl-webpage-page-title')?.value) ||
+    `${configuratorBrandName()} ${category} for Sale in Connecticut`;
+
   const seoTitle=
+    clean($('stihl-webpage-title-tag')?.value) ||
     `${configuratorBrandName()} ${category} for Sale in CT | West End Power`;
+
   const seoDescription=
+    clean($('stihl-webpage-meta-description')?.value) ||
     `Compare ${configuratorBrandName()} ${category.toLowerCase()} prices, `+
     `specifications, inventory, rebates and financing at West End Power `+
     `in New Milford and Danbury, Connecticut.`;
+
+  const seoKeywords=
+    clean($('stihl-webpage-meta-keywords')?.value);
   const comparisonSectionCount=inventoryProducts.length+(inventoryOnly?0:other.length);
   const choiceGuide=renderWebpageChoiceGuide(products);
   const buyingGuide=renderWebpageBuyingGuide();
@@ -23352,18 +24259,77 @@ function generateDealerSpikeWebpage(){
 
   const structuredData=JSON.stringify({
     '@context':'https://schema.org',
-    '@type':'ItemList',
-    name:`${configuratorBrandName()} ${category}`,
-    url:pageUrl,
-    numberOfItems:products.length,
-    itemListElement:products.map((item,index)=>({
-      '@type':'ListItem',
-      position:index+1,
-      name:clean(item.Model)||clean(item.Description)||skuOf(item),
-      url:
-        `${WEBPAGE_PUBLIC_CONFIG_URL}?category=${encodeURIComponent(category)}`+
-        `&sku=${encodeURIComponent(skuOf(item))}`
-    }))
+    '@graph':[
+      {
+        '@type':'Store',
+        '@id':'https://www.westendpower.com/new-milford#store',
+        name:'West End Power Equipment',
+        url:'https://www.westendpower.com/new-milford',
+        telephone:'+1-860-355-8722',
+        address:{
+          '@type':'PostalAddress',
+          streetAddress:'265 Danbury Road',
+          addressLocality:'New Milford',
+          addressRegion:'CT',
+          postalCode:'06776',
+          addressCountry:'US'
+        }
+      },
+      {
+        '@type':'Store',
+        '@id':'https://www.westendpower.com/danbury#store',
+        name:'West End Power Equipment',
+        url:'https://www.westendpower.com/danbury',
+        telephone:'+1-203-792-3030',
+        address:{
+          '@type':'PostalAddress',
+          streetAddress:'56 Beaver Brook Rd',
+          addressLocality:'Danbury',
+          addressRegion:'CT',
+          postalCode:'06810',
+          addressCountry:'US'
+        }
+      },
+      {
+        '@type':'BreadcrumbList',
+        '@id':`${pageUrl}#breadcrumb`,
+        itemListElement:[
+          {
+            '@type':'ListItem',
+            position:1,
+            name:'West End Power Equipment',
+            item:'https://www.westendpower.com/'
+          },
+          {
+            '@type':'ListItem',
+            position:2,
+            name:configuratorBrandName(),
+            item:WEBPAGE_PUBLIC_CONFIG_URL
+          },
+          {
+            '@type':'ListItem',
+            position:3,
+            name:category,
+            item:pageUrl
+          }
+        ]
+      },
+      {
+        '@type':'ItemList',
+        '@id':`${pageUrl}#products`,
+        name:`${configuratorBrandName()} ${category}`,
+        url:pageUrl,
+        numberOfItems:products.length,
+        itemListElement:products.map((item,index)=>({
+          '@type':'ListItem',
+          position:index+1,
+          name:clean(item.Model)||clean(item.Description)||skuOf(item),
+          url:
+            `${WEBPAGE_PUBLIC_CONFIG_URL}?category=${encodeURIComponent(clean(item.Category)||category)}`+
+            `&sku=${encodeURIComponent(skuOf(item))}`
+        }))
+      }
+    ]
   }).replace(/</g,'\\u003c');
 
   const html=`<!-- Generated by West End Power ${escapeHtml(
@@ -23371,6 +24337,7 @@ function generateDealerSpikeWebpage(){
   )} Configurator ${new Date().toLocaleString()} -->
 <!-- SEO TITLE: ${escapeHtml(seoTitle)} -->
 <!-- META DESCRIPTION: ${escapeHtml(seoDescription)} -->
+<!-- META KEYWORDS: ${escapeHtml(seoKeywords)} -->
 <!-- CANONICAL URL: ${escapeHtml(pageUrl)} -->
 <script type="application/ld+json">${structuredData}<${'/'}script>
 <style>
@@ -23440,18 +24407,38 @@ function generateDealerSpikeWebpage(){
 <div class="wep-page">
   <section class="wep-hero">
     <p>Serving New Milford and Danbury, Connecticut</p>
-    <h1>${escapeHtml(configuratorBrandName())} ${escapeHtml(category)} for Sale in Connecticut</h1>
+    <h1>${escapeHtml(dealerPageTitle)}</h1>
     <p>Compare models, specifications, current availability, prices, promotions and payment options.</p>
     <p class="wep-updated">Inventory and offers updated ${escapeHtml(updatedLabel)}</p>
   </section>
   ${buyingGuide}
+
+
   ${seriesComparison}
   ${inventoryComparison}
   ${interactiveCatalogHtml}
   ${inventorySection}
-  ${choiceGuide}
   ${otherComparison}
   ${otherSection}
+
+  <section class="wep-seo-section">
+    <h2>Outdoor Power Equipment Is Evolving</h2>
+    <p>
+      Battery-powered outdoor equipment continues to advance, with longer run times,
+      faster charging and increasingly capable tools for homeowners, property managers
+      and landscape professionals. As battery technology improves, more users can
+      complete everyday jobs and increasingly demanding applications without relying
+      exclusively on gas-powered equipment.
+    </p>
+    <p>
+      West End Power Equipment serves customers throughout western Connecticut and
+      nearby New York, including the Westchester, Putnam and Dutchess County areas.
+      Compare ${escapeHtml(configuratorBrandName())} equipment, specifications,
+      available power options, packages and current pricing to find the equipment
+      that best fits your needs.
+    </p>
+  </section>
+
   ${faq.html}
   <section class="wep-hero">
     <h2>Need Help Choosing?</h2>
@@ -23862,7 +24849,7 @@ function dealerMode(on){
   if(btn){
     btn.textContent =
       on
-        ? "ðŸ”“ Dealer Mode Active"
+        ? "Dealer Mode Active"
         : "ðŸ”’ Dealer Mode";
 
     btn.classList.toggle(
@@ -24302,28 +25289,157 @@ function bindDealerMode(){
 
   $("stihl-build-webpages")?.addEventListener("click",()=>{
     populateWebpageCategories();
+    populateWebpageBatterySeries();
+    updateWebpagePageTypeUI();
+
+    restoreLastWebpageBuilderCategory();
+
+    populateWebpageDisplayOrders();
+    populateWebpageSpecs();
+
     updateWebpageDefaults();
+    restoreWebpageBuilderSettings();
+
     $("stihl-webpage-code").value='';
     $("stihl-webpage-report").innerHTML='';
     $("stihl-webpage-modal").style.display='flex';
+
+    setTimeout(
+      restoreWebpageBuilderSettings,
+      0
+    );
   });
+
+  $("stihl-webpage-page-type")?.addEventListener("change",()=>{
+    updateWebpagePageTypeUI();
+
+    populateWebpageDisplayOrders();
+    populateWebpageSpecs();
+
+    updateWebpageDefaults();
+    restoreWebpageBuilderSettings();
+
+    $("stihl-webpage-code").value='';
+    $("stihl-webpage-report").innerHTML='';
+  });
+
+  $("stihl-webpage-battery-series")?.addEventListener("change",()=>{
+    populateWebpageDisplayOrders();
+    populateWebpageSpecs();
+
+    updateWebpageDefaults();
+    restoreWebpageBuilderSettings();
+
+    $("stihl-webpage-code").value='';
+    $("stihl-webpage-report").innerHTML='';
+  });
+
   $("stihl-webpage-category")?.addEventListener("change",()=>{
-  updateWebpageDefaults();
-  populateWebpageDisplayOrders();
-  populateWebpageSpecs();
-});
+    const category=clean(
+      $("stihl-webpage-category")?.value
+    );
 
-$("stihl-webpage-spec-recommended")?.addEventListener("click",()=>{
-  populateWebpageSpecs(true);
-});
+    try{
+      localStorage.setItem(
+        webpageBuilderLastCategoryKey(),
+        category
+      );
+    }catch(error){}
 
-$("stihl-webpage-spec-all")?.addEventListener("click",()=>{
-  setAllWebpageSpecs(true);
-});
+    populateWebpageDisplayOrders();
+    populateWebpageSpecs();
 
-$("stihl-webpage-spec-clear")?.addEventListener("click",()=>{
-  setAllWebpageSpecs(false);
-});
+    updateWebpageDefaults();
+    restoreWebpageBuilderSettings();
+
+    $("stihl-webpage-code").value='';
+    $("stihl-webpage-report").innerHTML='';
+  });
+
+  $("stihl-webpage-spec-recommended")?.addEventListener("click",()=>{
+    populateWebpageSpecs(true);
+    saveWebpageBuilderSettings();
+  });
+
+  $("stihl-webpage-spec-all")?.addEventListener("click",()=>{
+    setAllWebpageSpecs(true);
+    saveWebpageBuilderSettings();
+  });
+
+  $("stihl-webpage-spec-clear")?.addEventListener("click",()=>{
+    setAllWebpageSpecs(false);
+    saveWebpageBuilderSettings();
+  });
+
+  const webpageBuilderModal=
+    $("stihl-webpage-modal");
+
+  if(webpageBuilderModal){
+
+    const rememberWebpageBuilderChange=event=>{
+      const target=event.target;
+
+      if(!target) return;
+
+      if(
+        target.id==='stihl-webpage-code'
+      ){
+        return;
+      }
+
+      if(
+        target.id==='stihl-webpage-title-tag' ||
+        target.id==='stihl-webpage-meta-description' ||
+        target.id==='stihl-webpage-meta-keywords'
+      ){
+        updateWebpageSeoCounts();
+      }
+
+      if(
+        target.id?.startsWith('stihl-webpage-') ||
+        target.matches?.(
+          '[data-webpage-value],[data-webpage-spec]'
+        )
+      ){
+        saveWebpageBuilderSettings();
+      }
+    };
+
+    webpageBuilderModal.addEventListener(
+      'input',
+      rememberWebpageBuilderChange
+    );
+
+    webpageBuilderModal.addEventListener(
+      'change',
+      rememberWebpageBuilderChange
+    );
+  }
+
+  document
+    .querySelectorAll(
+      '.stihl-webpage-copy-seo[data-copy-target]'
+    )
+    .forEach(button=>{
+      button.addEventListener(
+        'click',
+        ()=>copyWebpageSeoField(
+          button.dataset.copyTarget
+        )
+      );
+    });
+
+  $("stihl-webpage-copy-all-seo")
+    ?.addEventListener(
+      "click",
+      copyAllWebpageSeoFields
+    );
+
+  $("stihl-webpage-reset-settings")
+    ?.addEventListener(
+      "click",
+      resetCurrentWebpageBuilderSettings
+    );
   $("stihl-generate-webpage")?.addEventListener("click",generateDealerSpikeWebpage);
   $("stihl-preview-webpage")?.addEventListener("click",previewDealerSpikeWebpage);
   $("stihl-copy-webpage")?.addEventListener("click",copyDealerSpikeWebpage);
@@ -24481,5 +25597,3 @@ if(
   <script src="universal/webpage-commerce-extension.js"></script>
 </body>
 </html>
-
-

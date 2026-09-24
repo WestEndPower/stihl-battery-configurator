@@ -77,11 +77,6 @@ function byId(rows,ids,idFields){
 function idsFromRuntime(runtime,prefix,count){
  const ids=[];for(let i=1;i<=count;i++){const v=clean(runtime[prefix+i]);if(v)ids.push(v)}return ids;
 }
-function availability(product){
- const qn=Number(product.QtyNewMilford)||0,qd=Number(product.QtyDanbury)||0;
- if(qn+qd>0)return 'Normally stocked at West End Power';
- return 'Contact us for current availability';
-}
 function wireSummary(basePrice){
  const checks=[...document.querySelectorAll('.option-check')];
  function recalc(){
@@ -122,7 +117,7 @@ async function init(){
   const kit=clean(product.ProductType).toLowerCase()==='kit';
   const included=kit?clean(product.Description):'';
   $('app').innerHTML=
-   '<section class="hero"><div class="media">'+img(product,name)+'</div><div><div class="eyebrow">'+esc([product.PowerType,product.SubCategory].filter(Boolean).join(' · '))+'</div><h1>'+esc(name)+'</h1><p>'+esc(product.Description)+'</p><p class="stock">'+esc(availability(product))+'</p><p class="price">'+fmt(base)+'</p><p><strong>SKU:</strong> '+esc(sku)+'</p>'+(included?'<div class="included"><strong>Selected factory kit:</strong> '+esc(included)+'</div>':'')+'</div></section>'+
+   '<section class="hero"><div class="media">'+img(product,name)+'</div><div><div class="eyebrow">'+esc([product.PowerType,product.SubCategory].filter(Boolean).join(' · '))+'</div><h1>'+esc(name)+'</h1><p>'+esc(product.Description)+'</p><p class="price">'+fmt(base)+'</p><p><strong>SKU:</strong> '+esc(sku)+'</p>'+(included?'<div class="included"><strong>Selected factory kit:</strong> '+esc(included)+'</div>':'')+'</div></section>'+
    optionSection('Additional Battery(s)',bats,'battery')+
    optionSection('Additional Charger(s)',chgs,'charger')+
    optionSection('Compatible Attachments',atts,'attachment')+
