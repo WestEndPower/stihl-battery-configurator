@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STIHL Runtime Chart | West End Power</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:20px;font:16px/1.45 Arial,sans-serif;color:#171717;background:#f6f6f6}
+.wrap{max-width:1000px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+a,button{border:1px solid #222;border-radius:8px;padding:10px 14px;background:#fff;color:#111;text-decoration:none;font-weight:800;cursor:pointer}
+.sheet{background:#fff;border:4px solid #c8102e;border-radius:12px;padding:22px}.sheet h1{text-align:center;margin:0 0 5px}.sub{text-align:center;color:#666;margin-bottom:18px}
+.table-wrap{overflow:auto}.runtime{width:100%;border-collapse:collapse;min-width:650px}.runtime th,.runtime td{padding:11px;border:1px solid #ccc;text-align:center}.runtime thead th{background:#202020;color:#fff}.runtime tbody th{text-align:left;background:#fafafa}
+.note{margin-top:14px;padding-top:10px;border-top:1px solid #ccc;font-size:12px;font-weight:700;color:#555}
+@media print{body{padding:0;background:#fff}.top{display:none}.sheet{border-radius:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><a id="back" href="./index.html">← Return</a><button onclick="window.print()">Print Runtime Chart</button></div>
+<div id="app" class="sheet">Loading runtime chart…</div>
+</div>
+<script>
+(function(){
+'use strict';
+const q=new URLSearchParams(location.search),sku=(q.get('sku')||'').trim(),category=(q.get('category')||'Equipment').trim(),ret=(q.get('return')||'').trim();
+const clean=v=>String(v==null?'':v).replace(/^\uFEFF/,'').trim();
+const esc=v=>clean(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+function parseCSV(text){const rows=[];let row=[],field='',quoted=false;for(let i=0;i<text.length;i++){const c=text[i];if(quoted){if(c==='"'&&text[i+1]==='"'){field+='"';i++}else if(c==='"')quoted=false;else field+=c}else{if(c==='"')quoted=true;else if(c===','){row.push(field);field=''}else if(c==='\n'){row.push(field.replace(/\r$/,''));rows.push(row);row=[];field=''}else field+=c}}if(field.length||row.length){row.push(field);rows.push(row)}const h=(rows.shift()||[]).map(clean);return rows.filter(r=>r.some(x=>clean(x)!=='')).map(r=>Object.fromEntries(h.map((k,i)=>[k,r[i]||''])))} 
+async function csv(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw new Error(path+' '+r.status);return parseCSV(await r.text())}
+function val(row,id,suffix){for(let i=1;i<=10;i++){if(clean(row['BatteryID'+i]).toUpperCase()===id.toUpperCase())return clean(row['RunTime'+suffix+i])}return ''}
+async function init(){
+ const back=document.getElementById('back');back.href=ret||('./index.html?category='+encodeURIComponent(category));back.textContent='← Return to '+category;
+ try{
+  const [products,runtime,batteries]=await Promise.all([csv('data/products.csv'),csv('data/compatibility-runtime.csv'),csv('data/batteries.csv')]);
+  const product=products.find(x=>clean(x.SKU)===sku);if(!product)throw new Error('Product SKU not found');
+  const row=runtime.find(x=>clean(x.ToolSKU)===sku);if(!row)throw new Error('No runtime chart is available for this product.');
+  const ids=[];for(let i=1;i<=10;i++){const id=clean(row['BatteryID'+i]);if(id)ids.push(id)}
+  if(!ids.length)throw new Error('No compatible battery runtime data is listed for this product.');
+  const name=clean(product.Model)||clean(product.Description)||sku;
+  const rows=ids.map(id=>{
+    const b=batteries.find(x=>[x.BatteryID,x.Model].map(clean).some(v=>v.toUpperCase()===id.toUpperCase()))||{};
+    const low=val(row,id,'Min'),high=val(row,id,'Max');
+    const runtime=low&&high?(low===high?low+' min':low+' - '+high+' min'):low?low+' min':high?high+' min':'—';
+    return '<tr><th>'+esc(clean(b.Model)||id)+'</th><td>'+esc(runtime)+'</td><td>'+esc(clean(b.Ah)||'—')+'</td><td>'+esc(clean(b.Wh)||'—')+'</td><td>'+esc(clean(b.WeightLb)||'—')+'</td></tr>';
+  }).join('');
+  document.getElementById('app').innerHTML='<h1>'+esc(name)+' Runtime Chart</h1><div class="sub">SKU '+esc(sku)+'</div><div class="table-wrap"><table class="runtime"><thead><tr><th>Battery</th><th>Estimated Runtime</th><th>Ah</th><th>Wh</th><th>Weight (lb.)</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="note">* Estimated runtime may vary based on operating conditions, application and battery condition.</div>';
+ }catch(e){document.getElementById('app').innerHTML='<h1>Runtime Chart</h1><p>'+esc(e.message)+'</p>'}
+}
+init();
+})();
+</script>
+</body>
+</html>
