@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STIHL Product Options | West End Power</title>
+<style>
+:root{--red:#c8102e;--dark:#202020;--border:#ddd;--green:#287a32}
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 Arial,sans-serif;color:#171717;background:#f7f7f7}
+a{color:inherit}.wrap{max-width:1180px;margin:auto;padding:20px}.top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+.back{display:inline-flex;align-items:center;gap:7px;text-decoration:none;border:1px solid #222;border-radius:8px;padding:10px 14px;background:#fff;font-weight:800}
+.hero{display:grid;grid-template-columns:minmax(240px,360px) 1fr;gap:24px;padding:22px;border:1px solid var(--border);border-top:6px solid var(--red);border-radius:14px;background:#fff}
+.media{height:300px;display:flex;align-items:center;justify-content:center;background:#f4f4f4;border-radius:10px;overflow:hidden}.media img{width:100%;height:100%;object-fit:contain}.placeholder{font-weight:800;color:#666}
+.eyebrow{text-transform:uppercase;font-size:12px;font-weight:900;color:#666}.hero h1{margin:4px 0 8px;font-size:34px}.price{font-size:28px;font-weight:900;color:var(--red)}.stock{font-weight:900;color:var(--green)}
+.section{margin:26px 0;padding:20px;border:1px solid var(--border);border-radius:14px;background:#fff}.section h2{margin:0 0 14px;font-size:26px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{display:flex;flex-direction:column;border:1px solid #ccc;border-radius:12px;overflow:hidden;background:#fff}.card-media{height:180px;display:flex;align-items:center;justify-content:center;background:#f6f6f6}.card-media img{width:100%;height:100%;object-fit:contain}.card-body{display:flex;flex-direction:column;flex:1;padding:14px}.card h3{margin:0 0 6px;font-size:18px}.card p{margin:4px 0}.card-price{margin-top:auto;font-size:19px;font-weight:900;color:var(--red)}.select-row{display:flex;gap:8px;align-items:center;margin-top:10px}.select-row input{width:22px;height:22px}.qty{width:66px;padding:8px;border:1px solid #bbb;border-radius:7px}
+.summary{position:sticky;bottom:10px;z-index:20;display:flex;gap:16px;align-items:center;justify-content:space-between;margin-top:28px;padding:16px 18px;border-radius:12px;background:var(--dark);color:#fff;box-shadow:0 6px 22px rgba(0,0,0,.28)}.summary strong{font-size:24px}.summary button{border:0;border-radius:8px;padding:11px 16px;background:var(--red);color:#fff;font-weight:900;cursor:pointer}
+.empty{color:#666}.included{padding:12px;border-left:4px solid var(--red);background:#fff8ef;border-radius:6px}.note{font-size:13px;color:#666}
+@media(max-width:800px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.summary{align-items:flex-start;flex-direction:column}.media{height:240px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a id="return-link" class="back" href="./index.html">← Return to Products</a>
+    <span class="note">West End Power Equipment · New Milford & Danbury, Connecticut</span>
+  </div>
+  <div id="app"><p>Loading product options…</p></div>
+</div>
+<script>
+(function(){
+'use strict';
+const qs=new URLSearchParams(location.search);
+const sku=(qs.get('sku')||'').trim();
+const category=(qs.get('category')||'Equipment').trim();
+const returnUrl=(qs.get('return')||'').trim();
+const $=id=>document.getElementById(id);
+const clean=v=>String(v==null?'':v).replace(/^\uFEFF/,'').trim();
+const money=v=>{const n=Number(clean(v).replace(/[$,]/g,''));return Number.isFinite(n)?n:0};
+const fmt=n=>'$'+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=v=>clean(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const trueish=v=>['T','TRUE','Y','YES','1','X'].includes(clean(v).toUpperCase());
+
+function parseCSV(text){
+ const rows=[];let row=[],field='',quoted=false;
+ for(let i=0;i<text.length;i++){const c=text[i];
+  if(quoted){if(c==='"'&&text[i+1]==='"'){field+='"';i++;}else if(c==='"'){quoted=false;}else field+=c;}
+  else{if(c==='"')quoted=true;else if(c===','){row.push(field);field='';}else if(c==='\n'){row.push(field.replace(/\r$/,''));rows.push(row);row=[];field='';}else field+=c;}
+ }
+ if(field.length||row.length){row.push(field);rows.push(row)}
+ const headers=(rows.shift()||[]).map((h,i)=>i===0?clean(h):clean(h));
+ return rows.filter(r=>r.some(x=>clean(x)!=='')).map(r=>Object.fromEntries(headers.map((h,i)=>[h,r[i]||''])));
+}
+async function csv(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw new Error(path+' '+r.status);return parseCSV(await r.text())}
+function currentPrice(x){return money(x.SalePrice)>0?money(x.SalePrice):money(x.MSRP)}
+function imageUrl(x){let v=clean(x.ImageURL);if(!v)return '';if(/^https?:\/\//i.test(v))return v;return v.replace(/^\.\//,'')}
+function img(x,alt){const src=imageUrl(x);return src?'<img src="'+esc(src)+'" alt="'+esc(alt)+'" loading="lazy">':'<div class="placeholder">Image Coming Soon</div>'}
+function itemCard(x,type){
+ const name=clean(x.Model)||clean(x.ChargerName)||clean(x.Description)||clean(x.SKU);
+ const price=currentPrice(x);
+ return '<article class="card"><div class="card-media">'+img(x,name)+'</div><div class="card-body"><h3>'+esc(name)+'</h3><p>'+esc(clean(x.Description))+'</p><p class="card-price">'+(price>0?fmt(price):'Contact Us')+'</p><label class="select-row"><input type="checkbox" class="option-check" data-type="'+esc(type)+'" data-sku="'+esc(x.SKU)+'" data-name="'+esc(name)+'" data-price="'+price+'"> Add <input class="qty" type="number" min="1" max="20" value="1" data-qty="'+esc(x.SKU)+'" aria-label="Quantity"></label></div></article>';
+}
+function optionSection(title,items,type){
+ if(!items.length)return '';
+ return '<section class="section"><h2>'+esc(title)+'</h2><div class="grid">'+items.map(x=>itemCard(x,type)).join('')+'</div></section>';
+}
+function compatibleRows(rows,toolSku){
+ return rows.filter(x=>{
+   const v=clean(x[toolSku]);
+   return v!=='' && v!=='0' && v!=='F' && v!=='FALSE';
+ });
+}
+function byId(rows,ids,idFields){
+ const set=new Set(ids.map(x=>clean(x).toUpperCase()).filter(Boolean));
+ return rows.filter(x=>idFields.some(f=>set.has(clean(x[f]).toUpperCase())));
+}
+function idsFromRuntime(runtime,prefix,count){
+ const ids=[];for(let i=1;i<=count;i++){const v=clean(runtime[prefix+i]);if(v)ids.push(v)}return ids;
+}
+function wireSummary(basePrice){
+ const checks=[...document.querySelectorAll('.option-check')];
+ function recalc(){
+  let add=0,count=0;
+  checks.forEach(c=>{if(c.checked){const q=document.querySelector('[data-qty="'+CSS.escape(c.dataset.sku)+'"]');const qty=Math.max(1,Number(q&&q.value)||1);add+=Number(c.dataset.price||0)*qty;count+=qty}});
+  $('selected-count').textContent=count+' additional item'+(count===1?'':'s');
+  $('selected-total').textContent=fmt(basePrice+add);
+ }
+ checks.forEach(c=>c.addEventListener('change',recalc));
+ document.querySelectorAll('.qty').forEach(q=>q.addEventListener('input',recalc));
+ $('save-options').addEventListener('click',()=>{
+  const selected=checks.filter(c=>c.checked).map(c=>{const q=document.querySelector('[data-qty="'+CSS.escape(c.dataset.sku)+'"]');return {type:c.dataset.type,sku:c.dataset.sku,name:c.dataset.name,price:Number(c.dataset.price||0),qty:Math.max(1,Number(q&&q.value)||1)}})
+  sessionStorage.setItem('wep-options:'+sku,JSON.stringify({sku,selected,updated:new Date().toISOString()}));
+  $('save-options').textContent='Options Saved';
+ });
+ recalc();
+}
+async function init(){
+ if(returnUrl){$('return-link').href=returnUrl;$('return-link').textContent='← Return to '+category}
+ else {$('return-link').href='./index.html?category='+encodeURIComponent(category);$('return-link').textContent='← Return to '+category}
+ if(!sku){$('app').innerHTML='<section class="section"><h2>No product selected</h2><p>Return to the product page and choose View Options.</p></section>';return}
+ try{
+  const [products,runtime,batteries,chargers,attachments,accessories,parts]=await Promise.all([
+   csv('data/products.csv'),csv('data/compatibility-runtime.csv'),csv('data/batteries.csv'),csv('data/chargers.csv'),csv('data/attachments.csv'),csv('data/accessories.csv'),csv('data/parts.csv')
+  ]);
+  const product=products.find(x=>clean(x.SKU)===sku);
+  if(!product)throw new Error('Product SKU not found: '+sku);
+  const compat=runtime.find(x=>clean(x.ToolSKU)===sku)||{};
+  const batteryIds=idsFromRuntime(compat,'BatteryID',10);
+  const chargerIds=idsFromRuntime(compat,'ChargerID',10);
+  const bats=byId(batteries,batteryIds,['BatteryID','Model']);
+  const chgs=byId(chargers,chargerIds,['ChargerID','Model','ChargerName']);
+  const atts=compatibleRows(attachments,sku);
+  const accs=compatibleRows(accessories,sku);
+  const prts=compatibleRows(parts,sku);
+  const name=clean(product.Model)||clean(product.Description)||sku;
+  const base=currentPrice(product);
+  const kit=clean(product.ProductType).toLowerCase()==='kit';
+  const included=kit?clean(product.Description):'';
+  $('app').innerHTML=
+   '<section class="hero"><div class="media">'+img(product,name)+'</div><div><div class="eyebrow">'+esc([product.PowerType,product.SubCategory].filter(Boolean).join(' · '))+'</div><h1>'+esc(name)+'</h1><p>'+esc(product.Description)+'</p><p class="price">'+fmt(base)+'</p><p><strong>SKU:</strong> '+esc(sku)+'</p>'+(included?'<div class="included"><strong>Selected factory kit:</strong> '+esc(included)+'</div>':'')+'</div></section>'+
+   optionSection('Additional Battery(s)',bats,'battery')+
+   optionSection('Additional Charger(s)',chgs,'charger')+
+   optionSection('Compatible Attachments',atts,'attachment')+
+   optionSection('Compatible Accessories',accs,'accessory')+
+   optionSection('Maintenance & Replacement Parts',prts,'part')+
+   (!bats.length&&!chgs.length&&!atts.length&&!accs.length&&!prts.length?'<section class="section"><p class="empty">No additional compatible options are currently listed for this SKU.</p></section>':'')+
+   '<div class="summary"><div><span id="selected-count">0 additional items</span><br><strong id="selected-total">'+fmt(base)+'</strong></div><button id="save-options" type="button">Save Options</button></div>';
+  wireSummary(base);
+ }catch(e){$('app').innerHTML='<section class="section"><h2>Unable to load options</h2><p>'+esc(e.message)+'</p></section>'}
+}
+init();
+})();
+</script>
+</body>
+</html>
