@@ -73,7 +73,10 @@
     if(!eligible(p))return showStatus("This item is not approved or is out of stock.");
     var lines=read(),existing=lines.find(function(x){return x.sku.toUpperCase()===sku.toUpperCase();});
     if(existing){if(existing.quantity>=10)return showStatus("Maximum quantity is 10.");existing.quantity++;}
-    else{if(lines.length>=20)return showStatus("Maximum cart size is 20 products.");lines.push({sku:sku,quantity:1});}
+    else{if(lines.length>=20)return showStatus("Maximum cart size is 20 products.");
+      lines.push({sku:sku,quantity:1,name:p.Model||p.Description||sku,
+        displayPrice:Number(p.SalePrice||p.MSRP||0),
+        shippingEligible:yes(p.ShippingEligible)});}
     if(write(lines)){updateCount();showStatus("Added to cart: "+(p.Model||p.Description||sku));}
   }
   document.querySelectorAll(".wep-smart-card").forEach(function(card){
@@ -107,7 +110,7 @@
     lines.forEach(function(entry){
       var line=entry.line,p=entry.product;
       var row=el("div");row.className="wep-paid-line";
-      row.appendChild(el("strong",p?(p.Model||p.Description||line.sku):line.sku));
+      row.appendChild(el("strong",p?(p.Model||p.Description||line.sku):(line.name||line.sku)));
       var input=el("input");input.type="number";input.min="1";input.max="10";
       input.value=line.quantity;input.setAttribute("aria-label","Quantity for "+line.sku);
       input.onchange=function(){
@@ -116,7 +119,7 @@
         if(found){found.quantity=count;write(all);updateCount();render();}
       };
       row.appendChild(input);
-      var price=p?Number(p.SalePrice||p.MSRP||0):0;
+      var price=p?Number(p.SalePrice||p.MSRP||0):Number(line.displayPrice||0);
       row.appendChild(el("span",money(price*line.quantity)));
       var remove=el("button","Remove");remove.type="button";
       remove.onclick=function(){write(read().filter(function(x){return x.sku!==line.sku;}));updateCount();render();};
@@ -149,7 +152,9 @@
       ["PICKUP_DANBURY","Pickup: Danbury"]
     ].forEach(function(pair){var option=el("option",pair[1]);option.value=pair[0];fulfillment.appendChild(option);});
     var shippable=lines.every(function(entry){
-      return entry.product&&yes(entry.product.ShippingEligible);
+      return entry.product
+        ? yes(entry.product.ShippingEligible)
+        : entry.line.shippingEligible===true;
     });
     if(shippable){var ship=el("option","UPS Ground shipping (rate confirmed before payment)");
       ship.value="SHIP";fulfillment.appendChild(ship);}
@@ -179,7 +184,8 @@
         var response=await fetch(API+"/online-cart-order",{
           method:"POST",headers:{"Content-Type":"application/json"},
           body:JSON.stringify({customer:customer,fulfillment:fulfillment.value,
-            items:read(),termsAccepted:true})
+            items:read().map(function(line){return {sku:line.sku,quantity:line.quantity};}),
+            termsAccepted:true})
         });
         var order=await response.json();
         if(!response.ok)throw Error(order.error||"Order verification failed.");
