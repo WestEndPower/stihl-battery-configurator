@@ -1070,6 +1070,9 @@
     '.wep-smart-actions a,.wep-smart-actions button{min-height:36px!important;font-size:13px!important;font-weight:800!important;padding:5px 7px!important}'+
     '.wep-add-cart{min-height:36px!important;font-size:13px!important;font-weight:800!important}'+'</style>';
   }
+  function iframeResizeScript(){
+    return '<script>(function(){if(window.parent===window)return;var page=document.querySelector(".wep-page");if(!page)return;var last=0,pending=false;function send(){pending=false;var height=Math.ceil(page.getBoundingClientRect().bottom+window.scrollY+16);if(height>0&&height!==last){last=height;window.parent.postMessage({type:"westend-stihl-ap-height",height:height},"*")}}function queue(){if(!pending){pending=true;requestAnimationFrame(send)}}if(window.ResizeObserver){new ResizeObserver(queue).observe(page)}else{new MutationObserver(queue).observe(page,{childList:true,subtree:true,attributes:true})}window.addEventListener("load",queue);window.addEventListener("resize",queue);document.addEventListener("load",queue,true);queue()})()</script>';
+  }
   function runtimeScript(data){
     var safe=JSON.stringify(data).replace(/</g,'\\u003c');
     return '<script>(function(){'+
@@ -1089,7 +1092,7 @@
       'qa("[data-compare]").forEach(function(c){c.addEventListener("change",function(){var k=c.dataset.compare;if(c.checked){if(compare.length>=4){c.checked=false;alert("Compare up to 4 products at a time.");return}if(compare.indexOf(k)<0)compare.push(k)}else compare=compare.filter(function(x){return x!==k});syncCompare()})});'+
       'q("#wep-clear-compare").onclick=function(){compare=[];syncCompare()};q("#wep-open-compare").onclick=function(){drawCompare();var d=q("#wep-compare-dialog");if(d.showModal)d.showModal();else d.setAttribute("open","")};'+
       'qa("a[data-options]").forEach(function(a){var u=new URL(a.getAttribute("href"),location.href);if(!u.searchParams.has("return"))u.searchParams.set("return",location.href);a.href=u.href});filters();drawCart();syncCompare();'+
-    '})()<'+ '/script>';
+    '})()<'+ '/script>'+iframeResizeScript();
   }
   function enhanceGeneratedPage(){
     var enabled=document.getElementById('stihl-webpage-smart-catalog');
