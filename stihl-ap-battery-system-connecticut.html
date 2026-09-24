@@ -114,3 +114,4 @@
     Page: https://www.westendpower.com/stihl-ap-battery-system-connecticut
   </p>
 </div>
+<script>(function(){if(window.parent===window)return;var page=document.querySelector(".wep-page");if(!page)return;var last=0,pending=false;function send(){pending=false;var height=Math.ceil(page.getBoundingClientRect().bottom+window.scrollY+16);if(height>0&&height!==last){last=height;window.parent.postMessage({type:"westend-stihl-ap-height",height:height},"*")}}function queue(){if(!pending){pending=true;requestAnimationFrame(send)}}if(window.ResizeObserver){new ResizeObserver(queue).observe(page)}else{new MutationObserver(queue).observe(page,{childList:true,subtree:true,attributes:true})}window.addEventListener("load",queue);window.addEventListener("resize",queue);document.addEventListener("load",queue,true);queue()})()</script>
