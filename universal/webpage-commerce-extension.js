@@ -1118,7 +1118,7 @@
       'qa("[data-add-cart]").forEach(function(b){b.addEventListener("click",function(){addCart(b.dataset.addCart)})});'+
       'qa("[data-compare]").forEach(function(c){c.addEventListener("change",function(){var k=c.dataset.compare;if(c.checked){if(compare.length>=4){c.checked=false;alert("Compare up to 4 products at a time.");return}if(compare.indexOf(k)<0)compare.push(k)}else compare=compare.filter(function(x){return x!==k});syncCompare()})});'+
       'q("#wep-clear-compare").onclick=function(){compare=[];syncCompare()};q("#wep-open-compare").onclick=function(){drawCompare();var d=q("#wep-compare-dialog");if(d.showModal)d.showModal();else d.setAttribute("open","")};'+
-      'filters();drawCart();syncCompare();enhanceComponentListings();'+
+      'filters();drawCart();syncCompare();enhanceComponentListings();setTimeout(enhanceComponentListings,250);setTimeout(enhanceComponentListings,1000);if(window.MutationObserver){var componentObserver=new MutationObserver(function(){enhanceComponentListings()});componentObserver.observe(document.body,{childList:true,subtree:true})}'+
     '})()<'+ '/script>';
   }
   function enhanceGeneratedPage(){
