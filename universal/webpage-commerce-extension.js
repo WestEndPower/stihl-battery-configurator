@@ -463,14 +463,18 @@
     }).join('');
   }
   function stockText(f){
+    if(f.stock>0 && f.order>0) return '&#10003; In Stock: '+f.stock+' available &middot; On Order: '+f.order;
+    if(f.stock>0) return '&#10003; In Stock: '+f.stock+' available';
+    if(f.order>0) return 'On Order: '+f.order+' incoming';
     if(f.normalLocations && f.normalLocations.length){
       return 'Normally Stocked in '+f.normalLocations.join(' and ');
     }
-    return 'Non-stocked item - available by special order only';
+    return 'Available to Order';
   }
   function stockNote(f){
-    if(f.normalLocations && f.normalLocations.length) return 'Normally Stocked';
-    return 'Special Order Only';
+    if(f.stock>0) return 'In Stock';
+    if(f.order>0) return 'On Order';
+    return '';
   }
   function saleInfo(v){
     if(!v) return null;
@@ -774,6 +778,13 @@
         return '<option value="'+i+'">'+esc(v.label)+'</option>';
       }).join('');
 
+    var cartIcon=
+      '<svg viewBox="0 0 24 24" aria-hidden="true">'+
+        '<path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 8H7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'+
+        '<circle cx="10" cy="19" r="1.5" fill="currentColor"/>'+
+        '<circle cx="17" cy="19" r="1.5" fill="currentColor"/>'+
+      '</svg>';
+
     return '<article class="wep-smart-card" '+
       'data-family="'+esc(f.key)+'" '+
       'data-type="'+esc(f.subcategory)+'" '+
@@ -803,13 +814,14 @@
               'data-product-link="'+esc(f.key)+'"'+
               (
                 first.details && /^https?:\/\//i.test(first.details)
-                  ? ' href="'+esc(first.details)+'"'
+                  ? ' href="'+esc(first.details)+'" data-wep-external="1"'
                   : ''
               )+
               ' target="_blank" rel="noopener noreferrer">'+
               image+
             '</a>'+
           '</div>'+
+          (first.details && /^https?:\/\//i.test(first.details) ? '<a class="wep-external-details" href="'+esc(first.details)+'" data-product-details="'+esc(f.key)+'" data-wep-external="1" target="_blank" rel="noopener noreferrer">Product Details <span aria-hidden="true">↗</span></a>' : '')+
         '</section>'+
 
         '<section class="wep-card-buy">'+
@@ -846,7 +858,11 @@
                   '</a>'
                 : ''
             )+
-            '<button class="wep-add-cart" type="button" data-add-cart="'+esc(f.key)+'"><span>Add to Cart</span></button>'+
+            '<button class="wep-add-cart" type="button" '+
+              'data-add-cart="'+esc(f.key)+'">'+
+              cartIcon+
+              '<span>Add to Cart</span>'+
+            '</button>'+
           '</div>'+
         '</section>'+
 
@@ -1012,6 +1028,8 @@
 
     '.wep-smart-media{position:relative;display:flex;align-items:center;justify-content:center;width:100%;min-height:250px;overflow:hidden;border:1px solid #cfd4da;border-radius:7px;background:linear-gradient(180deg,#fff,#f8fafb);box-shadow:0 1px 3px rgba(0,0,0,.04)}'+
     '.wep-image-link{display:flex;width:100%;height:100%;align-items:center;justify-content:center}'+
+    '.wep-external-details{display:flex;justify-content:center;margin:8px auto 0;width:max-content;font-size:12px;font-weight:800;color:#235C37;text-decoration:none}'+
+    '.wep-external-details:hover{text-decoration:underline}'+
     '.wep-smart-media img{display:block;width:100%;height:100%;object-fit:contain;padding:46px 5px 5px;box-sizing:border-box}'+
     '.wep-smart-placeholder{font-weight:800;color:#666}'+
 
@@ -1109,7 +1127,8 @@
 
         '.wep-variant,.wep-main-qty{height:36px!important;font-size:13px!important;font-weight:800!important}'+
     '.wep-smart-actions a,.wep-smart-actions button{min-height:36px!important;font-size:13px!important;font-weight:800!important;padding:5px 7px!important}'+
-    '.wep-add-cart{grid-column:1/-1;min-height:36px!important;font-size:13px!important;font-weight:800!important;background:#c8102e!important;color:#fff!important;border-color:#c8102e!important}'+
+    '.wep-add-cart{grid-column:1/-1;display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;min-height:36px!important;font-size:13px!important;font-weight:800!important;background:#c8102e!important;color:#fff!important;border-color:#c8102e!important}'+
+    '.wep-add-cart svg{width:16px;height:16px;flex:0 0 auto}'+
     '.wep-main-qty{width:100%;text-align:center}'+
     '.wep-component-buy{display:flex;align-items:center;gap:7px;margin-top:10px}'+
     '.wep-component-buy label{display:flex;align-items:center;gap:6px;font-weight:800}'+
@@ -1126,17 +1145,19 @@
       'var DATA='+safe+';var families=DATA.families||[];var byKey={};families.forEach(function(f){byKey[f.key]=f;});var compare=[];var type="";var subtype="";var power="";var series="";var DEALERSPIKE_PRODUCT_BY_SKU={};(DATA.webstoreProducts||[]).forEach(function(x){var id=Number(x.webstoreProductId)||0;if(!id)return;[x.sku,x.alternateId].forEach(function(k){k=String(k||"").toUpperCase().replace(/[^A-Z0-9]+/g,"");if(k)DEALERSPIKE_PRODUCT_BY_SKU[k]=id})});'+
       'function q(s,r){return (r||document).querySelector(s)}function qa(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}function m(v){return "$"+Number(v||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}function esc(v){var d=document.createElement("div");d.textContent=String(v==null?"":v);return d.innerHTML}'+
       'function selectedVariant(key){var f=byKey[key],sel=q(".wep-variant[data-family=\\\""+CSS.escape(key)+"\\\"]");if(!f||!sel||sel.value==="")return null;return f.variants[Number(sel.value)]||null}'+
+      'function openExternal(url){if(!/^https?:\\/\\//i.test(String(url||"")))return;var host="";try{host=new URL(url,location.href).hostname.toLowerCase()}catch(e){}var isWestEnd=host==="westendpower.com"||/\\.westendpower\\.com$/.test(host);if(isWestEnd){window.open(url,"_blank","noopener,noreferrer");return}if(confirm("You are leaving West End Power. Product information will open in a new tab. Your shopping page will stay open. Continue?"))window.open(url,"_blank","noopener,noreferrer")}'+
       'function dealerSpikeSkuKey(sku){return String(sku||"").toUpperCase().replace(/[^A-Z0-9]+/g,"")}function dealerSpikeGo(sku,qty){var id=DEALERSPIKE_PRODUCT_BY_SKU[dealerSpikeSkuKey(sku)];if(!id){alert("Online checkout setup is not complete for this item yet.");return false}try{sessionStorage.setItem("wepDealerSpikeRequestedQty",String(Math.max(1,Number(qty)||1)));sessionStorage.setItem("wepDealerSpikeRequestedSku",String(sku||""))}catch(e){}window.location.href="https://www.westendpower.com/ecommerce/products/view/"+encodeURIComponent(id);return true}'+
       'function addMainToCart(key){var v=selectedVariant(key);if(!v){alert("Choose a purchase option before adding this item to the cart.");return}var qtyEl=q("[data-main-qty=\\\""+CSS.escape(key)+"\\\"]");dealerSpikeGo(v.sku,qtyEl?qtyEl.value:1)}'+      'function compatible(list,sys){sys=String(sys||"").toUpperCase();return (list||[]).filter(function(x){return String(x.system||"").toUpperCase().split(/[|,;/]+/).map(function(y){return y.trim()}).indexOf(sys)>=0})}'+
       'function drawOptions(key){var v=selectedVariant(key),zone=q(".wep-smart-battery-zone[data-family=\\\""+CSS.escape(key)+"\\\"]");if(!v||!zone)return;if(v.isKit){zone.innerHTML=v.kitIncludes?"<div class=\\\"wep-kit-includes\\\"><strong>Factory kit includes:</strong> "+esc(v.kitIncludes)+"</div>":"";reTotal(key);return;}var bats=compatible(DATA.batteries,v.system),chs=compatible(DATA.chargers,v.system);if(!bats.length&&!chs.length){zone.innerHTML="";reTotal(key);return;}zone.innerHTML="<div class=\\\"wep-smart-option-row\\\">"+(bats.length?"<label>Battery<select data-battery=\\\""+esc(key)+"\\\"><option value=\\\"\\\">No added battery</option>"+bats.map(function(x){return "<option value=\\\""+esc(x.sku)+"\\\">"+esc(x.label)+" &mdash; "+m(x.price)+"</option>"}).join("")+"</select></label>":"")+(chs.length?"<label>Charger<select data-charger=\\\""+esc(key)+"\\\"><option value=\\\"\\\">No added charger</option>"+chs.map(function(x){return "<option value=\\\""+esc(x.sku)+"\\\">"+esc(x.label)+" &mdash; "+m(x.price)+"</option>"}).join("")+"</select></label>":"")+"</div>";qa("select",zone).forEach(function(s){s.addEventListener("change",function(){reTotal(key)})});reTotal(key)}'+
       'function findOpt(list,sku){return (list||[]).find(function(x){return x.sku===sku})||null}function selectedExtras(key){var b=q("[data-battery=\\\""+CSS.escape(key)+"\\\"]"),c=q("[data-charger=\\\""+CSS.escape(key)+"\\\"]");return {battery:b?findOpt(DATA.batteries,b.value):null,charger:c?findOpt(DATA.chargers,c.value):null}}'+
-      'function reTotal(key){var v=selectedVariant(key);if(!v)return;var cat=encodeURIComponent((byKey[key]&&byKey[key].category)||"Equipment"),ret=encodeURIComponent(location.href);var o=q("[data-options=\\\""+CSS.escape(key)+"\\\"]");if(o)o.href="product-options.html?sku="+encodeURIComponent(v.sku)+"&category="+cat+"&return="+ret;var r=q("[data-runtime=\\\""+CSS.escape(key)+"\\\"]");if(r)r.href=v.configure||"#";var link=q("[data-product-link=\\\""+CSS.escape(key)+"\\\"]");if(link){var url=String(v.details||"");if(/^https?:\\/\\//i.test(url))link.href=url;else link.removeAttribute("href")}}'+
+      'function reTotal(key){var v=selectedVariant(key);if(!v)return;var cat=encodeURIComponent((byKey[key]&&byKey[key].category)||"Equipment"),ret=encodeURIComponent(location.href);var o=q("[data-options=\\\""+CSS.escape(key)+"\\\"]");if(o)o.href="product-options.html?sku="+encodeURIComponent(v.sku)+"&category="+cat+"&return="+ret;var r=q("[data-runtime=\\\""+CSS.escape(key)+"\\\"]");if(r)r.href=v.configure||"#";var link=q("[data-product-link=\\\""+CSS.escape(key)+"\\\"]"),details=q("[data-product-details=\\\""+CSS.escape(key)+"\\\"]");if(link){var url=String(v.details||"");if(/^https?:\\/\\//i.test(url)){link.href=url;link.dataset.wepExternal="1";if(details){details.href=url;details.hidden=false}}else{link.removeAttribute("href");delete link.dataset.wepExternal;if(details)details.hidden=true}}}'+
       "function updateSubtypes(){var row=q(\"#wep-subcategory-row\"),list=q(\"#wep-subcategory-filters\");if(!row||!list)return;list.innerHTML=\"\";row.hidden=true;if(!type)return;var values=[];families.forEach(function(f){if(String(f.category||\"\").replace(/^Vauums$/i,\"Vacuums\")===type&&f.subcategory&&values.indexOf(f.subcategory)<0)values.push(f.subcategory)});values.sort(function(a,b){if(type===\"Blowers\"){var rank=function(x){return /Handheld/i.test(x)?0:/Backpack/i.test(x)?1:2};return rank(a)-rank(b)||a.localeCompare(b)}return a.localeCompare(b)});values.forEach(function(value){var b=document.createElement(\"button\");b.type=\"button\";b.dataset.filterSubtype=value;b.textContent=type===\"Blowers\"?value.replace(/\\bBlower\\b/i,\"\").trim()||value:value;b.onclick=function(){subtype=subtype===value?\"\":value;qa(\"[data-filter-subtype]\").forEach(function(x){x.classList.toggle(\"active\",subtype!==\"\"&&x.dataset.filterSubtype===subtype)});filters()};list.appendChild(b)});row.hidden=!values.length}"+
       'function filters(){var search=(q("#wep-smart-search")||{}).value||"";search=search.toUpperCase();var only=!!(q("#wep-stock-only")||{}).checked;var visible=0;qa(".wep-smart-card").forEach(function(card){var f=byKey[card.dataset.family];var scope=(q("#wep-smart-catalog")||{}).dataset.filterScope;var filterValue=scope==="category"?String(f.category||"").replace(/^Vauums$/i,"Vacuums"):f.subcategory;var ok=(!type||filterValue===type)&&(!subtype||f.subcategory===subtype)&&(!power||f.power===power)&&(!series||f.series===series)&&(!only||(f.normalLocations&&f.normalLocations.length))&&(!search||(f.name+" "+f.subcategory+" "+f.power+" "+f.series).toUpperCase().indexOf(search)>=0);card.hidden=!ok;if(ok)visible++;});var n=q("#wep-result-count");if(n){n.textContent=visible;if(n.nextSibling)n.nextSibling.textContent=visible===1?" product family":" product families"}}'+
       'function drawCompare(){var selected=compare.map(function(k){return byKey[k]}).filter(Boolean);var labels=[];selected.forEach(function(f){Object.keys(f.specs||{}).forEach(function(k){if(labels.indexOf(k)<0)labels.push(k)})});var html="<div class=\\\"wep-compare-table-wrap\\\"><table class=\\\"wep-compare-table\\\"><thead><tr><th>Feature</th>"+selected.map(function(f){return "<th>"+esc(f.name)+"</th>"}).join("")+"</tr></thead><tbody><tr><th>Starting Price</th>"+selected.map(function(f){return "<td>"+(Number(f.minPrice||0)>0?m(f.minPrice):"Pricing Coming Soon")+"</td>"}).join("")+"</tr><tr><th>Power</th>"+selected.map(function(f){return "<td>"+esc(f.power)+"</td>"}).join("")+"</tr><tr><th>Type</th>"+selected.map(function(f){return "<td>"+esc(f.subcategory)+"</td>"}).join("")+"</tr><tr><th>Availability</th>"+selected.map(function(f){return "<td>"+((f.normalLocations&&f.normalLocations.length)?"Normally Stocked in "+f.normalLocations.join(" and "):"Non-stocked item - available by special order only")+"</td>"}).join("")+"</tr>"+labels.map(function(l){return "<tr><th>"+esc(l)+"</th>"+selected.map(function(f){return "<td>"+esc((f.specs||{})[l]||"&mdash;")+"</td>"}).join("")+"</tr>"}).join("")+"</tbody></table></div>";q("#wep-compare-table").innerHTML=html}'+
       'function syncCompare(){var bar=q("#wep-compare-bar"),cnt=q("#wep-compare-count");if(cnt)cnt.textContent=compare.length;if(bar)bar.hidden=!compare.length;qa("[data-compare]").forEach(function(c){c.checked=compare.indexOf(c.dataset.compare)>=0})}'+
       'qa("[data-filter-type]").forEach(function(b){b.onclick=function(){var value=b.dataset.filterType||"";type=type===value?"":value;qa("[data-filter-type]").forEach(function(x){x.classList.toggle("active",type!==""&&x.dataset.filterType===type)});subtype="";updateSubtypes();filters()}});qa("[data-filter-power]").forEach(function(b){b.onclick=function(){var value=b.dataset.filterPower||"";power=power===value?"":value;qa("[data-filter-power]").forEach(function(x){x.classList.toggle("active",power!==""&&x.dataset.filterPower===power)});filters()}});qa("[data-filter-series]").forEach(function(b){b.onclick=function(){var value=b.dataset.filterSeries||"";series=series===value?"":value;qa("[data-filter-series]").forEach(function(x){x.classList.toggle("active",series!==""&&x.dataset.filterSeries===series)});filters()}});'+
       'q("#wep-smart-search").addEventListener("input",filters);q("#wep-stock-only").addEventListener("change",filters);'+
+      'document.addEventListener("click",function(e){var a=e.target&&e.target.closest?e.target.closest("a[data-wep-external=\\\"1\\\"]"):null;if(!a)return;var url=a.getAttribute("href")||"";if(!/^https?:\\/\\//i.test(url))return;e.preventDefault();openExternal(url)});'+
       'qa(".wep-variant").forEach(function(s){s.addEventListener("change",function(){reTotal(s.dataset.family)});reTotal(s.dataset.family)});'+
       'qa("[data-add-cart]").forEach(function(b){b.addEventListener("click",function(){addMainToCart(b.dataset.addCart)})});'+
       'qa("[data-component-cart]").forEach(function(b){b.addEventListener("click",function(){var sku=b.dataset.componentCart,qty=q("[data-component-qty=\\\""+CSS.escape(sku)+"\\\"]");dealerSpikeGo(sku,qty?qty.value:1)})});'+
