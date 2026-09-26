@@ -1142,7 +1142,7 @@
   function runtimeScript(data){
     var safe=JSON.stringify(data).replace(/</g,'\\u003c');
     return '<script>(function(){'+
-      'var DATA='+safe+';var families=DATA.families||[];var byKey={};families.forEach(function(f){byKey[f.key]=f;});var compare=[];var type="";var subtype="";var power="";var series="";var DEALERSPIKE_PRODUCT_BY_SKU={};(DATA.webstoreProducts||[]).forEach(function(x){var id=Number(x.webstoreProductId)||0;if(!id)return;[x.sku,x.alternateId].forEach(function(k){k=String(k||"").toUpperCase().replace(/[^A-Z0-9]+/g,"");if(k)DEALERSPIKE_PRODUCT_BY_SKU[k]=id})});'+
+      'var DATA='+safe+';window.WestEndCatalogData=DATA;var families=DATA.families||[];var byKey={};families.forEach(function(f){byKey[f.key]=f;});var compare=[];var type="";var subtype="";var power="";var series="";var DEALERSPIKE_PRODUCT_BY_SKU={};(DATA.webstoreProducts||[]).forEach(function(x){var id=Number(x.webstoreProductId)||0;if(!id)return;[x.sku,x.alternateId].forEach(function(k){k=String(k||"").toUpperCase().replace(/[^A-Z0-9]+/g,"");if(k)DEALERSPIKE_PRODUCT_BY_SKU[k]=id})});'+
       'function q(s,r){return (r||document).querySelector(s)}function qa(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}function m(v){return "$"+Number(v||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}function esc(v){var d=document.createElement("div");d.textContent=String(v==null?"":v);return d.innerHTML}'+
       'function selectedVariant(key){var f=byKey[key],sel=q(".wep-variant[data-family=\\\""+CSS.escape(key)+"\\\"]");if(!f||!sel||sel.value==="")return null;return f.variants[Number(sel.value)]||null}'+
       'function openExternal(url){if(!/^https?:\\/\\//i.test(String(url||"")))return;var host="";try{host=new URL(url,location.href).hostname.toLowerCase()}catch(e){}var isWestEnd=host==="westendpower.com"||/\\.westendpower\\.com$/.test(host);if(isWestEnd){window.open(url,"_blank","noopener,noreferrer");return}if(confirm("You are leaving West End Power. Product information will open in a new tab. Your shopping page will stay open. Continue?"))window.open(url,"_blank","noopener,noreferrer")}'+
@@ -1164,7 +1164,8 @@
       'qa("[data-compare]").forEach(function(c){c.addEventListener("change",function(){var k=c.dataset.compare;if(c.checked){if(compare.length>=4){c.checked=false;alert("Compare up to 4 products at a time.");return}if(compare.indexOf(k)<0)compare.push(k)}else compare=compare.filter(function(x){return x!==k});syncCompare()})});'+
       'q("#wep-clear-compare").onclick=function(){compare=[];syncCompare()};q("#wep-open-compare").onclick=function(){drawCompare();var d=q("#wep-compare-dialog");if(d.showModal)d.showModal();else d.setAttribute("open","")};'+
       'qa("a[data-options]").forEach(function(a){var u=new URL(a.getAttribute("href"),location.href);if(!u.searchParams.has("return"))u.searchParams.set("return",location.href);a.href=u.href});filters();syncCompare();'+
-    '})()<'+ '/script>'+iframeResizeScript();
+    '})()<'+ '/script>'+iframeResizeScript()+
+      '<script src="https://westendpower.github.io/stihl-battery-configurator/universal/stihl-paid-cart.js"><'+ '/script>';
   }
   function enhanceGeneratedPage(){
     var enabled=document.getElementById('stihl-webpage-smart-catalog');
