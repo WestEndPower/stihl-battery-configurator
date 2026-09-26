@@ -444,7 +444,18 @@
     var chargers=activeList(liveState && liveState.chargers)
       .map(function(x){return optionPayload(x,'charger');})
       .filter(function(x){return x.price>0;});
-    return {families:families,batteries:batteries,chargers:chargers};
+    var webstoreProducts=activeList(liveState && liveState.webstoreProducts)
+      .map(function(x){
+        return {
+          sku:clean(x.SKU),
+          alternateId:clean(x.AlternateID),
+          privateProductId:clean(x.PrivateProductID),
+          webstoreProductId:Number(x.WebstoreProductID)||0,
+          checkoutQuantity:Number(x.CheckoutQuantity)||0
+        };
+      })
+      .filter(function(x){return x.webstoreProductId>0;});
+    return {families:families,batteries:batteries,chargers:chargers,webstoreProducts:webstoreProducts};
   }
   function selectOptions(list,selected){
     return list.map(function(x){
@@ -1112,7 +1123,7 @@
   function runtimeScript(data){
     var safe=JSON.stringify(data).replace(/</g,'\\u003c');
     return '<script>(function(){'+
-      'var DATA='+safe+';var families=DATA.families||[];var byKey={};families.forEach(function(f){byKey[f.key]=f;});var compare=[];var type="";var subtype="";var power="";var series="";var DEALERSPIKE_PRODUCT_BY_SKU={"EA104305502":58,"AL1602":58};'+
+      'var DATA='+safe+';var families=DATA.families||[];var byKey={};families.forEach(function(f){byKey[f.key]=f;});var compare=[];var type="";var subtype="";var power="";var series="";var DEALERSPIKE_PRODUCT_BY_SKU={};(DATA.webstoreProducts||[]).forEach(function(x){var id=Number(x.webstoreProductId)||0;if(!id)return;[x.sku,x.alternateId].forEach(function(k){k=String(k||"").toUpperCase().replace(/[^A-Z0-9]+/g,"");if(k)DEALERSPIKE_PRODUCT_BY_SKU[k]=id})});'+
       'function q(s,r){return (r||document).querySelector(s)}function qa(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}function m(v){return "$"+Number(v||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}function esc(v){var d=document.createElement("div");d.textContent=String(v==null?"":v);return d.innerHTML}'+
       'function selectedVariant(key){var f=byKey[key],sel=q(".wep-variant[data-family=\\\""+CSS.escape(key)+"\\\"]");if(!f||!sel||sel.value==="")return null;return f.variants[Number(sel.value)]||null}'+
       'function dealerSpikeSkuKey(sku){return String(sku||"").toUpperCase().replace(/[^A-Z0-9]+/g,"")}function dealerSpikeGo(sku,qty){var id=DEALERSPIKE_PRODUCT_BY_SKU[dealerSpikeSkuKey(sku)];if(!id){alert("Online checkout setup is not complete for this item yet.");return false}try{sessionStorage.setItem("wepDealerSpikeRequestedQty",String(Math.max(1,Number(qty)||1)));sessionStorage.setItem("wepDealerSpikeRequestedSku",String(sku||""))}catch(e){}window.location.href="https://www.westendpower.com/ecommerce/products/view/"+encodeURIComponent(id);return true}'+
