@@ -17,3 +17,4 @@ Sync-Private-Configurator*.ps1Sync-Private-Configurator.ps1.before-*
 WestEnd-STIHL-Catalog.json
 WestEnd-STIHL-Catalog-Report.csv
 catalog-link-reports/
+catalog-link-reports/Webstore-Sync-Queue.csv
