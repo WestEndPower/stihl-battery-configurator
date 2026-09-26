@@ -9,6 +9,13 @@ Set-Location -LiteralPath $Repository
 if (-not (Test-Path ".git")) { throw "Not a Git repository: $Repository" }
 
 Write-Host "STIHL COMMIT & PUSH" -ForegroundColor Cyan
+
+$queueScript = Join-Path $Repository "Build-STIHL-Webstore-Sync-Queue.ps1"
+if (Test-Path -LiteralPath $queueScript) {
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $queueScript -Repository $Repository
+    if ($LASTEXITCODE -ne 0) { throw "Webstore sync queue build failed." }
+}
+
 git status --short
 
 git add -A
