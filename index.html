@@ -1980,7 +1980,8 @@ body.dealer-mode .dealer-only{
   delivery: 'data/delivery-zones.csv',
   financePrograms: 'data/finance-programs.csv',
   bidFleet: 'data/bid-fleet-programs.csv',
-  freightRules: 'data/freight-rules.csv'
+  freightRules: 'data/freight-rules.csv',
+  webstoreProducts: 'data/webstore-products.csv'
 };
 
 const dataProfileApi = window.WestEndConfiguratorBrand;
@@ -2026,6 +2027,7 @@ const state = {
   paymentOptions: [],
   bidFleet: [],
   freightRules: [],
+  webstoreProducts: [],
   inventory: [],
   inventoryAvailability: null,
   inventoryAvailabilitySelections: new Map(),
@@ -6421,6 +6423,7 @@ async function init(){
   financePrograms,
   bidFleet,
   freightRules,
+  webstoreProducts,
   inventoryAvailability
 ] = await Promise.all([
   loadCSV(DATA_FILES.products),
@@ -6436,6 +6439,7 @@ async function init(){
   loadCSV(DATA_FILES.financePrograms),
   loadCSV(DATA_FILES.bidFleet),
   loadCSV(DATA_FILES.freightRules),
+  loadCSV(DATA_FILES.webstoreProducts || 'data/webstore-products.csv'),
   loadInventoryAvailability()
 ]);
 
@@ -6824,6 +6828,11 @@ state.freightRules = freightRules
     clean(rule.Active) === '' || isTrue(rule.Active)
   )
   .sort(sortByOrder);
+
+state.webstoreProducts = (webstoreProducts || [])
+  .filter(row =>
+    clean(row.Active) === '' || isTrue(row.Active)
+  );
 
 const brandAppearanceApi = window.WestEndConfiguratorBrand;
 
