@@ -1165,7 +1165,7 @@
       'q("#wep-clear-compare").onclick=function(){compare=[];syncCompare()};q("#wep-open-compare").onclick=function(){drawCompare();var d=q("#wep-compare-dialog");if(d.showModal)d.showModal();else d.setAttribute("open","")};'+
       'qa("a[data-options]").forEach(function(a){var u=new URL(a.getAttribute("href"),location.href);if(!u.searchParams.has("return"))u.searchParams.set("return",location.href);a.href=u.href});filters();syncCompare();'+
     '})()<'+ '/script>'+iframeResizeScript()+
-      '<script src="https://westendpower.github.io/stihl-battery-configurator/universal/stihl-paid-cart.js"><'+ '/script>';
+      '<script>(function(){var s=document.createElement("script");s.src=/^(localhost|127\\.0\\.0\\.1)$/.test(location.hostname)?"/universal/stihl-paid-cart.js":"https://westendpower.github.io/stihl-battery-configurator/universal/stihl-paid-cart.js";document.head.appendChild(s)})()<'+ '/script>';
   }
   function enhanceGeneratedPage(){
     var enabled=document.getElementById('stihl-webpage-smart-catalog');
