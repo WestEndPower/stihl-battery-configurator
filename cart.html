@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cart | West End Power Equipment</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f7f8f8;color:#202428}
+.page{width:min(1000px,94vw);margin:28px auto 60px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:18px}
+h1{display:flex;align-items:center;gap:9px;margin:0}
+h1 svg{width:30px;height:30px;color:#c8102e}
+.continue{padding:10px 16px;border:2px solid #238b45;border-radius:999px;background:#fff;color:#18642d;font-weight:900;cursor:pointer}
+.panel{background:#fff;border:1px solid #d5d9dc;border-radius:12px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.line{display:grid;grid-template-columns:1fr auto;gap:12px;padding:14px 0;border-bottom:1px solid #e1e4e6}
+.line:last-child{border-bottom:0}
+.line small{display:block;margin-top:5px;color:#666}.line-description{margin:5px 0;color:#50565a;font-size:14px}.qty-row{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:13px;font-weight:800}.qty-input{width:68px;padding:6px 7px;border:1px solid #aaa;border-radius:5px}
+.remove{margin-top:7px;border:0;background:transparent;color:#b00020;font-weight:800;cursor:pointer;padding:0}
+.price{font-weight:900;font-size:18px}
+.summary{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-top:20px;padding-top:18px;border-top:2px solid #202428}
+.subtotal{font-size:25px;font-weight:900}
+.note{color:#555;font-size:13px}
+.review{padding:12px 18px;border:0;border-radius:7px;background:#c8102e;color:#fff;font-weight:900;cursor:pointer}
+.review:disabled{opacity:.5;cursor:not-allowed}
+.empty{padding:30px;text-align:center;color:#666}
+.checkout-form{margin-top:25px;padding-top:20px;border-top:1px solid #ddd}
+.checkout-form[hidden]{display:none}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fields label{font-weight:800}
+.fields input,.fields select{display:block;width:100%;margin-top:5px;padding:10px;border:1px solid #aaa;border-radius:6px}
+.terms{display:flex;gap:8px;align-items:flex-start;margin-top:16px;font-weight:700}
+.terms input{width:auto;margin-top:3px}
+.shipping{margin-top:15px}
+.shipping[hidden]{display:none}
+.shipping button{padding:10px 14px;border:1px solid #238b45;border-radius:7px;background:#fff;color:#18642d;font-weight:800;cursor:pointer}
+.shipping strong{margin-left:12px}
+.error{margin-top:12px;padding:10px;background:#fff0f0;color:#a00000;font-weight:800}
+.error[hidden]{display:none}
+.checkout{margin-top:15px;padding:12px 18px;border:0;border-radius:7px;background:#c8102e;color:#fff;font-weight:900;cursor:pointer}
+.checkout:disabled{opacity:.5;cursor:not-allowed}
+.checkout-confirm-dialog{width:min(620px,92vw);padding:0;border:0;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.28)}
+.checkout-confirm-dialog::backdrop{background:rgba(0,0,0,.45)}
+.checkout-confirm-box{padding:24px}
+.checkout-confirm-box h2{margin-top:0}
+.checkout-confirm-box a{color:#c8102e;font-weight:900}
+.confirm-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+.confirm-actions button{padding:11px 16px;border-radius:7px;font-weight:900;cursor:pointer}
+#cancel-secure-checkout{border:1px solid #888;background:#fff;color:#333}
+#confirm-secure-checkout{border:0;background:#c8102e;color:#fff}
+#confirm-secure-checkout:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:700px){.summary{display:block}.review{width:100%;margin-top:14px}}
+</style>
+</head>
+<body>
+<main class="page">
+
+<div class="topbar">
+  <h1>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 8H7"
+        fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="10" cy="19" r="1.5" fill="currentColor"/>
+      <circle cx="17" cy="19" r="1.5" fill="currentColor"/>
+    </svg>
+    Cart
+  </h1>
+
+  <button type="button" class="continue" id="continue-shopping">
+    Continue Shopping
+  </button>
+</div>
+
+<section class="panel">
+  <div id="cart-lines"></div>
+
+  <div class="summary">
+    <div>
+      <div class="note">Subtotal</div>
+      <div class="subtotal" id="cart-total">$0.00</div>
+      <p class="note">Prices and availability are confirmed during checkout.</p>
+    </div>
+
+    <button type="button" class="review" id="review-order">
+      Review & Place Order
+    </button>
+  </div>
+
+  <form id="checkout-form" class="checkout-form" hidden>
+
+    <h2>Customer and Fulfillment Details</h2>
+
+    <div class="fields">
+
+      <label>First name *
+        <input name="firstName" required autocomplete="given-name">
+      </label>
+
+      <label>Last name *
+        <input name="lastName" required autocomplete="family-name">
+      </label>
+
+      <label>Company name
+        <input name="companyName" autocomplete="organization">
+      </label>
+
+      <label>Email *
+        <input name="email" type="email" required autocomplete="email">
+      </label>
+
+      <label>Phone *
+        <input name="phone" type="tel" required autocomplete="tel">
+      </label>
+
+      <label>Address *
+        <input name="address1" required autocomplete="street-address">
+      </label>
+
+      <label>Apartment or suite
+        <input name="address2">
+      </label>
+
+      <label>City *
+        <input name="city" required autocomplete="address-level2">
+      </label>
+
+      <label>State *
+        <input name="state" required maxlength="2" autocomplete="address-level1">
+      </label>
+
+      <label>ZIP *
+        <input name="zip" required pattern="[0-9]{5}" inputmode="numeric" autocomplete="postal-code">
+      </label>
+
+      <label>Fulfillment *
+        <select name="fulfillment" required>
+          <option value="PICKUP_NEW_MILFORD">Pickup in New Milford</option>
+          <option value="PICKUP_DANBURY">Pickup in Danbury</option>
+          <option value="SHIP" hidden disabled>Ship GTA 26 Kit by UPS</option>
+        </select>
+      </label>
+
+    </div>
+
+    <div class="shipping" id="shipping-rate" hidden>
+      <button type="button" id="calculate-shipping">Calculate UPS Shipping</button>
+      <strong id="shipping-total"></strong>
+    </div>
+
+    <p class="error" id="checkout-error" hidden></p>
+
+    <button type="button" class="checkout" id="open-secure-checkout">
+      Continue to Secure Checkout
+    </button>
+
+    <button type="submit" id="secure-checkout" hidden>
+      Submit Order
+    </button>
+
+  </form>
+
+</section>
+
+
+<dialog id="checkout-confirm-dialog" class="checkout-confirm-dialog">
+  <div class="checkout-confirm-box">
+
+    <h2>Before You Continue</h2>
+
+    <p>
+      <strong>
+        All online sales are final and cannot be returned or cancelled once the order is submitted.
+      </strong>
+    </p>
+
+    <p>
+      Please contact us at
+      <a href="mailto:sales@westendpower.com">sales@westendpower.com</a>
+      prior to checking out if you have any questions.
+    </p>
+
+    <label class="terms">
+      <input id="confirm-final-terms" type="checkbox">
+      <span><strong>I understand and accept these conditions.</strong></span>
+    </label>
+
+    <div class="confirm-actions">
+      <button type="button" id="cancel-secure-checkout">
+        Go Back
+      </button>
+
+      <button type="button" id="confirm-secure-checkout" disabled>
+        Continue to Secure Checkout
+      </button>
+    </div>
+
+  </div>
+</dialog>
+</main>
+
+<script>
+(function(){
+
+let cart=[];
+
+function $(id){return document.getElementById(id)}
+
+function money(v){
+  return "$"+Number(v||0).toLocaleString("en-US",{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  });
+}
+
+function esc(v){
+  const d=document.createElement("div");
+  d.textContent=String(v==null?"":v);
+  return d.innerHTML;
+}
+
+function titleCase(value){
+  return String(value||"")
+    .toLowerCase()
+    .replace(/(^|[\s'-])[A-Za-z]/g,function(match){
+      return match.toUpperCase();
+    });
+}
+
+function formatPhone(value){
+
+  const digits=String(value||"")
+    .replace(/\D/g,"")
+    .slice(0,10);
+
+  if(digits.length<=3){
+    return digits;
+  }
+
+  if(digits.length<=6){
+    return "("+digits.slice(0,3)+") "+digits.slice(3);
+  }
+
+  return "("+digits.slice(0,3)+") "+
+    digits.slice(3,6)+"-"+digits.slice(6);
+}
+
+function wireCustomerFormatting(){
+
+  [
+    "firstName",
+    "lastName",
+    "companyName",
+    "address1",
+    "address2",
+    "city"
+  ].forEach(function(name){
+
+    const field=document.querySelector('[name="'+name+'"]');
+
+    if(field){
+      field.addEventListener("blur",function(){
+        field.value=titleCase(field.value);
+      });
+    }
+  });
+
+  const email=document.querySelector('[name="email"]');
+
+  if(email){
+    email.addEventListener("input",function(){
+      email.value=email.value.toLowerCase();
+    });
+  }
+
+  const state=document.querySelector('[name="state"]');
+
+  if(state){
+    state.addEventListener("input",function(){
+      state.value=state.value
+        .replace(/[^A-Za-z]/g,"")
+        .slice(0,2)
+        .toUpperCase();
+    });
+  }
+
+  const phone=document.querySelector('[name="phone"]');
+
+  if(phone){
+    phone.addEventListener("input",function(){
+      phone.value=formatPhone(phone.value);
+    });
+  }
+}
+
+function loadCart(){
+  try{
+    const saved=JSON.parse(localStorage.getItem("wepCart")||"[]");
+    cart=Array.isArray(saved)?saved:[];
+  }catch(e){
+    cart=[];
+  }
+}
+
+function saveCart(){
+  try{
+    localStorage.setItem("wepCart",JSON.stringify(cart));
+  }catch(e){}
+}
+
+function drawCart(){
+
+  const lines=$("cart-lines");
+
+  if(!cart.length){
+    lines.innerHTML='<div class="empty"><strong>Your cart is empty.</strong></div>';
+  }else{
+    lines.innerHTML=cart.map((x,i)=>`
+      <div class="line">
+        <div>
+          <strong>${esc(x.productName)}</strong>
+          ${x.description?`<p class="line-description">${esc(x.description)}</p>`:""}
+          <small>SKU ${esc(x.sku)}</small>
+          <label class="qty-row">
+            Qty
+            <input type="number" class="qty-input" min="1" max="99"
+              value="${x.quantity}" data-cart-qty="${i}">
+          </label>
+          <button type="button" class="remove" data-remove="${i}">Remove</button>
+        </div>
+        <div class="price">${money(Number(x.itemPrice)*Number(x.quantity))}</div>
+      </div>
+    `).join("");
+  }
+
+  $("cart-total").textContent=money(
+    cart.reduce((n,x)=>n+(Number(x.itemPrice)*Number(x.quantity)),0)
+  );
+
+  $("review-order").disabled=!cart.length;
+
+  document.querySelectorAll("[data-cart-qty]").forEach(input=>{
+    input.onchange=function(){
+
+      let qty=Number(input.value);
+
+      if(!Number.isInteger(qty) || qty<1){
+        qty=1;
+      }
+
+      if(qty>99){
+        qty=99;
+      }
+
+      cart[Number(input.dataset.cartQty)].quantity=qty;
+
+      saveCart();
+      resetShipping();
+      drawCart();
+    };
+  });
+
+  document.querySelectorAll("[data-remove]").forEach(button=>{
+    button.onclick=function(){
+      cart.splice(Number(button.dataset.remove),1);
+      saveCart();
+      drawCart();
+    };
+  });
+}
+
+$("continue-shopping").onclick=function(){
+
+  if(window.opener && !window.opener.closed){
+    window.opener.focus();
+    window.close();
+    return;
+  }
+
+  let returnUrl="";
+
+  try{
+    returnUrl=localStorage.getItem("wepContinueShoppingUrl")||"";
+  }catch(e){}
+
+  if(returnUrl && /^https?:\/\//i.test(returnUrl)){
+    location.href=returnUrl;
+  }else{
+    history.back();
+  }
+};
+
+const API="https://westendpower-configurator-api.westendpower-nm.workers.dev";
+const STRIPE="https://westendpower-stripe-checkout.westendpower-nm.workers.dev";
+
+let shippingQuote=null;
+let checkoutBusy=false;
+
+function canShip(){
+  return cart.length===1 &&
+    cart[0].sku==="GA01 011 6911 US" &&
+    cart[0].quantity===1 &&
+    !!cart[0].shipping;
+}
+
+function checkoutError(message){
+  const box=$("checkout-error");
+  box.textContent=message||"";
+  box.hidden=!message;
+}
+
+function resetShipping(){
+  shippingQuote=null;
+  $("shipping-total").textContent="";
+  checkoutError("");
+}
+
+function updateShippingChoice(){
+
+  const form=$("checkout-form");
+  const choice=form.elements.fulfillment;
+  const shipOption=choice.querySelector('[value="SHIP"]');
+
+  shipOption.hidden=!canShip();
+  shipOption.disabled=!canShip();
+
+  if(!canShip() && choice.value==="SHIP"){
+    choice.value="PICKUP_NEW_MILFORD";
+  }
+
+  $("shipping-rate").hidden=choice.value!=="SHIP";
+}
+
+async function calculateShipping(){
+
+  const form=$("checkout-form");
+  const zip=form.elements.zip.value.trim();
+  const button=$("calculate-shipping");
+
+  resetShipping();
+
+  if(!canShip() || form.elements.fulfillment.value!=="SHIP"){
+    checkoutError("Only one GTA 26 Kit can be shipped in an order.");
+    return;
+  }
+
+  if(!/^[0-9]{5}$/.test(zip)){
+    checkoutError("Enter a valid five-digit destination ZIP code first.");
+    return;
+  }
+
+  button.disabled=true;
+  button.textContent="Calculating...";
+
+  try{
+
+    const parcel=cart[0].shipping;
+
+    const response=await fetch(API+"/shipping-rate",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        destinationZIP:zip,
+        weight:parcel.weight,
+        length:parcel.length,
+        width:parcel.width,
+        height:parcel.height
+      })
+    });
+
+    const rate=await response.json();
+
+    if(!response.ok){
+      throw Error(rate.error||"UPS shipping rate could not be calculated.");
+    }
+
+    if(!(Number(rate.amount)>0)){
+      throw Error("UPS did not return a valid shipping rate.");
+    }
+
+    shippingQuote={
+      zip:zip,
+      sku:cart[0].sku,
+      amount:Number(rate.amount),
+      service:String(rate.service||"UPS Ground"),
+      businessDaysInTransit:Number(rate.businessDaysInTransit)||null
+    };
+
+    $("shipping-total").textContent=
+      shippingQuote.service+" — "+money(shippingQuote.amount);
+
+  }catch(error){
+
+    checkoutError(error.message||"UPS shipping rate could not be calculated.");
+
+  }finally{
+
+    button.disabled=false;
+    button.textContent="Calculate UPS Shipping";
+  }
+}
+
+async function submitCart(event){
+
+  event.preventDefault();
+
+  if(checkoutBusy || !cart.length)return;
+
+  const form=$("checkout-form");
+
+  if(!form.reportValidity())return;
+
+  const values=Object.fromEntries(new FormData(form).entries());
+
+  if(!/^[A-Za-z]{2}$/.test(values.state||"")){
+    checkoutError("Enter a two-letter state abbreviation.");
+    return;
+  }
+
+  if(!/^[0-9]{5}$/.test(values.zip||"")){
+    checkoutError("Enter a valid five-digit ZIP code.");
+    return;
+  }
+
+  if(
+    values.fulfillment==="SHIP" &&
+    (
+      !canShip() ||
+      !shippingQuote ||
+      shippingQuote.zip!==values.zip.trim() ||
+      shippingQuote.sku!==cart[0].sku
+    )
+  ){
+    checkoutError("Calculate UPS shipping for this cart and ZIP code before checkout.");
+    return;
+  }
+
+  const shipping=
+    values.fulfillment==="SHIP"
+      ? {
+          carrier:"UPS",
+          service:shippingQuote.service,
+          amount:shippingQuote.amount,
+          destinationZIP:shippingQuote.zip,
+          businessDaysInTransit:shippingQuote.businessDaysInTransit
+        }
+      : {
+          carrier:"",
+          service:"",
+          amount:0,
+          destinationZIP:"",
+          businessDaysInTransit:null
+        };
+
+  const button=$("secure-checkout");
+
+  checkoutBusy=true;
+  button.disabled=true;
+  button.textContent="Creating Order...";
+  checkoutError("");
+
+  try{
+
+    const orderResponse=await fetch(API+"/online-order",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        customer:{
+          firstName:values.firstName.trim(),
+          lastName:values.lastName.trim(),
+          email:values.email.trim(),
+          phone:values.phone.trim(),
+          address1:values.address1.trim(),
+          address2:(values.address2||"").trim(),
+          city:values.city.trim(),
+          state:values.state.trim().toUpperCase(),
+          zip:values.zip.trim()
+        },
+
+        cartItems:cart.map(x=>({
+          sku:x.sku,
+          quantity:x.quantity
+        })),
+
+        fulfillment:values.fulfillment,
+        shipping:shipping,
+        termsAccepted:true
+      })
+    });
+
+    const order=await orderResponse.json();
+
+    if(!orderResponse.ok){
+      throw Error(order.error||"Order could not be created.");
+    }
+
+    if(!order.orderNumber || !order.checkoutToken){
+      throw Error("The order response did not include a checkout token.");
+    }
+
+    button.textContent="Opening Secure Checkout...";
+
+    const stripeResponse=await fetch(STRIPE+"/online-order-checkout",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        orderNumber:order.orderNumber,
+        checkoutToken:order.checkoutToken
+      })
+    });
+
+    const checkout=await stripeResponse.json();
+
+    if(!stripeResponse.ok){
+      throw Error(checkout.error||"Stripe Checkout could not be opened.");
+    }
+
+    if(!/^https:\/\//i.test(checkout.checkoutUrl||"")){
+      throw Error("Stripe returned no secure Checkout URL.");
+    }
+
+    location.href=checkout.checkoutUrl;
+
+  }catch(error){
+
+    checkoutError(error.message||"Checkout could not be opened. Please try again.");
+
+    checkoutBusy=false;
+    button.disabled=false;
+    button.textContent="Continue to Secure Checkout";
+
+    drawCart();
+  }
+}
+
+$("open-secure-checkout").onclick=function(){
+
+  const form=$("checkout-form");
+
+  if(!form.reportValidity()){
+    return;
+  }
+
+  $("confirm-final-terms").checked=false;
+  $("confirm-secure-checkout").disabled=true;
+
+  const dialog=$("checkout-confirm-dialog");
+
+  if(dialog.showModal){
+    dialog.showModal();
+  }else{
+    dialog.setAttribute("open","");
+  }
+};
+
+$("confirm-final-terms").addEventListener("change",function(){
+  $("confirm-secure-checkout").disabled=!this.checked;
+});
+
+$("cancel-secure-checkout").onclick=function(){
+
+  const dialog=$("checkout-confirm-dialog");
+
+  if(dialog.close){
+    dialog.close();
+  }else{
+    dialog.removeAttribute("open");
+  }
+};
+
+$("confirm-secure-checkout").onclick=function(){
+
+  if(!$("confirm-final-terms").checked){
+    return;
+  }
+
+  const dialog=$("checkout-confirm-dialog");
+
+  if(dialog.close){
+    dialog.close();
+  }else{
+    dialog.removeAttribute("open");
+  }
+
+  $("checkout-form").requestSubmit();
+};
+$("review-order").onclick=function(){
+
+  const form=$("checkout-form");
+
+  form.hidden=false;
+
+  updateShippingChoice();
+
+  form.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+};
+
+$("checkout-form").elements.fulfillment.addEventListener("change",function(){
+  resetShipping();
+  updateShippingChoice();
+});
+
+$("checkout-form").elements.zip.addEventListener("input",resetShipping);
+
+$("calculate-shipping").addEventListener("click",calculateShipping);
+
+$("checkout-form").addEventListener("submit",submitCart);
+
+wireCustomerFormatting();
+loadCart();
+drawCart();
+updateShippingChoice();
+
+})();
+</script>
+</body>
+</html>
