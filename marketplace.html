@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shop Equipment</title>
+<meta name="description" content="Shop and compare equipment by category, brand, power source, availability and specifications.">
+<style>
+:root{--ink:#171a1d;--muted:#66707a;--line:#d9dee3;--soft:#f6f8f9;--accent:#238b45;--accent2:#176c34;--max:1480px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:#fff}
+button,input{font:inherit}button{cursor:pointer}
+.market-shell{max-width:var(--max);margin:auto;padding:18px}
+.market-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 18px;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.05)}
+.market-branding{display:flex;align-items:center;gap:14px;min-width:0}.market-branding img{max-width:210px;max-height:58px;object-fit:contain}.market-branding h1{margin:0;font-size:clamp(22px,3vw,34px)}.market-branding p{margin:3px 0 0;color:var(--muted)}
+.market-searchbox{display:flex;align-items:center;gap:8px;min-width:min(420px,38vw)}.market-searchbox input{width:100%;padding:11px 13px;border:1px solid #aeb6bf;border-radius:9px}.market-clear{border:1px solid #333;border-radius:8px;background:#fff;padding:10px 12px;font-weight:800}
+.market-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.65fr);gap:14px;margin:16px 0}.market-top-panel{border:1px solid var(--line);border-radius:11px;background:var(--soft);padding:12px}
+.market-top-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.market-top-title strong{font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+.market-chip-row{display:flex;flex-wrap:wrap;gap:7px;align-items:center}.market-chip{border:1px solid #3f474f;border-radius:999px;background:#fff;padding:8px 12px;font-weight:800}.market-chip.active{background:var(--ink);color:#fff}.market-context-label{font-size:12px;font-weight:900;text-transform:uppercase;color:var(--muted);margin-right:2px}
+#market-context,#market-width{margin-top:9px;padding-top:9px;border-top:1px solid var(--line)}
+.market-layout{display:grid;grid-template-columns:245px minmax(0,1fr);gap:18px;align-items:start}
+.market-sidebar{position:sticky;top:10px;border:1px solid var(--line);border-radius:11px;background:#fff;overflow:hidden}.market-sidebar h2{font-size:17px;margin:0;padding:14px 14px 10px}.market-sidebar details{border-top:1px solid var(--line)}.market-sidebar summary{list-style:none;padding:12px 14px;font-weight:900;cursor:pointer;display:flex;justify-content:space-between}.market-sidebar summary:after{content:'+'}.market-sidebar details[open] summary:after{content:'−'}.market-sidebar summary::-webkit-details-marker{display:none}.market-checks{padding:0 14px 12px;display:grid;gap:8px}.market-checks label{display:flex;gap:8px;align-items:flex-start;font-size:14px}.market-checks input{margin-top:2px}
+.market-main{min-width:0}.market-results{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px;color:var(--muted)}.market-results strong{color:var(--ink)}
+.market-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.market-card{display:flex;flex-direction:column;border:1px solid #bbc3ca;border-radius:12px;background:linear-gradient(145deg,#fff,#f8fafb);box-shadow:0 2px 8px rgba(0,0,0,.06);overflow:hidden}.market-card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:12px 13px 9px;border-bottom:1px solid var(--line)}.market-card-head span{font-size:11px;font-weight:900;color:var(--muted)}.market-card-head h3{margin:2px 0 0;font-size:20px}.market-power{padding:4px 7px;border-radius:999px;background:#eaf5ed;color:#176c34!important}
+.market-card-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(145px,.8fr);gap:9px;padding:10px}.market-image{display:flex;align-items:center;justify-content:center;min-height:200px;border:1px solid #e1e5e8;border-radius:8px;background:#fff;color:var(--muted);text-decoration:none}.market-image img{max-width:100%;height:200px;object-fit:contain;padding:8px}
+.market-buy{display:flex;flex-direction:column;gap:8px}.market-price small{display:block;color:var(--muted);font-weight:700}.market-price strong{display:block;font-size:24px}.market-availability{font-size:13px;font-weight:900;color:#1e6f39}.market-series{font-size:12px;font-weight:800;color:var(--muted)}.market-actions{display:grid;gap:6px;margin-top:auto}.market-actions a{display:flex;align-items:center;justify-content:center;min-height:36px;border:1px solid #27323c;border-radius:7px;text-decoration:none;font-weight:900;background:#fff}.market-actions a:first-child{background:var(--accent);border-color:var(--accent2);color:#fff}
+.market-specs{display:grid;grid-template-columns:1fr 1fr;margin:0 10px 10px;border-top:1px solid var(--line)}.market-specs div{display:flex;justify-content:space-between;gap:8px;padding:7px 4px;border-bottom:1px solid #edf0f2}.market-specs div:nth-child(odd){margin-right:7px}.market-specs dt{font-size:11px;color:var(--muted)}.market-specs dd{margin:0;font-size:11px;font-weight:900;text-align:right}
+.market-empty{grid-column:1/-1;text-align:center;padding:60px 20px;border:1px dashed #aaa;border-radius:10px}.market-empty h2{margin:0 0 6px}
+.market-compare-float{position:fixed;right:18px;bottom:18px;z-index:20;border:0;border-radius:999px;background:var(--ink);color:#fff;padding:13px 18px;font-weight:900;box-shadow:0 6px 20px rgba(0,0,0,.22)}.market-compare-float:disabled{opacity:.45;cursor:not-allowed}
+#market-compare-dialog{width:min(1200px,94vw);max-height:88vh;border:0;border-radius:12px;padding:0;box-shadow:0 18px 60px rgba(0,0,0,.3)}#market-compare-dialog::backdrop{background:rgba(0,0,0,.52)}.market-dialog-head{position:sticky;top:0;z-index:3;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:#fff;border-bottom:1px solid var(--line)}.market-dialog-head h2{margin:0}.market-dialog-head button{border:0;background:#eee;border-radius:50%;width:38px;height:38px;font-size:24px}.market-compare-content{padding:0 14px 16px}.market-compare-scroll{overflow:auto;max-height:72vh}.market-compare-scroll table{border-collapse:separate;border-spacing:0;min-width:100%}.market-compare-scroll th,.market-compare-scroll td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:9px;min-width:150px;vertical-align:top}.market-compare-scroll thead th{position:sticky;top:0;background:#202428;color:#fff;z-index:2}.market-compare-scroll tbody th{position:sticky;left:0;background:#f3f5f6;z-index:1;text-align:left}
+#market-loading{max-width:900px;margin:80px auto;padding:30px;text-align:center;border:1px solid var(--line);border-radius:12px}
+@media(max-width:1120px){.market-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.market-top{grid-template-columns:1fr}.market-searchbox{min-width:300px}}
+@media(max-width:760px){.market-shell{padding:10px}.market-header{align-items:stretch;flex-direction:column}.market-searchbox{min-width:0;width:100%}.market-layout{grid-template-columns:1fr}.market-sidebar{position:static}.market-sidebar details:not([open]) .market-checks{display:none}.market-grid{grid-template-columns:1fr}.market-card-body{grid-template-columns:minmax(0,1fr) minmax(135px,.8fr)}.market-top{margin:10px 0}.market-compare-float{right:10px;bottom:10px}.market-branding img{max-width:160px}.market-specs{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="market-loading">Loading product catalog…</div>
+<div id="market-app" class="market-shell" hidden>
+  <header class="market-header">
+    <div class="market-branding">
+      <img id="market-dealer-logo" hidden alt="">
+      <div><h1>Shop Equipment</h1><p id="market-dealer-name"></p></div>
+    </div>
+    <div class="market-searchbox">
+      <input id="market-search" type="search" placeholder="Search model, category, specification…">
+      <button id="market-clear" class="market-clear" type="button">Clear</button>
+    </div>
+  </header>
+
+  <section class="market-top" aria-label="Primary product filters">
+    <div class="market-top-panel">
+      <div class="market-top-title"><strong>Category</strong><span>Choose what you are shopping for</span></div>
+      <div id="market-categories" class="market-chip-row"></div>
+      <div id="market-width" class="market-chip-row" hidden></div>
+    </div>
+    <div class="market-top-panel">
+      <div class="market-top-title"><strong>Power Type</strong><span>Then narrow the platform</span></div>
+      <div id="market-power" class="market-chip-row"></div>
+      <div id="market-context" class="market-chip-row" hidden></div>
+    </div>
+  </section>
+
+  <div class="market-layout">
+    <aside class="market-sidebar" aria-label="Product filters">
+      <h2>Filter Products</h2>
+      <details open><summary>Brand</summary><div id="filter-brand" class="market-checks"></div></details>
+      <details><summary>Availability</summary><div id="filter-availability" class="market-checks"></div></details>
+      <details><summary>Online Purchase</summary><div class="market-checks"><label><input id="filter-buy-online" type="checkbox"> <span>Buy online eligible</span></label></div></details>
+      <div id="filter-specs-wrap"><div id="filter-specs"></div></div>
+    </aside>
+
+    <main class="market-main">
+      <div class="market-results"><span><strong id="market-result-count">0</strong> product families<span id="market-result-context"></span></span><span>Workbook-driven catalog</span></div>
+      <div id="market-grid" class="market-grid"></div>
+    </main>
+  </div>
+
+  <button id="market-compare-float" class="market-compare-float" type="button">Compare Visible (0)</button>
+
+  <dialog id="market-compare-dialog">
+    <div class="market-dialog-head"><h2>Compare Visible Products</h2><button id="market-compare-close" type="button" aria-label="Close">×</button></div>
+    <div id="market-compare-content" class="market-compare-content"></div>
+  </dialog>
+</div>
+<script src="universal/marketplace.js"></script>
+</body>
+</html>
