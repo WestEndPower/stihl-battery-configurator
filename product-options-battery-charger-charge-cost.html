@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STIHL Product Options | West End Power</title>
+<style>
+:root{--red:#c8102e;--dark:#202020;--border:#ddd;--green:#287a32}
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 Arial,sans-serif;color:#171717;background:#f7f7f7}
+a{color:inherit}.wrap{max-width:1180px;margin:auto;padding:20px}.top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+.back{display:inline-flex;align-items:center;gap:7px;text-decoration:none;border:1px solid #222;border-radius:8px;padding:10px 14px;background:#fff;font-weight:800}
+.hero{display:grid;grid-template-columns:minmax(240px,360px) 1fr;gap:24px;padding:22px;border:1px solid var(--border);border-top:6px solid var(--red);border-radius:14px;background:#fff}
+.media{height:300px;display:flex;align-items:center;justify-content:center;background:#f4f4f4;border-radius:10px;overflow:hidden}.media img{width:100%;height:100%;object-fit:contain}.placeholder{font-weight:800;color:#666}
+.eyebrow{text-transform:uppercase;font-size:12px;font-weight:900;color:#666}.hero h1{margin:4px 0 8px;font-size:34px}.price{font-size:28px;font-weight:900;color:var(--red)}.stock{font-weight:900;color:var(--green)}
+.section{margin:26px 0;padding:20px;border:1px solid var(--border);border-radius:14px;background:#fff}.section h2{margin:0 0 14px;font-size:26px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{display:flex;flex-direction:column;border:1px solid #ccc;border-radius:12px;overflow:hidden;background:#fff}.card-media{height:180px;display:flex;align-items:center;justify-content:center;background:#f6f6f6}.card-media img{width:100%;height:100%;object-fit:contain}.card-body{display:flex;flex-direction:column;flex:1;padding:14px}.card h3{margin:0 0 6px;font-size:18px}.card p{margin:4px 0}.card-price{margin-top:auto;font-size:19px;font-weight:900;color:var(--red)}.card-specs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:10px 0}.card-spec{padding:7px 8px;border:1px solid #d8dde2;border-radius:7px;background:#f6f7f8;text-align:center}.card-spec span{display:block;font-size:10px;color:#66707a;font-weight:700}.card-spec strong{display:block;margin-top:2px;font-size:13px}.detail-link{display:inline-flex;align-items:center;justify-content:center;margin:8px 0 2px;padding:7px 9px;border:1px solid #2d3a44;border-radius:7px;text-decoration:none;font-size:12px;font-weight:800;background:#fff}.detail-link:hover{text-decoration:underline}.availability{font-size:12px;font-weight:800;color:var(--green)}.select-row{display:flex;gap:8px;align-items:center;margin-top:10px}.select-row input{width:22px;height:22px}.qty{width:66px;padding:8px;border:1px solid #bbb;border-radius:7px}
+.summary{position:sticky;bottom:10px;z-index:20;display:flex;gap:16px;align-items:center;justify-content:space-between;margin-top:28px;padding:16px 18px;border-radius:12px;background:var(--dark);color:#fff;box-shadow:0 6px 22px rgba(0,0,0,.28)}.summary strong{font-size:24px}.summary button{border:0;border-radius:8px;padding:11px 16px;background:var(--red);color:#fff;font-weight:900;cursor:pointer}
+.empty{color:#666}.included{padding:12px;border-left:4px solid var(--red);background:#fff8ef;border-radius:6px}.note{font-size:13px;color:#666}.energy-calc{margin:26px 0;padding:18px 20px;border:1px solid var(--border);border-radius:14px;background:#fff}.energy-calc h2{margin:0 0 8px;font-size:24px}.energy-grid{display:grid;grid-template-columns:160px repeat(2,minmax(0,1fr)) auto;gap:10px;align-items:end}.energy-grid label{font-size:12px;font-weight:800;color:#555}.energy-grid select,.energy-grid input{display:block;width:100%;margin-top:4px;padding:9px 10px;border:1px solid #bbb;border-radius:7px;background:#fff;font-size:15px}.energy-rate{padding:9px 10px;border:1px solid #d8dde2;border-radius:7px;background:#f6f7f8;font-weight:900}.energy-note{margin:8px 0 0;font-size:12px;color:#666}.charge-cost{margin:8px 0 0;padding:8px 9px;border:1px solid #d8dde2;border-radius:7px;background:#f8f9fa;font-size:12px}.charge-cost strong{display:block;font-size:17px;color:#202020}.charge-btn{display:inline-flex;align-items:center;justify-content:center;margin:8px 0 2px;padding:7px 9px;border:1px solid #2d3a44;border-radius:7px;background:#fff;font-size:12px;font-weight:800;cursor:pointer}.charge-dialog{width:min(760px,94vw);border:0;border-radius:14px;padding:20px;box-shadow:0 14px 50px rgba(0,0,0,.35)}.charge-dialog::backdrop{background:rgba(0,0,0,.55)}.charge-dialog table{width:100%;border-collapse:collapse}.charge-dialog th,.charge-dialog td{padding:9px;border-bottom:1px solid #ddd;text-align:left}.charge-dialog th{background:#f2f3f4}.dialog-close{float:right;border:0;background:none;font-size:30px;cursor:pointer}
+@media(max-width:800px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.summary{align-items:flex-start;flex-direction:column}.media{height:240px}.energy-grid{grid-template-columns:1fr}.energy-grid>*{min-width:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a id="return-link" class="back" href="./index.html">← Return to Products</a>
+    <span class="note">West End Power Equipment · New Milford & Danbury, Connecticut</span>
+  </div>
+  <div id="app"><p>Loading product options…</p></div>
+</div>
+<script>
+(function(){
+'use strict';
+const qs=new URLSearchParams(location.search);
+const sku=(qs.get('sku')||'').trim();
+const category=(qs.get('category')||'Equipment').trim();
+const returnUrl=(qs.get('return')||'').trim();
+const $=id=>document.getElementById(id);
+const clean=v=>String(v==null?'':v).replace(/^\uFEFF/,'').trim();
+const money=v=>{const n=Number(clean(v).replace(/[$,]/g,''));return Number.isFinite(n)?n:0};
+const fmt=n=>'$'+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=v=>clean(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const trueish=v=>['T','TRUE','Y','YES','1','X'].includes(clean(v).toUpperCase());
+const DEFAULT_RATES={CT:0.25,NY:0.30};
+const CHARGE_EFFICIENCY=0.88;
+
+function parseCSV(text){
+ const rows=[];let row=[],field='',quoted=false;
+ for(let i=0;i<text.length;i++){const c=text[i];
+  if(quoted){if(c==='"'&&text[i+1]==='"'){field+='"';i++;}else if(c==='"'){quoted=false;}else field+=c;}
+  else{if(c==='"')quoted=true;else if(c===','){row.push(field);field='';}else if(c==='\n'){row.push(field.replace(/\r$/,''));rows.push(row);row=[];field='';}else field+=c;}
+ }
+ if(field.length||row.length){row.push(field);rows.push(row)}
+ const headers=(rows.shift()||[]).map((h,i)=>i===0?clean(h):clean(h));
+ return rows.filter(r=>r.some(x=>clean(x)!=='')).map(r=>Object.fromEntries(headers.map((h,i)=>[h,r[i]||''])));
+}
+async function csv(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw new Error(path+' '+r.status);return parseCSV(await r.text())}
+function currentPrice(x){return money(x.SalePrice)>0?money(x.SalePrice):money(x.MSRP)}
+function imageUrl(x){let v=clean(x.ImageURL);if(!v)return '';if(/^https?:\/\//i.test(v))return v;return v.replace(/^\.\//,'')}
+function img(x,alt){const src=imageUrl(x);return src?'<img src="'+esc(src)+'" alt="'+esc(alt)+'" loading="lazy">':'<div class="placeholder">Image Coming Soon</div>'}
+function isWestEndUrl(raw){
+ try{
+  const u=new URL(clean(raw),location.href);
+  const host=u.hostname.toLowerCase();
+  return host==='westendpower.com'||host.endsWith('.westendpower.com');
+ }catch(e){return true}
+}
+function externalAttrs(raw){
+ const url=clean(raw);
+ if(!url)return '';
+ return ' href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" data-external="'+(isWestEndUrl(url)?'0':'1')+'"';
+}
+function availabilityText(x){
+ const d=Math.max(0,Number(clean(x.QtyDanbury))||0),n=Math.max(0,Number(clean(x.QtyNewMilford))||0),q=d+n;
+ if(q>0)return 'In Stock: '+q+' available';
+ return '';
+}
+function batteryEnergyKwh(x){
+ const kwh=money(x.KWh||x.kWh||x.KWH);
+ if(kwh>0)return kwh;
+ const wh=money(x.Wh||x.WattHours||x.WattHoursCapacity);
+ return wh>0?wh/1000:0;
+}
+function batterySpecs(x){
+ const specs=[];
+ if(clean(x.Weight))specs.push(['Weight',clean(x.Weight)+' '+(clean(x.WeightUnit)||'lb.')]);
+ const kwh=money(x.KWh||x.kWh||x.KWH);
+ const wh=money(x.Wh||x.WattHours||x.WattHoursCapacity);
+ if(kwh>0)specs.push(['Energy',kwh+' kWh']);
+ else if(wh>0)specs.push(['Energy',wh+' Wh']);
+ if(clean(x.Ah)||clean(x.AmpHours))specs.push(['Capacity',(clean(x.Ah)||clean(x.AmpHours))+' Ah']);
+ if(clean(x.Voltage)||clean(x.MaxVoltage))specs.push(['Voltage',(clean(x.MaxVoltage)||clean(x.Voltage))+(String(clean(x.MaxVoltage)||clean(x.Voltage)).match(/V/i)?'':' V')]);
+ return specs.slice(0,4);
+}
+function chargerSpecs(x){
+ const specs=[];
+ if(clean(x.System))specs.push(['System',clean(x.System)]);
+ if(clean(x.Voltage))specs.push(['Input',clean(x.Voltage)+(String(clean(x.Voltage)).match(/V/i)?'':' V')]);
+ if(clean(x.OutputAmps))specs.push(['Output',clean(x.OutputAmps)+' A']);
+ if(clean(x.Weight))specs.push(['Weight',clean(x.Weight)+' '+(clean(x.WeightUnit)||'lb.')]);
+ return specs.slice(0,4);
+}
+function ceilMoney(value,step){
+ if(!(value>0))return step;
+ return Math.ceil((value-1e-10)/step)*step;
+}
+function customerRate(){
+ const bill=money(($('energy-bill')||{}).value),usage=money(($('energy-kwh')||{}).value);
+ if(bill>0&&usage>0)return {rate:bill/usage,personal:true};
+ const state=clean(($('energy-state')||{}).value)||'CT';
+ return {rate:DEFAULT_RATES[state]||DEFAULT_RATES.CT,personal:false};
+}
+function estimatedChargeCost(battery){
+ const energy=batteryEnergyKwh(battery);
+ if(!(energy>0))return 0;
+ const wallKwh=energy/CHARGE_EFFICIENCY;
+ const r=customerRate();
+ return ceilMoney(wallKwh*r.rate,r.personal?0.01:0.05);
+}
+function normalizedId(v){return clean(v).toUpperCase().replace(/[^A-Z0-9]/g,'')}
+function chargeMinutesFromBattery(battery,charger){
+ const id=normalizedId(charger.ChargerID||charger.Model||charger.ChargerName);
+ const directKeys=Object.keys(battery).filter(k=>normalizedId(k)===id+'TIME');
+ let raw=directKeys.length?clean(battery[directKeys[0]]):'';
+ if(!raw){
+  const sys=clean(battery.System).toUpperCase();
+  raw=clean(battery['ChargeTime'+sys]);
+ }
+ const nums=(raw.match(/\d+(?:\.\d+)?/g)||[]).map(Number).filter(Number.isFinite);
+ return {raw:raw,minutes:nums.length?Math.max.apply(null,nums):0};
+}
+function updateEnergyRate(){
+ const r=customerRate(),rateEl=$('energy-rate-display'),note=$('energy-calc-note');
+ if(rateEl)rateEl.textContent=fmt(r.rate)+'/kWh';
+ if(note)note.textContent=r.personal?'Using your bill total ÷ kWh. Personalized estimates always round up to the next cent.':'Using a conservative '+(clean(($('energy-state')||{}).value)||'CT')+' base rate. Default estimates round up to the next $0.05.';
+ document.querySelectorAll('[data-battery-cost]').forEach(el=>{
+  const idx=Number(el.dataset.batteryCost),battery=window.__wepBatteries&&window.__wepBatteries[idx];
+  if(!battery)return;
+  el.textContent=fmt(estimatedChargeCost(battery));
+ });
+}
+function chargeTimesButton(index){return '<button class="charge-btn" type="button" data-charge-times="'+index+'">Charge Times</button>'}
+function openChargeTimes(index){
+ const battery=window.__wepBatteries&&window.__wepBatteries[index];
+ const chargers=window.__wepChargers||[];
+ if(!battery)return;
+ const sys=clean(battery.System).toUpperCase();
+ const compatible=chargers.filter(c=>!sys||clean(c.System).toUpperCase().split(/[|,;/]+/).map(x=>x.trim()).includes(sys));
+ const rows=compatible.map(c=>{const t=chargeMinutesFromBattery(battery,c);return {c,t}}).filter(x=>x.t.raw||x.t.minutes);
+ const d=$('charge-dialog'),body=$('charge-dialog-body'),title=$('charge-dialog-title');
+ if(!d||!body||!title)return;
+ title.textContent=(clean(battery.Model)||clean(battery.BatteryID)||'Battery')+' Charge Times';
+ body.innerHTML=rows.length?'<table><thead><tr><th>Charger</th><th>Full charge</th><th>Input watts</th><th>Estimated charge cost</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(clean(x.c.Model)||clean(x.c.ChargerName)||clean(x.c.ChargerID))+'</td><td>'+esc(x.t.raw||x.t.minutes+' min')+'</td><td>'+(money(x.c.InputWatts)>0?esc(money(x.c.InputWatts)+' W'):'—')+'</td><td>'+fmt(estimatedChargeCost(battery))+'</td></tr>').join('')+'</tbody></table>':'<p>No charger-specific charge-time data is currently listed for this battery.</p>';
+ if(d.showModal)d.showModal();else d.setAttribute('open','');
+}
+function itemCard(x,type){
+ const name=clean(x.Model)||clean(x.ChargerName)||clean(x.Description)||clean(x.SKU);
+ const price=currentPrice(x);
+ const url=clean(x.ProductURL);
+ const specs=type==='battery'?batterySpecs(x):(type==='charger'?chargerSpecs(x):[]);
+ const specHtml=specs.length?'<div class="card-specs">'+specs.map(s=>'<div class="card-spec"><span>'+esc(s[0])+'</span><strong>'+esc(s[1])+'</strong></div>').join('')+'</div>':'';
+ const avail=availabilityText(x);
+ const details=url?'<a class="detail-link"'+externalAttrs(url)+'>Product Details <span aria-hidden="true">↗</span></a>':'';
+ const batteryIndex=type==='battery'?Number(x.__batteryIndex):-1;
+ const chargeCost=type==='battery'&&batteryEnergyKwh(x)>0?'<div class="charge-cost"><span>Estimated Cost Per Full Charge</span><strong data-battery-cost="'+batteryIndex+'">'+fmt(estimatedChargeCost(x))+'</strong></div>':'';
+ const chargeTimes=type==='battery'?chargeTimesButton(batteryIndex):'';
+ const media=url?'<a class="card-media"'+externalAttrs(url)+'>'+img(x,name)+'</a>':'<div class="card-media">'+img(x,name)+'</div>';
+ return '<article class="card">'+media+'<div class="card-body"><h3>'+esc(name)+'</h3><p>'+esc(clean(x.Description))+'</p>'+specHtml+(avail?'<p class="availability">'+esc(avail)+'</p>':'')+'<p class="card-price">'+(price>0?fmt(price):'Contact Us')+'</p>'+chargeCost+chargeTimes+details+'<label class="select-row"><input type="checkbox" class="option-check" data-type="'+esc(type)+'" data-sku="'+esc(x.SKU)+'" data-name="'+esc(name)+'" data-price="'+price+'"> Add <input class="qty" type="number" min="1" max="20" value="1" data-qty="'+esc(x.SKU)+'" aria-label="Quantity"></label></div></article>';
+}
+
+function optionSection(title,items,type){
+ if(!items.length)return '';
+ return '<section class="section"><h2>'+esc(title)+'</h2><div class="grid">'+items.map(x=>itemCard(x,type)).join('')+'</div></section>';
+}
+function compatibleRows(rows,toolSku){
+ return rows.filter(x=>{
+   const v=clean(x[toolSku]);
+   return v!=='' && v!=='0' && v!=='F' && v!=='FALSE';
+ });
+}
+function byId(rows,ids,idFields){
+ const set=new Set(ids.map(x=>clean(x).toUpperCase()).filter(Boolean));
+ return rows.filter(x=>idFields.some(f=>set.has(clean(x[f]).toUpperCase())));
+}
+function idsFromRuntime(runtime,prefix,count){
+ const ids=[];for(let i=1;i<=count;i++){const v=clean(runtime[prefix+i]);if(v)ids.push(v)}return ids;
+}
+function wireExternalLinks(){
+ document.addEventListener('click',e=>{
+  const a=e.target.closest&&e.target.closest('a[data-external="1"]');
+  if(!a)return;
+  e.preventDefault();
+  const url=a.getAttribute('href')||'';
+  if(!url)return;
+  if(confirm('You are leaving West End Power. Product information will open in a new tab. Your shopping page and selections will stay open. Continue?')){
+   window.open(url,'_blank','noopener,noreferrer');
+  }
+ });
+}
+function wireSummary(basePrice){
+ const checks=[...document.querySelectorAll('.option-check')];
+ function recalc(){
+  let add=0,count=0;
+  checks.forEach(c=>{if(c.checked){const q=document.querySelector('[data-qty="'+CSS.escape(c.dataset.sku)+'"]');const qty=Math.max(1,Number(q&&q.value)||1);add+=Number(c.dataset.price||0)*qty;count+=qty}});
+  $('selected-count').textContent=count+' additional item'+(count===1?'':'s');
+  $('selected-total').textContent=fmt(basePrice+add);
+ }
+ checks.forEach(c=>c.addEventListener('change',recalc));
+ document.querySelectorAll('.qty').forEach(q=>q.addEventListener('input',recalc));
+ $('save-options').addEventListener('click',()=>{
+  const selected=checks.filter(c=>c.checked).map(c=>{const q=document.querySelector('[data-qty="'+CSS.escape(c.dataset.sku)+'"]');return {type:c.dataset.type,sku:c.dataset.sku,name:c.dataset.name,price:Number(c.dataset.price||0),qty:Math.max(1,Number(q&&q.value)||1)}})
+  sessionStorage.setItem('wep-options:'+sku,JSON.stringify({sku,selected,updated:new Date().toISOString()}));
+  $('save-options').textContent='Options Saved';
+ });
+ recalc();
+}
+async function init(){
+ if(returnUrl){$('return-link').href=returnUrl;$('return-link').textContent='← Return to '+category}
+ else {$('return-link').href='./index.html?category='+encodeURIComponent(category);$('return-link').textContent='← Return to '+category}
+ if(!sku){$('app').innerHTML='<section class="section"><h2>No product selected</h2><p>Return to the product page and choose View Options.</p></section>';return}
+ try{
+  const [products,runtime,batteries,chargers,attachments,accessories,parts]=await Promise.all([
+   csv('data/products.csv'),csv('data/compatibility-runtime.csv'),csv('data/batteries.csv'),csv('data/chargers.csv'),csv('data/attachments.csv'),csv('data/accessories.csv'),csv('data/parts.csv')
+  ]);
+  const product=products.find(x=>clean(x.SKU)===sku);
+  if(!product)throw new Error('Product SKU not found: '+sku);
+  const compat=runtime.find(x=>clean(x.ToolSKU)===sku)||{};
+  const batteryIds=idsFromRuntime(compat,'BatteryID',10);
+  const chargerIds=idsFromRuntime(compat,'ChargerID',10);
+  batteries.forEach((b,i)=>b.__batteryIndex=i);
+  window.__wepBatteries=batteries;
+  window.__wepChargers=chargers;
+  const bats=byId(batteries,batteryIds,['BatteryID','Model']);
+  const chgs=byId(chargers,chargerIds,['ChargerID','Model','ChargerName']);
+  const atts=compatibleRows(attachments,sku);
+  const accs=compatibleRows(accessories,sku);
+  const prts=compatibleRows(parts,sku);
+  const name=clean(product.Model)||clean(product.Description)||sku;
+  const base=currentPrice(product);
+  const kit=clean(product.ProductType).toLowerCase()==='kit';
+  const included=kit?clean(product.Description):'';
+  $('app').innerHTML=
+   '<section class="hero"><div class="media">'+img(product,name)+'</div><div><div class="eyebrow">'+esc([product.PowerType,product.SubCategory].filter(Boolean).join(' · '))+'</div><h1>'+esc(name)+'</h1><p>'+esc(product.Description)+'</p><p class="price">'+fmt(base)+'</p><p><strong>SKU:</strong> '+esc(sku)+'</p>'+(included?'<div class="included"><strong>Selected factory kit:</strong> '+esc(included)+'</div>':'')+'</div></section>'+
+   (bats.length?'<section class="energy-calc"><h2>Charging Cost Calculator</h2><div class="energy-grid"><label>Base area<select id="energy-state"><option value="CT">Connecticut</option><option value="NY">New York</option></select></label><label>Your total electric bill<input id="energy-bill" inputmode="decimal" placeholder="$ optional"></label><label>kWh used on that bill<input id="energy-kwh" inputmode="decimal" placeholder="optional"></label><div><span class="note">Rate used</span><div id="energy-rate-display" class="energy-rate"></div></div></div><p id="energy-calc-note" class="energy-note"></p></section>':'')+
+   optionSection('Additional Battery(s)',bats,'battery')+
+   optionSection('Additional Charger(s)',chgs,'charger')+
+   optionSection('Compatible Attachments',atts,'attachment')+
+   optionSection('Compatible Accessories',accs,'accessory')+
+   optionSection('Maintenance & Replacement Parts',prts,'part')+
+   (!bats.length&&!chgs.length&&!atts.length&&!accs.length&&!prts.length?'<section class="section"><p class="empty">No additional compatible options are currently listed for this SKU.</p></section>':'')+
+   '<dialog id="charge-dialog" class="charge-dialog"><button id="charge-dialog-close" class="dialog-close" type="button" aria-label="Close">×</button><h2 id="charge-dialog-title">Charge Times</h2><div id="charge-dialog-body"></div></dialog>'+
+   '<div class="summary"><div><span id="selected-count">0 additional items</span><br><strong id="selected-total">'+fmt(base)+'</strong></div><button id="save-options" type="button">Save Options</button></div>';
+  wireSummary(base);
+  ['energy-state','energy-bill','energy-kwh'].forEach(id=>{const el=$(id);if(el){el.addEventListener(id==='energy-state'?'change':'input',updateEnergyRate)}});
+  document.querySelectorAll('[data-charge-times]').forEach(b=>b.addEventListener('click',()=>openChargeTimes(Number(b.dataset.chargeTimes))));
+  const close=$('charge-dialog-close');if(close)close.addEventListener('click',()=>{const d=$('charge-dialog');if(d&&d.close)d.close();else if(d)d.removeAttribute('open')});
+  updateEnergyRate();
+ }catch(e){$('app').innerHTML='<section class="section"><h2>Unable to load options</h2><p>'+esc(e.message)+'</p></section>'}
+}
+wireExternalLinks();
+init();
+})();
+</script>
+</body>
+</html>
