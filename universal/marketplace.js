@@ -19,7 +19,8 @@
     availability: new Set(),
     buyOnline: false,
     search: '',
-    specFilters: new Map()
+    specFilters: new Map(),
+    compare: new Set()
   };
 
   const $ = (s, r=document) => r.querySelector(s);
@@ -237,7 +238,6 @@
       '<select data-cart-variant="'+esc(f.key)+'" aria-label="Purchase option">'+options+'</select>'+
       '<input data-cart-qty="'+esc(f.key)+'" type="number" min="1" max="99" value="1" aria-label="Quantity">'+
       '<button type="button" data-add-cart="'+esc(f.key)+'">Add to Cart</button>'+
-      '<a class="market-view-cart" href="cart.html">View Cart</a>'+
     '</div>';
   }
 
@@ -263,6 +263,7 @@
       shipping:null
     });
     localStorage.setItem('wepCart',JSON.stringify(cart));
+    updateCartFloat();
     if(buttonEl){
       const old=buttonEl.textContent;
       buttonEl.textContent='Added ✓';
@@ -271,16 +272,33 @@
     track('marketplace_add_to_cart',{sku:v.sku,model:f.model,quantity:qty,value:v.price*qty});
   }
 
+  function packageSummary(v){
+    const d=clean(v && v.description);
+    if(!d) return '';
+    const parts=[];
+    const batt=d.match(/\b(?:(\d+)\s*[-x]?\s*)?((?:AS|AK|AP|AR)\s*\d+(?:\.\d+)?\s*[A-Z]?)\s*Batter(?:y|ies)?\b/i);
+    const charger=d.match(/\b(AL\s*\d+(?:-\d+)?)\s*Charger\b/i) || d.match(/\b(AL\s*\d+(?:-\d+)?)\b/i);
+    if(batt){
+      const qty=Math.max(1,Number(batt[1])||1);
+      const name=batt[2].replace(/\s+/g,' ').trim().toUpperCase();
+      parts.push((qty>1?qty+' ':'')+name+' '+(qty>1?'batteries':'battery'));
+    }
+    if(charger) parts.push(charger[1].replace(/\s+/g,'').toUpperCase()+' charger');
+    return parts.length ? parts.join(' + ')+' included' : '';
+  }
+
   function pricePanel(label,v,isPackage,f){
     if(!v) return '';
     const regular=v.msrp>0 ? v.msrp : v.price;
     const onSale=v.sale>0 && regular>v.sale;
+    const include=isPackage ? packageSummary(v) : '';
     return '<div class="market-price-choice'+(isPackage?' market-package-choice':'')+'">'+
       '<div class="market-price-heading"><span>'+esc(label)+'</span><span class="market-price-pair">'+
         (onSale?'<del>'+money(regular)+'</del>':'')+
         '<strong>'+(v.price>0?money(v.price):'Pricing Coming Soon')+'</strong>'+
       '</span></div>'+
-      (!isPackage && /battery/i.test(f.power)?'<small>Battery and charger sold separately</small>':'')+
+      (!isPackage && /battery/i.test(f.power)?'<small class="market-sold-separate">Battery and charger sold separately</small>':'')+
+      (include?'<small class="market-package-includes">'+esc(include)+'</small>':'')+
     '</div>';
   }
 
@@ -298,20 +316,27 @@
     const first=f.variants[0]||{};
     const specs=familySpecs(f).slice(0,4);
     const description=[f.power,f.subcategory].filter(Boolean).join(' - ');
+    const optionsUrl='product-options.html?sku='+encodeURIComponent(first.sku||'')+'&category='+encodeURIComponent(f.category);
+    const runtimeUrl='index.html?category='+encodeURIComponent(f.category)+'&sku='+encodeURIComponent(first.sku||'');
     return '<article class="market-card" data-key="'+esc(f.key)+'">'+
-      '<header class="market-card-head"><h3><strong>'+esc(f.model)+'</strong>'+(description?'<span>'+esc(description)+'</span>':'')+'</h3><span class="market-availability-badge">'+esc(availabilityText(f))+'</span></header>'+
+      '<header class="market-card-head"><h3><strong>'+esc(f.model)+'</strong>'+(description?'<span>'+esc(description)+'</span>':'')+'</h3>'+
+        '<label class="market-compare-pick"><input type="checkbox" data-compare="'+esc(f.key)+'" '+(state.compare.has(f.key)?'checked':'')+'> <span>Compare</span></label>'+
+      '</header>'+
       '<div class="market-card-body">'+
         '<section class="market-card-left">'+
           '<a class="market-image" href="'+esc(first.productUrl||f.productUrl||'#')+'" target="_blank" rel="noopener">'+
             (f.image?'<img src="'+esc(f.image)+'" alt="'+esc(f.brand+' '+f.model)+'" loading="lazy">':'<span>Image Coming Soon</span>')+
           '</a>'+
-          ((first.productUrl||f.productUrl)?'<a class="market-product-details" href="'+esc(first.productUrl||f.productUrl)+'" target="_blank" rel="noopener">View Product Details ↗</a>':'')+
+          ((first.productUrl||f.productUrl)?'<a class="market-product-details" href="'+esc(first.productUrl||f.productUrl)+'" target="_blank" rel="noopener">View DealerSpike Product Page ↗</a>':'')+
         '</section>'+
         '<section class="market-buy">'+
           familyPriceMarkup(f)+
           ((f.system||f.series)?'<div class="market-series">'+esc(f.system||f.series)+'</div>':'')+
+          '<div class="market-availability">'+esc(availabilityText(f))+'</div>'+
+          '<div class="market-actions"><a href="'+optionsUrl+'">View Options</a>'+
+            (/battery/i.test(f.power)?'<a href="'+runtimeUrl+'">Run/Charge Times</a>':'')+
+          '</div>'+
           cartMarkup(f)+
-          '<div class="market-actions"><a href="product-options.html?sku='+encodeURIComponent(first.sku||'')+'&category='+encodeURIComponent(f.category)+'">View Options</a></div>'+
         '</section>'+
       '</div>'+
       (specs.length?'<dl class="market-specs">'+specs.map(([l,v])=>'<div><dt>'+esc(l)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>':'')+
@@ -333,7 +358,8 @@
   }
 
   function compareTable(){
-    const fams=DATA.filtered.slice(0,24);
+    const selected=DATA.families.filter(f=>state.compare.has(f.key));
+    const fams=(selected.length?selected:DATA.filtered).slice(0,24);
     if(!fams.length) return '<p>No products to compare.</p>';
     const labels=[];
     fams.forEach(f=>Object.keys(f.specs).forEach(l=>{if(!labels.includes(l)) labels.push(l);}));
@@ -353,8 +379,17 @@
 
   function updateCompareButton(){
     const b=$('#market-compare-float');
-    b.textContent='Compare Visible ('+DATA.filtered.length+')';
-    b.disabled=DATA.filtered.length<2;
+    const n=state.compare.size;
+    b.textContent=n ? 'Compare Selected ('+n+')' : 'Compare Visible ('+DATA.filtered.length+')';
+    b.disabled=n ? n<2 : DATA.filtered.length<2;
+  }
+
+  function updateCartFloat(){
+    let cart=[];
+    try{ cart=JSON.parse(localStorage.getItem('wepCart')||'[]'); if(!Array.isArray(cart)) cart=[]; }catch(e){ cart=[]; }
+    const n=cart.reduce((sum,x)=>sum+(Number(x.quantity)||0),0);
+    const count=$('#market-cart-count');
+    if(count) count.textContent=n ? String(n) : '';
   }
 
   function resetContext(){
@@ -388,6 +423,11 @@
       if(el.matches('[data-brand]')){ el.checked?state.brand.add(el.dataset.brand):state.brand.delete(el.dataset.brand); filterFamilies(); }
       else if(el.matches('[data-availability]')){ el.checked?state.availability.add(el.dataset.availability):state.availability.delete(el.dataset.availability); filterFamilies(); }
       else if(el.id==='filter-buy-online'){ state.buyOnline=el.checked; filterFamilies(); }
+      else if(el.matches('[data-compare]')){
+        const key=el.dataset.compare||'';
+        el.checked ? state.compare.add(key) : state.compare.delete(key);
+        updateCompareButton();
+      }
       else if(el.matches('[data-spec-label]')){
         const l=el.dataset.specLabel,v=el.dataset.specValue;
         if(!state.specFilters.has(l)) state.specFilters.set(l,new Set());
@@ -451,7 +491,7 @@
       );
       DATA.settings=settingsRows[0]||{}; DATA.families=groupFamilies(products); DATA.filtered=DATA.families.slice();
       applyDealer(DATA.settings);
-      renderTopFilters(); renderSidebar(); filterFamilies(); wire();
+      renderTopFilters(); renderSidebar(); filterFamilies(); wire(); updateCartFloat();
       $('#market-loading').hidden=true; $('#market-app').hidden=false;
     }catch(err){
       console.error(err);
