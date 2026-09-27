@@ -4,6 +4,8 @@
   const DATA = {
     products: [],
     batteries: [],
+    chargers: [],
+    compatibility: [],
     batterySystems: new Set(),
     settings: {},
     families: [],
@@ -120,6 +122,71 @@
 
   const distinct = a => Array.from(new Set(a.map(clean).filter(Boolean))).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'}));
 
+  function currentPrice(row){
+    const sale=num(row && row.SalePrice), msrp=num(row && row.MSRP);
+    return sale>0 ? sale : msrp;
+  }
+
+  function componentName(row){
+    return clean(row && (row.Model||row.BatteryID||row.ChargerID||row.ChargerName||row.Description||row.SKU))
+      .replace(/\s+/g,' ').trim();
+  }
+
+  function enrichRecommendedPackages(families){
+    const compatBySku=new Map(DATA.compatibility.map(x=>[clean(x.ToolSKU).toUpperCase(),x]));
+    const batteryById=new Map(DATA.batteries.map(x=>[clean(x.BatteryID).toUpperCase(),x]));
+    const chargerById=new Map(DATA.chargers.map(x=>[clean(x.ChargerID).toUpperCase(),x]));
+
+    families.forEach(f=>{
+      if(!/battery/i.test(f.power)) return;
+      const hasKit=f.variants.some(v=>/kit|package/i.test(v.type));
+      if(hasKit) return;
+      const tool=f.variants.find(v=>!/kit|package/i.test(v.type));
+      if(!tool || !(tool.price>0)) return;
+      const compat=compatBySku.get(clean(tool.sku).toUpperCase());
+      if(!compat) return;
+
+      const batteryId=clean(compat.RecommendedBatteryID1).toUpperCase();
+      const chargerId=clean(compat.RecommendedChargerID1).toUpperCase();
+      const battery=batteryById.get(batteryId);
+      const charger=chargerById.get(chargerId);
+      if(!battery || !charger) return;
+
+      const batteryPrice=currentPrice(battery), chargerPrice=currentPrice(charger);
+      if(!(batteryPrice>0 && chargerPrice>0)) return;
+
+      const batteryQty=Math.max(1,num(compat.RecommendedBatteryQty1)||1);
+      const chargerQty=Math.max(1,num(compat.RecommendedChargerQty1)||1);
+      const batteryLabel=(clean(battery.BatteryID)||componentName(battery))+' '+(batteryQty>1?'Batteries':'Battery');
+      const chargerLabel=(clean(charger.ChargerID)||componentName(charger))+' '+(chargerQty>1?'Chargers':'Charger');
+
+      f.variants.push({
+        sku:tool.sku,
+        description:tool.description,
+        type:'Package',
+        msrp:0,
+        sale:0,
+        price:tool.price+(batteryPrice*batteryQty)+(chargerPrice*chargerQty),
+        qtyDanbury:tool.qtyDanbury,
+        qtyNewMilford:tool.qtyNewMilford,
+        buyOnline:tool.buyOnline,
+        localDelivery:tool.localDelivery,
+        assembly:tool.assembly,
+        productUrl:tool.productUrl,
+        recommendedPackage:true,
+        packageItems:[
+          {sku:clean(battery.SKU),name:batteryLabel,quantity:batteryQty,price:batteryPrice},
+          {sku:clean(charger.SKU),name:chargerLabel,quantity:chargerQty,price:chargerPrice}
+        ],
+        packageIncludes:[
+          (batteryQty>1?batteryQty+' ':'')+batteryLabel,
+          (chargerQty>1?chargerQty+' ':'')+chargerLabel
+        ].join(' and ')+' included'
+      });
+    });
+    return families;
+  }
+
   function engineValue(f){
     for(const [k,v] of Object.entries(f.specs)){
       if(/engine\s*(brand|make|manufacturer)?$/i.test(k) || /^engine$/i.test(k)) return v;
@@ -233,9 +300,9 @@
   function cartMarkup(f){
     const eligible=f.variants.filter(v=>v.buyOnline && v.price>0);
     if(!eligible.length) return '';
-    const options=eligible.map(v=>'<option value="'+esc(v.sku)+'">'+esc((v.type||v.description||v.sku)+' — '+money(v.price))+'</option>').join('');
+    const options=eligible.map((v,i)=>'<option value="'+esc(v.sku+'|'+f.variants.indexOf(v))+'">'+esc((/kit|package/i.test(v.type)?'Package':'Tool Only')+' — '+money(v.price))+'</option>').join('');
     return '<div class="market-cart-controls">'+
-      '<select data-cart-variant="'+esc(f.key)+'" aria-label="Purchase option">'+options+'</select>'+
+      '<select data-cart-variant="'+esc(f.key)+'" aria-label="Choose Purchase Option"><option value="" selected disabled>Choose Purchase Option</option>'+options+'</select>'+
       '<input data-cart-qty="'+esc(f.key)+'" type="number" min="1" max="99" value="1" aria-label="Quantity">'+
       '<button type="button" data-add-cart="'+esc(f.key)+'">Add to Cart</button>'+
     '</div>';
@@ -246,22 +313,28 @@
     if(!f) return;
     const select=document.querySelector('[data-cart-variant="'+CSS.escape(key)+'"]');
     const qtyInput=document.querySelector('[data-cart-qty="'+CSS.escape(key)+'"]');
-    const sku=select ? select.value : '';
+    const selected=select ? select.value : '';
     const qty=Math.max(1,Math.min(99,parseInt(qtyInput && qtyInput.value,10)||1));
-    const v=f.variants.find(x=>x.sku===sku && x.buyOnline && x.price>0);
+    const v=f.variants.find((x,i)=>(x.sku+'|'+i)===selected && x.buyOnline && x.price>0);
     if(!v) return;
+
     let cart=[];
     try{ cart=JSON.parse(localStorage.getItem('wepCart')||'[]'); if(!Array.isArray(cart)) cart=[]; }catch(e){ cart=[]; }
-    const existing=cart.find(x=>x.sku===v.sku);
-    if(existing) existing.quantity=Math.min(99,(Number(existing.quantity)||0)+qty);
-    else cart.push({
-      sku:v.sku,
-      productName:v.description||f.brand+' '+f.model,
-      description:v.description||'',
-      quantity:qty,
-      itemPrice:v.price,
-      shipping:null
-    });
+
+    const addLine=(sku,name,lineQty,price)=>{
+      const existing=cart.find(x=>x.sku===sku);
+      if(existing) existing.quantity=Math.min(99,(Number(existing.quantity)||0)+lineQty);
+      else cart.push({sku,productName:name,description:'',quantity:lineQty,itemPrice:price,shipping:null});
+    };
+
+    if(v.recommendedPackage && Array.isArray(v.packageItems)){
+      const componentTotal=v.packageItems.reduce((sum,x)=>sum+(Number(x.price)||0)*(Number(x.quantity)||1),0);
+      addLine(v.sku,f.model+' — Tool Only',qty,Math.max(0,v.price-componentTotal));
+      v.packageItems.forEach(x=>addLine(x.sku,x.name,qty*(Number(x.quantity)||1),Number(x.price)||0));
+    }else{
+      addLine(v.sku,v.description||f.brand+' '+f.model,qty,v.price);
+    }
+
     localStorage.setItem('wepCart',JSON.stringify(cart));
     updateCartFloat();
     if(buttonEl){
@@ -273,6 +346,7 @@
   }
 
   function packageSummary(v){
+    if(clean(v && v.packageIncludes)) return clean(v.packageIncludes);
     const d=clean(v && v.description);
     if(!d) return '';
     const parts=[];
@@ -284,7 +358,7 @@
       parts.push((qty>1?qty+' ':'')+name+' '+(qty>1?'batteries':'battery'));
     }
     if(charger) parts.push(charger[1].replace(/\s+/g,'').toUpperCase()+' charger');
-    return parts.length ? parts.join(' + ')+' included' : '';
+    return parts.length ? parts.join(' and ')+' included' : '';
   }
 
   function pricePanel(label,v,isPackage,f){
@@ -332,7 +406,6 @@
         '<section class="market-buy">'+
           familyPriceMarkup(f)+
           ((f.system||f.series)?'<div class="market-series">'+esc(f.system||f.series)+'</div>':'')+
-          '<div class="market-availability">'+esc(availabilityText(f))+'</div>'+
           '<div class="market-actions"><a href="'+optionsUrl+'">View Options</a>'+
             (/battery/i.test(f.power)?'<a href="'+runtimeUrl+'">Run/Charge Times</a>':'')+
           '</div>'+
@@ -483,13 +556,23 @@
 
   async function init(){
     try{
-      const [products,batteries,settingsRows]=await Promise.all([csv('data/products.csv'),csv('data/batteries.csv'),csv('data/dealer-settings.csv')]);
+      const [products,batteries,chargers,compatibility,settingsRows]=await Promise.all([
+        csv('data/products.csv'),
+        csv('data/batteries.csv'),
+        csv('data/chargers.csv'),
+        csv('data/compatibility-runtime.csv'),
+        csv('data/dealer-settings.csv')
+      ]);
       DATA.products=products;
       DATA.batteries=batteries;
+      DATA.chargers=chargers;
+      DATA.compatibility=compatibility;
       DATA.batterySystems=new Set(
         batteries.filter(x=>truthy(x.Active)).map(x=>clean(x.BatteryID).match(/^[A-Za-z]+/)?.[0]||'').filter(Boolean).map(x=>x.toUpperCase())
       );
-      DATA.settings=settingsRows[0]||{}; DATA.families=groupFamilies(products); DATA.filtered=DATA.families.slice();
+      DATA.settings=settingsRows[0]||{};
+      DATA.families=enrichRecommendedPackages(groupFamilies(products));
+      DATA.filtered=DATA.families.slice();
       applyDealer(DATA.settings);
       renderTopFilters(); renderSidebar(); filterFamilies(); wire(); updateCartFloat();
       $('#market-loading').hidden=true; $('#market-app').hidden=false;
