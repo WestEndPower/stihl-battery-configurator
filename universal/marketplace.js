@@ -6,6 +6,7 @@
     batteries: [],
     chargers: [],
     compatibility: [],
+    financePrograms: [],
     batterySystems: new Set(),
     settings: {},
     equipmentFamilies: [],
@@ -87,6 +88,7 @@
           image:clean(p.ImageURL),
           productUrl:clean(p.ProductURL),
           sort:num(p.SortOrder)||999999,
+          financingEligible:truthy(p.FinancingEligible),
           variants:[],
           specs:{}
         });
@@ -94,6 +96,7 @@
       const f=map.get(key);
       if(!f.image && clean(p.ImageURL)) f.image=clean(p.ImageURL);
       if(!f.productUrl && clean(p.ProductURL)) f.productUrl=clean(p.ProductURL);
+      if(truthy(p.FinancingEligible)) f.financingEligible=true;
       for(let i=1;i<=10;i++){
         const l=clean(p['SpecLabel'+i]), v=clean(p['SpecValue'+i]);
         if(l && v && !f.specs[l]) f.specs[l]=v;
@@ -165,6 +168,7 @@
         price,
         stock:qty,
         buyOnline:price>0,
+        financingEligible:truthy(p.FinancingEligible),
         setup:false
       };
     }).sort((a,b)=>a.sort-b.sort || a.model.localeCompare(b.model,undefined,{numeric:true,sensitivity:'base'}));
@@ -338,7 +342,68 @@
     return families;
   }
 
-  function engineValue(f){
+  function financeGroupColumns(f){
+    const cols=new Set(['Group_ALL_STIHL']);
+    const values=[f.series,f.category,f.subcategory].map(clean).filter(Boolean);
+    values.forEach(v=>{
+      cols.add('Group_'+v);
+      const compact=v.toUpperCase().replace(/[^A-Z0-9]/g,'');
+      if(compact) cols.add('Group_'+compact);
+    });
+    const model=clean(f.model).toUpperCase().replace(/[^A-Z0-9]/g,'');
+    const series=clean(f.series).toUpperCase().replace(/[^A-Z0-9]/g,'');
+    [model,series].forEach(v=>{
+      if(/^RZ1/.test(v)) cols.add('Group_RZ100');
+      if(/^RZ2/.test(v)) cols.add('Group_RZ200');
+      if(/^RZ5/.test(v)) cols.add('Group_RZ500');
+      if(/^RZ7/.test(v)) cols.add('Group_RZ700');
+      if(/^RZ752/.test(v)) cols.add('Group_RZ752');
+      if(/^RZ9/.test(v)) cols.add('Group_RZ900');
+      if(/^AZA/.test(v)) cols.add('Group_AZA');
+      if(/^RZA/.test(v)) cols.add('Group_RZA');
+      if(/^RMA/.test(v)) cols.add('Group_RMA');
+      if(/^RM/.test(v)) cols.add('Group_RM');
+      if(/^FSA120/.test(v)) cols.add('FSA 120');
+    });
+    if([model,series].some(v=>/^RZ[0-9]|^AZA|^RZA/.test(v)) || values.some(v=>/ZERO[- ]?TURN/i.test(v))){
+      cols.add('Group_ALL_ZTR');
+    }
+    return Array.from(cols);
+  }
+
+  function bestFinanceProgram(f){
+    if(!f || !f.financingEligible || !DATA.financePrograms.length) return null;
+    const amount=Number(f.price||0);
+    if(!(amount>0)) return null;
+    const groups=financeGroupColumns(f);
+    const brand=clean(f.brand).toUpperCase();
+    const programs=DATA.financePrograms.filter(p=>{
+      if(!truthy(p.Active) || !truthy(p.Public) || !truthy(p.Display)) return false;
+      if(!dateActive(p.StartDate,p.EndDate)) return false;
+      if(clean(p.BrandID) && clean(p.BrandID).toUpperCase()!==brand) return false;
+      const min=num(p.MinAmount), max=num(p.MaxAmount);
+      if(min>0 && amount<min) return false;
+      if(max>0 && amount>max) return false;
+      return groups.some(g=>truthy(p[g]));
+    });
+    if(!programs.length) return null;
+    return programs.sort((a,b)=>{
+      const aa=num(a.APR), ab=num(b.APR);
+      const za=aa===0?0:1, zb=ab===0?0:1;
+      return za-zb || aa-ab || num(b.TermMonths)-num(a.TermMonths) || num(a.SortOrder)-num(b.SortOrder);
+    })[0]||null;
+  }
+
+  function financeMarkup(f){
+    const p=bestFinanceProgram(f);
+    if(!p) return '';
+    const raw=num(p.APR);
+    const apr=raw>0 && raw<1 ? raw*100 : raw;
+    const aprLabel=apr===0 ? '0%' : apr.toFixed(2).replace(/\.00$/,'')+'%';
+    return '<div class="market-finance-badge"><strong>'+esc(aprLabel+' for '+clean(p.TermMonths)+' Months')+'</strong><span>Financing Available</span></div>';
+  }
+
+    function engineValue(f){
     for(const [k,v] of Object.entries(f.specs)){
       if(/engine\s*(brand|make|manufacturer)?$/i.test(k) || /^engine$/i.test(k)) return v;
     }
@@ -584,10 +649,8 @@
     const headline=p.type==='rebate'
       ? money(p.savings).replace(/\.00$/,'')+' Rebate'
       : 'Save '+money(p.savings).replace(/\.00$/,'');
-    return '<div class="market-promo-ribbon"><span class="market-ribbon-tail market-ribbon-left"></span>'+
-      '<span class="market-ribbon-center"><strong>'+esc(headline)+'</strong>'+
-      (end?'<small>thru '+esc(end)+'</small>':'')+'</span>'+
-      '<span class="market-ribbon-tail market-ribbon-right"></span></div>';
+    return '<div class="market-promo-box"><strong>'+esc(headline)+'</strong>'+
+      (end?'<span>thru '+esc(end)+'</span>':'')+'</div>';
   }
 
     function card(f){
@@ -608,6 +671,7 @@
             '<a class="market-image" href="'+esc(first.productUrl||f.productUrl||'#')+'" target="_blank" rel="noopener">'+
             (f.image?'<img src="'+esc(f.image)+'" alt="'+esc(f.brand+' '+f.model)+'" loading="lazy">':'<span>Image Coming Soon</span>')+
             '</a>'+
+            financeMarkup(f)+
           '</div>'+
           ((first.productUrl||f.productUrl)?'<a class="market-product-details" href="'+esc(first.productUrl||f.productUrl)+'" target="_blank" rel="noopener">View Details ↗</a>':'')+
         '</section>'+
@@ -771,17 +835,19 @@
 
   async function init(){
     try{
-      const [products,batteries,chargers,compatibility,settingsRows]=await Promise.all([
+      const [products,batteries,chargers,compatibility,financePrograms,settingsRows]=await Promise.all([
         csv('data/products.csv'),
         csv('data/batteries.csv'),
         csv('data/chargers.csv'),
         csv('data/compatibility-runtime.csv'),
+        csv('data/finance-programs.csv'),
         csv('data/dealer-settings.csv')
       ]);
       DATA.products=products;
       DATA.batteries=batteries;
       DATA.chargers=chargers;
       DATA.compatibility=compatibility;
+      DATA.financePrograms=financePrograms;
       DATA.batterySystems=new Set(
         batteries.filter(x=>truthy(x.Active)).map(x=>clean(x.BatteryID).match(/^[A-Za-z]+/)?.[0]||'').filter(Boolean).map(x=>x.toUpperCase())
       );
