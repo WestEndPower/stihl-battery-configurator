@@ -11,9 +11,9 @@
 button,input{font:inherit}button{cursor:pointer}
 .market-shell{max-width:var(--max);margin:auto;padding:18px}
 .market-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 18px;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.05)}
-.market-branding{display:flex;align-items:center;gap:14px;min-width:0}.market-branding img{max-width:210px;max-height:58px;object-fit:contain}.market-branding h1{margin:0;font-size:clamp(22px,3vw,34px)}.market-branding p{margin:3px 0 0;color:var(--muted)}
+.market-branding{display:flex;align-items:center;gap:14px;min-width:0}.market-home-link{display:flex;align-items:center;text-decoration:none}.market-branding img{max-width:210px;max-height:58px;object-fit:contain}.market-branding h1{margin:0;font-size:clamp(22px,3vw,34px)}.market-branding p{margin:3px 0 0;color:var(--muted)}
 .market-searchbox{display:flex;align-items:center;gap:8px;min-width:min(420px,38vw)}.market-searchbox input{width:100%;padding:11px 13px;border:1px solid #aeb6bf;border-radius:9px}.market-clear{border:1px solid #333;border-radius:8px;background:#fff;padding:10px 12px;font-weight:800}
-.market-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.65fr);gap:14px;margin:16px 0}.market-top-panel{border:1px solid var(--line);border-radius:11px;background:var(--soft);padding:12px}
+.market-shop-nav{margin:14px 0 8px}.market-shop-tabs{display:flex;flex-wrap:wrap;gap:8px}.market-shop-tab{border:1px solid #333;border-radius:999px;background:#fff;padding:9px 16px;font-weight:900}.market-shop-tab.active{background:var(--ink);color:#fff}.market-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,.72fr);gap:14px;margin:8px 0 16px}.market-top-panel{border:1px solid var(--line);border-radius:11px;background:var(--soft);padding:12px}.market-top-panel[hidden]{display:none!important}
 .market-top-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.market-top-title strong{font-size:13px;text-transform:uppercase;letter-spacing:.05em}
 .market-chip-row{display:flex;flex-wrap:wrap;gap:7px;align-items:center}.market-chip{border:1px solid #3f474f;border-radius:999px;background:#fff;padding:8px 12px;font-weight:800}.market-chip.active{background:var(--ink);color:#fff}.market-context-label{font-size:12px;font-weight:900;text-transform:uppercase;color:var(--muted);margin-right:2px}
 #market-context,#market-width{margin-top:9px;padding-top:9px;border-top:1px solid var(--line)}
@@ -37,7 +37,9 @@ button,input{font:inherit}button{cursor:pointer}
 <div id="market-app" class="market-shell" hidden>
   <header class="market-header">
     <div class="market-branding">
-      <img id="market-dealer-logo" hidden alt="">
+      <a class="market-home-link" href="https://www.westendpower.com/" aria-label="West End Power home">
+        <img id="market-dealer-logo" hidden alt="">
+      </a>
       <div><h1>Shop Equipment</h1><p id="market-dealer-name"></p></div>
     </div>
     <div class="market-searchbox">
@@ -46,14 +48,18 @@ button,input{font:inherit}button{cursor:pointer}
     </div>
   </header>
 
+  <section class="market-shop-nav" aria-label="Shop type">
+    <div id="market-shop-tabs" class="market-shop-tabs"></div>
+  </section>
+
   <section class="market-top" aria-label="Primary product filters">
-    <div class="market-top-panel">
-      <div class="market-top-title"><strong>Category</strong><span>Choose what you are shopping for</span></div>
+    <div id="market-category-panel" class="market-top-panel">
+      <div class="market-top-title"><strong>Category</strong></div>
       <div id="market-categories" class="market-chip-row"></div>
       <div id="market-width" class="market-chip-row" hidden></div>
     </div>
-    <div class="market-top-panel">
-      <div class="market-top-title"><strong>Power Type</strong><span>Then narrow the platform</span></div>
+    <div id="market-power-panel" class="market-top-panel">
+      <div class="market-top-title"><strong>Power Type</strong></div>
       <div id="market-power" class="market-chip-row"></div>
       <div id="market-context" class="market-chip-row" hidden></div>
     </div>
