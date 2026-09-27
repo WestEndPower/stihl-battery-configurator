@@ -8,11 +8,15 @@
     compatibility: [],
     batterySystems: new Set(),
     settings: {},
+    equipmentFamilies: [],
+    batteryFamilies: [],
+    chargerFamilies: [],
     families: [],
     filtered: []
   };
 
   const state = {
+    shopMode: 'equipment',
     category: '',
     power: '',
     seriesOrEngine: '',
@@ -120,7 +124,52 @@
     }).sort((a,b)=>a.sort-b.sort || a.model.localeCompare(b.model,undefined,{numeric:true,sensitivity:'base'}));
   }
 
-  const distinct = a => Array.from(new Set(a.map(clean).filter(Boolean))).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'}));
+  function groupComponents(rows,kind){
+    return rows.filter(x=>truthy(x.Active)).map((p,index)=>{
+      const brand=clean(p.BrandID)||'STIHL';
+      const model=clean(p.Model)||clean(p.BatteryID)||clean(p.ChargerID)||clean(p.ChargerName)||clean(p.Description)||clean(p.SKU);
+      const price=currentPrice(p);
+      const specs={};
+      const pairs=kind==='battery'
+        ? [['Voltage',clean(p.Voltage)||clean(p.MaxVoltage)],['Capacity',clean(p.Ah)?clean(p.Ah)+' Ah':''],['Energy',clean(p.Wh)?clean(p.Wh)+' Wh':''],['Weight',clean(p.Weight)?clean(p.Weight)+' '+clean(p.WeightUnit):'']]
+        : [['System',clean(p.System)],['Voltage',clean(p.Voltage)],['Output',clean(p.OutputAmps)?clean(p.OutputAmps)+' A':''],['Input',clean(p.InputWatts)?clean(p.InputWatts)+' W':'']];
+      pairs.forEach(([k,v])=>{ if(v) specs[k]=v; });
+      const qty=num(p.QtyDanbury)+num(p.QtyNewMilford);
+      return {
+        key:(brand+'|'+kind+'|'+clean(p.SKU||model)).toUpperCase(),
+        brand, model,
+        category:kind==='battery'?'Batteries':'Chargers',
+        subcategory:kind==='battery'?'Battery':'Charger',
+        power:'Battery',
+        series:kind==='battery'
+          ? ((clean(p.BatteryID).match(/^(AS|AK|AP|AR)/i)||[])[1]||'').toUpperCase()
+          : '',
+        system:clean(p.System),
+        image:clean(p.ImageURL),
+        productUrl:clean(p.ProductURL),
+        sort:num(p.SortOrder)||index+1,
+        variants:[{
+          sku:clean(p.SKU),description:clean(p.Description)||model,type:kind==='battery'?'Battery':'Charger',
+          msrp:num(p.MSRP),sale:num(p.SalePrice),price,
+          qtyDanbury:num(p.QtyDanbury),qtyNewMilford:num(p.QtyNewMilford),
+          buyOnline:price>0,localDelivery:false,assembly:0,productUrl:clean(p.ProductURL)
+        }],
+        specs,
+        price,
+        stock:qty,
+        buyOnline:price>0,
+        setup:false
+      };
+    }).sort((a,b)=>a.sort-b.sort || a.model.localeCompare(b.model,undefined,{numeric:true,sensitivity:'base'}));
+  }
+
+  function activeFamilies(){
+    if(state.shopMode==='batteries') return DATA.batteryFamilies;
+    if(state.shopMode==='chargers') return DATA.chargerFamilies;
+    return DATA.equipmentFamilies;
+  }
+
+    const distinct = a => Array.from(new Set(a.map(clean).filter(Boolean))).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'}));
 
   function currentPrice(row){
     const sale=num(row && row.SalePrice), msrp=num(row && row.MSRP);
@@ -254,6 +303,7 @@
 
   function filterFamilies(){
     const q=state.search.toLowerCase();
+    DATA.families=activeFamilies();
     const out=DATA.families.filter(f=>{
       if(state.category && f.category!==state.category) return false;
       if(state.power && f.power!==state.power) return false;
@@ -292,25 +342,51 @@
   }
 
   function renderTopFilters(){
+    const tabs=$('#market-shop-tabs');
+    tabs.innerHTML=['equipment','batteries','chargers'].map(mode=>
+      '<button type="button" class="market-shop-tab'+(state.shopMode===mode?' active':'')+'" data-shop-mode="'+mode+'">'+
+      (mode==='equipment'?'Equipment':mode==='batteries'?'Batteries':'Chargers')+'</button>'
+    ).join('');
+
+    const categoryPanel=$('#market-category-panel');
+    const powerPanel=$('#market-power-panel');
+
+    if(state.shopMode!=='equipment'){
+      categoryPanel.hidden=true;
+      powerPanel.hidden=true;
+      return;
+    }
+
+    categoryPanel.hidden=false;
+    powerPanel.hidden=false;
+
     const categoryHost=$('#market-categories');
-    const categories=distinct(DATA.families.map(f=>f.category));
-    categoryHost.innerHTML=button('All Products','', 'category', !state.category)+categories.map(x=>button(x,x,'category',state.category===x)).join('');
+    const categories=distinct(DATA.equipmentFamilies.map(f=>f.category)).filter(x=>!/^batteries|chargers$/i.test(x));
+    categoryHost.innerHTML=categories.map(x=>button(x,x,'category',state.category===x)).join('');
 
     const powerHost=$('#market-power');
-    const scoped=DATA.families.filter(f=>!state.category || f.category===state.category);
+    const scoped=DATA.equipmentFamilies.filter(f=>!state.category || f.category===state.category);
     const powers=distinct(scoped.map(f=>f.power));
-    const rank={ELECTRIC:1,BATTERY:2,GAS:3,PETROL:3,DIESEL:4};
+    const rank={BATTERY:1,GAS:2,DIESEL:3,ELECTRIC:4,PETROL:2};
     powers.sort((a,b)=>(rank[a.toUpperCase()]||99)-(rank[b.toUpperCase()]||99)||a.localeCompare(b));
-    powerHost.innerHTML=powers.map(x=>button(x,x,'power',state.power===x)).join('');
+    powerHost.innerHTML=button('All','', 'power', !state.power)+powers.map(x=>button(x,x,'power',state.power===x)).join('');
 
     const context=$('#market-context');
-    if(!state.power){ context.innerHTML=''; context.hidden=true; }
-    else {
-      const vals=/battery/i.test(state.power)
+    if(!state.power){
+      context.innerHTML='';
+      context.hidden=true;
+    }else{
+      const battery=/battery/i.test(state.power);
+      const engine=/^(gas|petrol|diesel)$/i.test(state.power);
+      const vals=battery
         ? distinct(scoped.filter(f=>f.power===state.power).map(f=>f.system).filter(v=>DATA.batterySystems.has(clean(v).toUpperCase())))
-        : distinct(scoped.filter(f=>f.power===state.power).map(engineValue));
+        : engine
+          ? distinct(scoped.filter(f=>f.power===state.power).map(engineValue))
+          : [];
       context.hidden=!vals.length;
-      context.innerHTML=vals.length ? '<span class="market-context-label">'+(/battery/i.test(state.power)?'Series':'Engine')+'</span>'+vals.map(x=>button(x,x,'context',state.seriesOrEngine===x)).join('') : '';
+      context.innerHTML=vals.length
+        ? '<span class="market-context-label">'+(battery?'Series':'Engine Brand')+'</span>'+vals.map(x=>button(x,x,'context',state.seriesOrEngine===x)).join('')
+        : '';
     }
 
     const widths=distinct(scoped.map(f=>{const p=widthPair(f); return p?p[1]:'';}));
@@ -320,6 +396,7 @@
   }
 
   function renderSidebar(){
+    DATA.families=activeFamilies();
     const brands=distinct(DATA.families.map(f=>f.brand));
     $('#filter-brand').innerHTML=brands.map(b=>'<label><input type="checkbox" data-brand="'+esc(b)+'"> <span>'+esc(b)+'</span></label>').join('');
     $('#filter-availability').innerHTML=['In Stock','Available to Order'].map(x=>'<label><input type="checkbox" data-availability="'+esc(x)+'"> <span>'+esc(x)+'</span></label>').join('');
@@ -359,7 +436,7 @@
   }
 
   function addFamilyToCart(key,buttonEl){
-    const f=DATA.families.find(x=>x.key===key);
+    const f=activeFamilies().find(x=>x.key===key);
     if(!f) return;
     const select=document.querySelector('[data-cart-variant="'+CSS.escape(key)+'"]');
     const qtyInput=document.querySelector('[data-cart-qty="'+CSS.escape(key)+'"]');
@@ -444,6 +521,7 @@
     const first=f.variants[0]||{};
     const specs=familySpecs(f).slice(0,4);
     const description=[f.power,f.subcategory].filter(Boolean).join(' - ');
+    const equipmentMode=state.shopMode==='equipment';
     const optionsUrl='product-options.html?sku='+encodeURIComponent(first.sku||'')+'&category='+encodeURIComponent(f.category);
     const runtimeUrl='index.html?category='+encodeURIComponent(f.category)+'&sku='+encodeURIComponent(first.sku||'');
     return '<article class="market-card" data-key="'+esc(f.key)+'">'+
@@ -459,9 +537,11 @@
         '</section>'+
         '<section class="market-buy">'+
           familyPriceMarkup(f)+
-          '<div class="market-actions"><a href="'+optionsUrl+'">'+(/battery/i.test(f.power)?'View Accessories':'View Options')+'</a>'+
-            (/battery/i.test(f.power)?'<a href="'+runtimeUrl+'">Run/Charge Times</a>':'')+
-          '</div>'+
+          (equipmentMode
+            ? '<div class="market-actions"><a href="'+optionsUrl+'">'+(/battery/i.test(f.power)?'View Accessories':'View Options')+'</a>'+
+                (/battery/i.test(f.power)?'<a href="'+runtimeUrl+'">Run/Charge Times</a>':'')+
+              '</div>'
+            : '')+
           cartMarkup(f)+
         '</section>'+
       '</div>'+
@@ -484,7 +564,7 @@
   }
 
   function compareTable(){
-    const selected=DATA.families.filter(f=>state.compare.has(f.key));
+    const selected=activeFamilies().filter(f=>state.compare.has(f.key));
     const fams=(selected.length?selected:DATA.filtered).slice(0,24);
     if(!fams.length) return '<p>No products to compare.</p>';
     const labels=[];
@@ -532,6 +612,12 @@
 
   function wire(){
     document.addEventListener('click',e=>{
+      const shop=e.target.closest('[data-shop-mode]');
+      if(shop){
+        state.shopMode=shop.dataset.shopMode||'equipment';
+        state.category='';state.power='';state.seriesOrEngine='';state.width='';state.specFilters.clear();state.compare.clear();
+        renderTopFilters();renderSidebar();filterFamilies();return;
+      }
       const c=e.target.closest('[data-category]');
       if(c){ state.category=c.dataset.category||''; state.power=''; resetContext(); renderTopFilters(); renderSidebar(); filterFamilies(); track('marketplace_category',{category:state.category||'all'}); return; }
       const p=e.target.closest('[data-power]');
@@ -564,7 +650,7 @@
 
     $('#market-search').addEventListener('input',e=>{ state.search=e.target.value; filterFamilies(); });
     $('#market-clear').addEventListener('click',()=>{
-      state.category='';state.power='';state.seriesOrEngine='';state.width='';state.brand.clear();state.availability.clear();state.buyOnline=false;state.search='';state.specFilters.clear();
+      state.shopMode='equipment';state.category='';state.power='';state.seriesOrEngine='';state.width='';state.brand.clear();state.availability.clear();state.buyOnline=false;state.search='';state.specFilters.clear();
       $('#market-search').value=''; $('#filter-buy-online').checked=false;
       renderTopFilters();renderSidebar();filterFamilies();
       track('marketplace_clear_filters');
@@ -624,7 +710,10 @@
         batteries.filter(x=>truthy(x.Active)).map(x=>clean(x.BatteryID).match(/^[A-Za-z]+/)?.[0]||'').filter(Boolean).map(x=>x.toUpperCase())
       );
       DATA.settings=settingsRows[0]||{};
-      DATA.families=enrichFactoryPackageSavings(enrichRecommendedPackages(groupFamilies(products)));
+      DATA.equipmentFamilies=enrichFactoryPackageSavings(enrichRecommendedPackages(groupFamilies(products)));
+      DATA.batteryFamilies=groupComponents(batteries,'battery');
+      DATA.chargerFamilies=groupComponents(chargers,'charger');
+      DATA.families=activeFamilies();
       DATA.filtered=DATA.families.slice();
       applyDealer(DATA.settings);
       renderTopFilters(); renderSidebar(); filterFamilies(); wire(); updateCartFloat();
