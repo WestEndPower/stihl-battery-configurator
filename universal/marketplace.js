@@ -348,49 +348,54 @@
       (mode==='equipment'?'Equipment':mode==='batteries'?'Batteries':'Chargers')+'</button>'
     ).join('');
 
+    const powerWrap=$('#market-power-wrap');
     const categoryPanel=$('#market-category-panel');
-    const powerPanel=$('#market-power-panel');
+    const contextPanel=$('#market-context-panel');
+    const powerHost=$('#market-power');
+    const context=$('#market-context');
+    const categoryHost=$('#market-categories');
+    const widthHost=$('#market-width');
 
     if(state.shopMode!=='equipment'){
+      powerWrap.hidden=true;
       categoryPanel.hidden=true;
-      powerPanel.hidden=true;
+      contextPanel.hidden=true;
+      context.innerHTML='';
       return;
     }
 
+    powerWrap.hidden=false;
     categoryPanel.hidden=false;
-    powerPanel.hidden=false;
 
-    const categoryHost=$('#market-categories');
-    const categories=distinct(DATA.equipmentFamilies.map(f=>f.category)).filter(x=>!/^batteries|chargers$/i.test(x));
-    categoryHost.innerHTML=categories.map(x=>button(x,x,'category',state.category===x)).join('');
-
-    const powerHost=$('#market-power');
-    const scoped=DATA.equipmentFamilies.filter(f=>!state.category || f.category===state.category);
-    const powers=distinct(scoped.map(f=>f.power));
+    const powers=distinct(DATA.equipmentFamilies.map(f=>f.power));
     const rank={BATTERY:1,GAS:2,DIESEL:3,ELECTRIC:4,PETROL:2};
     powers.sort((a,b)=>(rank[a.toUpperCase()]||99)-(rank[b.toUpperCase()]||99)||a.localeCompare(b));
     powerHost.innerHTML=button('All','', 'power', !state.power)+powers.map(x=>button(x,x,'power',state.power===x)).join('');
 
-    const context=$('#market-context');
-    if(!state.power){
-      context.innerHTML='';
-      context.hidden=true;
-    }else{
+    const categories=distinct(DATA.equipmentFamilies.map(f=>f.category)).filter(x=>!/^batteries|chargers$/i.test(x));
+    categoryHost.innerHTML=categories.map(x=>button(x,x,'category',state.category===x)).join('');
+
+    const scoped=DATA.equipmentFamilies.filter(f=>(!state.category || f.category===state.category) && (!state.power || f.power===state.power));
+
+    if(state.category && state.power){
       const battery=/battery/i.test(state.power);
       const engine=/^(gas|petrol|diesel)$/i.test(state.power);
       const vals=battery
-        ? distinct(scoped.filter(f=>f.power===state.power).map(f=>f.system).filter(v=>DATA.batterySystems.has(clean(v).toUpperCase())))
+        ? distinct(scoped.map(f=>f.system).filter(v=>DATA.batterySystems.has(clean(v).toUpperCase())))
         : engine
-          ? distinct(scoped.filter(f=>f.power===state.power).map(engineValue))
+          ? distinct(scoped.map(engineValue))
           : [];
-      context.hidden=!vals.length;
+      contextPanel.hidden=!vals.length;
       context.innerHTML=vals.length
         ? '<span class="market-context-label">'+(battery?'Series':'Engine Brand')+'</span>'+vals.map(x=>button(x,x,'context',state.seriesOrEngine===x)).join('')
         : '';
+    }else{
+      contextPanel.hidden=true;
+      context.innerHTML='';
+      state.seriesOrEngine='';
     }
 
     const widths=distinct(scoped.map(f=>{const p=widthPair(f); return p?p[1]:'';}));
-    const widthHost=$('#market-width');
     widthHost.hidden=!widths.length;
     widthHost.innerHTML=widths.length?'<span class="market-context-label">Width</span>'+widths.map(x=>button(x,x,'width',state.width===x)).join(''):'';
   }
