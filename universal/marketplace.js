@@ -271,23 +271,48 @@
     track('marketplace_add_to_cart',{sku:v.sku,model:f.model,quantity:qty,value:v.price*qty});
   }
 
+  function pricePanel(label,v,isPackage,f){
+    if(!v) return '';
+    const regular=v.msrp>0 ? v.msrp : v.price;
+    const onSale=v.sale>0 && regular>v.sale;
+    return '<div class="market-price-choice'+(isPackage?' market-package-choice':'')+'">'+
+      '<div class="market-price-heading"><span>'+esc(label)+'</span><span class="market-price-pair">'+
+        (onSale?'<del>'+money(regular)+'</del>':'')+
+        '<strong>'+(v.price>0?money(v.price):'Pricing Coming Soon')+'</strong>'+
+      '</span></div>'+
+      (!isPackage && /battery/i.test(f.power)?'<small>Battery and charger sold separately</small>':'')+
+    '</div>';
+  }
+
+  function familyPriceMarkup(f){
+    const tool=f.variants.find(v=>!/kit|package/i.test(v.type));
+    const kit=f.variants.find(v=>/kit|package/i.test(v.type));
+    const rows=[];
+    if(tool) rows.push(pricePanel('Tool Only',tool,false,f));
+    if(kit) rows.push(pricePanel('Package',kit,true,f));
+    if(!rows.length && f.variants[0]) rows.push(pricePanel('Price',f.variants[0],false,f));
+    return '<div class="market-price-lines">'+rows.join('')+'</div>';
+  }
+
   function card(f){
     const first=f.variants[0]||{};
-    const specs=familySpecs(f);
+    const specs=familySpecs(f).slice(0,4);
+    const description=[f.power,f.subcategory].filter(Boolean).join(' - ');
     return '<article class="market-card" data-key="'+esc(f.key)+'">'+
-      '<div class="market-card-head"><div><span>'+esc(f.brand)+'</span><h3>'+esc(f.model)+'</h3></div><span class="market-power">'+esc(f.power||'Equipment')+'</span></div>'+
+      '<header class="market-card-head"><h3><strong>'+esc(f.model)+'</strong>'+(description?'<span>'+esc(description)+'</span>':'')+'</h3><span class="market-availability-badge">'+esc(availabilityText(f))+'</span></header>'+
       '<div class="market-card-body">'+
-        '<a class="market-image" href="'+esc(first.productUrl||f.productUrl||'#')+'" target="_blank" rel="noopener">'+
-          (f.image?'<img src="'+esc(f.image)+'" alt="'+esc(f.brand+' '+f.model)+'" loading="lazy">':'<span>No image available</span>')+
-        '</a>'+
-        '<div class="market-buy">'+
-          '<div class="market-price"><small>Starting at</small><strong>'+(f.price?money(f.price):'Contact Us')+'</strong></div>'+
-          '<div class="market-availability">'+esc(availabilityText(f))+'</div>'+
+        '<section class="market-card-left">'+
+          '<a class="market-image" href="'+esc(first.productUrl||f.productUrl||'#')+'" target="_blank" rel="noopener">'+
+            (f.image?'<img src="'+esc(f.image)+'" alt="'+esc(f.brand+' '+f.model)+'" loading="lazy">':'<span>Image Coming Soon</span>')+
+          '</a>'+
+          ((first.productUrl||f.productUrl)?'<a class="market-product-details" href="'+esc(first.productUrl||f.productUrl)+'" target="_blank" rel="noopener">View Product Details ↗</a>':'')+
+        '</section>'+
+        '<section class="market-buy">'+
+          familyPriceMarkup(f)+
           ((f.system||f.series)?'<div class="market-series">'+esc(f.system||f.series)+'</div>':'')+
           cartMarkup(f)+
-          '<div class="market-actions"><a href="product-options.html?sku='+encodeURIComponent(first.sku||'')+'&category='+encodeURIComponent(f.category)+'">View Options</a>'+
-          ((first.productUrl||f.productUrl)?'<a href="'+esc(first.productUrl||f.productUrl)+'" target="_blank" rel="noopener">Product Details</a>':'')+'</div>'+
-        '</div>'+
+          '<div class="market-actions"><a href="product-options.html?sku='+encodeURIComponent(first.sku||'')+'&category='+encodeURIComponent(f.category)+'">View Options</a></div>'+
+        '</section>'+
       '</div>'+
       (specs.length?'<dl class="market-specs">'+specs.map(([l,v])=>'<div><dt>'+esc(l)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>':'')+
     '</article>';
