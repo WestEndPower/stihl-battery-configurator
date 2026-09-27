@@ -3,6 +3,8 @@
 
   const DATA = {
     products: [],
+    batteries: [],
+    batterySystems: new Set(),
     settings: {},
     families: [],
     filtered: []
@@ -73,7 +75,8 @@
           category:clean(p.Category)||'Other',
           subcategory:clean(p.SubCategory),
           power:clean(p.PowerType),
-          series:clean(p.Series)||clean(p.System),
+          series:clean(p.Series),
+          system:clean(p.System),
           image:clean(p.ImageURL),
           productUrl:clean(p.ProductURL),
           sort:num(p.SortOrder)||999999,
@@ -105,7 +108,8 @@
     });
     return Array.from(map.values()).map(f=>{
       f.variants.sort((a,b)=>a.price-b.price || a.type.localeCompare(b.type));
-      f.price=Math.min(...f.variants.map(v=>v.price).filter(v=>v>0).concat([0]));
+      const positivePrices=f.variants.map(v=>v.price).filter(v=>v>0);
+      f.price=positivePrices.length ? Math.min(...positivePrices) : 0;
       f.stock=f.variants.reduce((n,v)=>n+v.qtyDanbury+v.qtyNewMilford,0);
       f.buyOnline=f.variants.some(v=>v.buyOnline);
       f.setup=f.variants.some(v=>v.localDelivery || v.assembly>0);
@@ -136,7 +140,7 @@
       if(state.category && f.category!==state.category) return false;
       if(state.power && f.power!==state.power) return false;
       if(state.seriesOrEngine){
-        const target=/battery/i.test(state.power) ? f.series : engineValue(f);
+        const target=/battery/i.test(state.power) ? f.system : engineValue(f);
         if(clean(target)!==state.seriesOrEngine) return false;
       }
       if(state.width){
@@ -185,7 +189,7 @@
     if(!state.power){ context.innerHTML=''; context.hidden=true; }
     else {
       const vals=/battery/i.test(state.power)
-        ? distinct(scoped.filter(f=>f.power===state.power).map(f=>f.series))
+        ? distinct(scoped.filter(f=>f.power===state.power).map(f=>f.system).filter(v=>DATA.batterySystems.has(clean(v).toUpperCase())))
         : distinct(scoped.filter(f=>f.power===state.power).map(engineValue));
       context.hidden=!vals.length;
       context.innerHTML=vals.length ? '<span class="market-context-label">'+(/battery/i.test(state.power)?'Series':'Engine')+'</span>'+vals.map(x=>button(x,x,'context',state.seriesOrEngine===x)).join('') : '';
@@ -221,8 +225,50 @@
   }
 
   function availabilityText(f){
-    if(f.stock>0) return 'In Stock: '+f.stock+' available';
+    if(f.stock>0) return 'In Stock';
     return 'Available to Order';
+  }
+
+  function cartMarkup(f){
+    const eligible=f.variants.filter(v=>v.buyOnline && v.price>0);
+    if(!eligible.length) return '';
+    const options=eligible.map(v=>'<option value="'+esc(v.sku)+'">'+esc((v.type||v.description||v.sku)+' — '+money(v.price))+'</option>').join('');
+    return '<div class="market-cart-controls">'+
+      '<select data-cart-variant="'+esc(f.key)+'" aria-label="Purchase option">'+options+'</select>'+
+      '<input data-cart-qty="'+esc(f.key)+'" type="number" min="1" max="99" value="1" aria-label="Quantity">'+
+      '<button type="button" data-add-cart="'+esc(f.key)+'">Add to Cart</button>'+
+      '<a class="market-view-cart" href="cart.html">View Cart</a>'+
+    '</div>';
+  }
+
+  function addFamilyToCart(key,buttonEl){
+    const f=DATA.families.find(x=>x.key===key);
+    if(!f) return;
+    const select=document.querySelector('[data-cart-variant="'+CSS.escape(key)+'"]');
+    const qtyInput=document.querySelector('[data-cart-qty="'+CSS.escape(key)+'"]');
+    const sku=select ? select.value : '';
+    const qty=Math.max(1,Math.min(99,parseInt(qtyInput && qtyInput.value,10)||1));
+    const v=f.variants.find(x=>x.sku===sku && x.buyOnline && x.price>0);
+    if(!v) return;
+    let cart=[];
+    try{ cart=JSON.parse(localStorage.getItem('wepCart')||'[]'); if(!Array.isArray(cart)) cart=[]; }catch(e){ cart=[]; }
+    const existing=cart.find(x=>x.sku===v.sku);
+    if(existing) existing.quantity=Math.min(99,(Number(existing.quantity)||0)+qty);
+    else cart.push({
+      sku:v.sku,
+      productName:v.description||f.brand+' '+f.model,
+      description:v.description||'',
+      quantity:qty,
+      itemPrice:v.price,
+      shipping:null
+    });
+    localStorage.setItem('wepCart',JSON.stringify(cart));
+    if(buttonEl){
+      const old=buttonEl.textContent;
+      buttonEl.textContent='Added ✓';
+      setTimeout(()=>{buttonEl.textContent=old;},1200);
+    }
+    track('marketplace_add_to_cart',{sku:v.sku,model:f.model,quantity:qty,value:v.price*qty});
   }
 
   function card(f){
@@ -237,7 +283,8 @@
         '<div class="market-buy">'+
           '<div class="market-price"><small>Starting at</small><strong>'+(f.price?money(f.price):'Contact Us')+'</strong></div>'+
           '<div class="market-availability">'+esc(availabilityText(f))+'</div>'+
-          (f.series?'<div class="market-series">'+esc(f.series)+'</div>':'')+
+          ((f.system||f.series)?'<div class="market-series">'+esc(f.system||f.series)+'</div>':'')+
+          cartMarkup(f)+
           '<div class="market-actions"><a href="product-options.html?sku='+encodeURIComponent(first.sku||'')+'&category='+encodeURIComponent(f.category)+'">View Options</a>'+
           ((first.productUrl||f.productUrl)?'<a href="'+esc(first.productUrl||f.productUrl)+'" target="_blank" rel="noopener">Product Details</a>':'')+'</div>'+
         '</div>'+
@@ -307,6 +354,8 @@
       if(x){ const v=x.dataset.context||''; state.seriesOrEngine=state.seriesOrEngine===v?'':v; renderTopFilters(); filterFamilies(); return; }
       const w=e.target.closest('[data-width]');
       if(w){ const v=w.dataset.width||''; state.width=state.width===v?'':v; renderTopFilters(); filterFamilies(); return; }
+      const add=e.target.closest('[data-add-cart]');
+      if(add){ addFamilyToCart(add.dataset.addCart||'',add); return; }
     });
 
     document.addEventListener('change',e=>{
@@ -369,8 +418,13 @@
 
   async function init(){
     try{
-      const [products,settingsRows]=await Promise.all([csv('data/products.csv'),csv('data/dealer-settings.csv')]);
-      DATA.products=products; DATA.settings=settingsRows[0]||{}; DATA.families=groupFamilies(products); DATA.filtered=DATA.families.slice();
+      const [products,batteries,settingsRows]=await Promise.all([csv('data/products.csv'),csv('data/batteries.csv'),csv('data/dealer-settings.csv')]);
+      DATA.products=products;
+      DATA.batteries=batteries;
+      DATA.batterySystems=new Set(
+        batteries.filter(x=>truthy(x.Active)).map(x=>clean(x.BatteryID).match(/^[A-Za-z]+/)?.[0]||'').filter(Boolean).map(x=>x.toUpperCase())
+      );
+      DATA.settings=settingsRows[0]||{}; DATA.families=groupFamilies(products); DATA.filtered=DATA.families.slice();
       applyDealer(DATA.settings);
       renderTopFilters(); renderSidebar(); filterFamilies(); wire();
       $('#market-loading').hidden=true; $('#market-app').hidden=false;
