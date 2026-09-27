@@ -104,7 +104,13 @@
         type:clean(p.ProductType),
         msrp:num(p.MSRP),
         sale:num(p.SalePrice),
-        price:num(p.SalePrice)>0 ? num(p.SalePrice) : num(p.MSRP),
+        saleStart:clean(p.SaleStartDate),
+        saleEnd:clean(p.SaleEndDate),
+        promoName:clean(p.PromoName),
+        rebate:num(p.RebateToCustomer),
+        rebateStart:clean(p.RebateStartDate),
+        rebateEnd:clean(p.RebateEndDate),
+        price:num(p.MSRP),
         qtyDanbury:num(p.QtyDanbury),
         qtyNewMilford:num(p.QtyNewMilford),
         buyOnline:truthy(p.BuyOnlineEligible),
@@ -115,6 +121,7 @@
     });
     return Array.from(map.values()).map(f=>{
       f.variants.sort((a,b)=>a.price-b.price || a.type.localeCompare(b.type));
+      f.variants.forEach(v=>{ v.price=effectivePrice(v); });
       const positivePrices=f.variants.map(v=>v.price).filter(v=>v>0);
       f.price=positivePrices.length ? Math.min(...positivePrices) : 0;
       f.stock=f.variants.reduce((n,v)=>n+v.qtyDanbury+v.qtyNewMilford,0);
@@ -167,6 +174,51 @@
     if(state.shopMode==='batteries') return DATA.batteryFamilies;
     if(state.shopMode==='chargers') return DATA.chargerFamilies;
     return DATA.equipmentFamilies;
+  }
+
+    function dateActive(startRaw,endRaw){
+    const now=new Date();
+    const parse=(raw,endOfDay)=>{
+      raw=clean(raw);
+      if(!raw) return null;
+      const p=raw.split('-').map(Number);
+      if(p.length!==3 || p.some(x=>!Number.isFinite(x))) return null;
+      return new Date(p[0],p[1]-1,p[2],endOfDay?23:0,endOfDay?59:0,endOfDay?59:0);
+    };
+    const start=parse(startRaw,false), end=parse(endRaw,true);
+    return (!start || now>=start) && (!end || now<=end);
+  }
+
+  function shortDate(raw){
+    raw=clean(raw);
+    if(!raw) return '';
+    const p=raw.split('-').map(Number);
+    if(p.length!==3) return raw;
+    return new Date(p[0],p[1]-1,p[2]).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  }
+
+  function promoInfo(v){
+    if(!v) return null;
+    const msrp=Number(v.msrp||0);
+    const sale=Number(v.sale||0);
+    if(msrp>0 && sale>0 && sale<msrp && dateActive(v.saleStart,v.saleEnd)){
+      return {type:'sale',regular:msrp,price:sale,savings:msrp-sale,end:v.saleEnd,name:clean(v.promoName)};
+    }
+    const rebate=Number(v.rebate||0);
+    if(msrp>0 && rebate>0 && rebate<msrp && dateActive(v.rebateStart,v.rebateEnd)){
+      return {type:'rebate',regular:msrp,price:msrp-rebate,savings:rebate,end:v.rebateEnd,name:'Customer Rebate'};
+    }
+    return null;
+  }
+
+  function effectivePrice(v){
+    const promo=promoInfo(v);
+    if(promo) return promo.price;
+    return Number(v && v.msrp || v && v.price || 0);
+  }
+
+  function searchKey(v){
+    return clean(v).toLowerCase().replace(/[^a-z0-9]+/g,'');
   }
 
     const distinct = a => Array.from(new Set(a.map(clean).filter(Boolean))).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'}));
@@ -302,7 +354,7 @@
   }
 
   function filterFamilies(){
-    const q=state.search.toLowerCase();
+    const q=searchKey(state.search);
     DATA.families=activeFamilies();
     const out=DATA.families.filter(f=>{
       if(state.category && f.category!==state.category) return false;
@@ -326,7 +378,7 @@
         if(values.size && !values.has(clean(f.specs[label]))) return false;
       }
       if(q){
-        const hay=[f.brand,f.model,f.category,f.subcategory,f.power,f.series,Object.values(f.specs).join(' ')].join(' ').toLowerCase();
+        const hay=searchKey([f.brand,f.model,f.category,f.subcategory,f.power,f.series,Object.values(f.specs).join(' ')].join(' '));
         if(!hay.includes(q)) return false;
       }
       return true;
@@ -495,17 +547,19 @@
 
   function pricePanel(label,v,isPackage,f){
     if(!v) return '';
-    const regular=v.msrp>0 ? v.msrp : v.price;
-    const onSale=v.sale>0 && regular>v.sale;
+    const promo=promoInfo(v);
+    const regular=promo ? promo.regular : (v.msrp>0 ? v.msrp : v.price);
+    const shown=promo ? promo.price : v.price;
     const include=isPackage ? packageSummary(v) : '';
     const savings=isPackage && Number(v.packageSavings||0)>0 && Number(v.packageValue||0)>0
       ? 'Package Value '+money(v.packageValue)+' · Save '+money(v.packageSavings)
       : '';
     return '<div class="market-price-choice'+(isPackage?' market-package-choice':'')+'">'+
       '<div class="market-price-heading"><span>'+esc(label)+'</span><span class="market-price-pair">'+
-        (onSale?'<del>'+money(regular)+'</del>':'')+
-        '<strong>'+(v.price>0?money(v.price):'Pricing Coming Soon')+'</strong>'+
+        (promo?'<del>'+money(regular)+'</del>':'')+
+        '<strong>'+(shown>0?money(shown):'Pricing Coming Soon')+'</strong>'+
       '</span></div>'+
+      (promo && promo.type==='rebate'?'<small class="market-promo-price-note">After customer rebate</small>':'')+
       (!isPackage && /battery/i.test(f.power)?'<small class="market-sold-separate">Battery and charger sold separately</small>':'')+
       (include?'<small class="market-package-includes">'+esc(include)+'</small>':'')+
       (savings?'<small class="market-package-savings">'+esc(savings)+'</small>':'')+
@@ -522,7 +576,21 @@
     return '<div class="market-price-lines">'+rows.join('')+'</div>';
   }
 
-  function card(f){
+  function promoRibbon(f){
+    const active=(f.variants||[]).map(v=>({v,p:promoInfo(v)})).find(x=>x.p);
+    if(!active) return '';
+    const p=active.p;
+    const end=p.end ? shortDate(p.end) : '';
+    const headline=p.type==='rebate'
+      ? money(p.savings).replace(/\.00$/,'')+' Rebate'
+      : 'Save '+money(p.savings).replace(/\.00$/,'');
+    return '<div class="market-promo-ribbon"><span class="market-ribbon-tail market-ribbon-left"></span>'+
+      '<span class="market-ribbon-center"><strong>'+esc(headline)+'</strong>'+
+      (end?'<small>thru '+esc(end)+'</small>':'')+'</span>'+
+      '<span class="market-ribbon-tail market-ribbon-right"></span></div>';
+  }
+
+    function card(f){
     const first=f.variants[0]||{};
     const specs=familySpecs(f).slice(0,4);
     const description=[f.power,f.subcategory].filter(Boolean).join(' - ');
@@ -535,9 +603,12 @@
       '</header>'+
       '<div class="market-card-body">'+
         '<section class="market-card-left">'+
-          '<a class="market-image" href="'+esc(first.productUrl||f.productUrl||'#')+'" target="_blank" rel="noopener">'+
+          '<div class="market-image-wrap">'+
+            promoRibbon(f)+
+            '<a class="market-image" href="'+esc(first.productUrl||f.productUrl||'#')+'" target="_blank" rel="noopener">'+
             (f.image?'<img src="'+esc(f.image)+'" alt="'+esc(f.brand+' '+f.model)+'" loading="lazy">':'<span>Image Coming Soon</span>')+
-          '</a>'+
+            '</a>'+
+          '</div>'+
           ((first.productUrl||f.productUrl)?'<a class="market-product-details" href="'+esc(first.productUrl||f.productUrl)+'" target="_blank" rel="noopener">View Details ↗</a>':'')+
         '</section>'+
         '<section class="market-buy">'+
