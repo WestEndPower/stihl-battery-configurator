@@ -187,6 +187,56 @@
     return families;
   }
 
+  function enrichFactoryPackageSavings(families){
+    const batteryById=new Map(DATA.batteries.map(x=>[clean(x.BatteryID).replace(/\s+/g,'').toUpperCase(),x]));
+    const chargerById=new Map(DATA.chargers.map(x=>[clean(x.ChargerID).replace(/\s+/g,'').toUpperCase(),x]));
+
+    families.forEach(f=>{
+      const tool=f.variants.find(v=>!/kit|package/i.test(v.type));
+      if(!tool || !(tool.price>0)) return;
+
+      f.variants.filter(v=>/kit|package/i.test(v.type) && !v.recommendedPackage).forEach(v=>{
+        const d=clean(v.description);
+        const batt=d.match(/\b(?:(\d+)\s*[-x]?\s*)?((?:AS|AK|AP|AR)\s*\d+(?:\.\d+)?\s*[A-Z]?)\s*Batter(?:y|ies)?\b/i);
+        const charger=d.match(/\b(AL\s*\d+(?:-\d+)?)\b/i);
+        if(!batt && !charger) return;
+
+        const parts=[];
+        let components=0;
+
+        if(batt){
+          const qty=Math.max(1,Number(batt[1])||1);
+          const id=batt[2].replace(/\s+/g,'').toUpperCase();
+          const row=batteryById.get(id);
+          const price=row?currentPrice(row):0;
+          const display=(clean(row && row.BatteryID)||batt[2].replace(/\s+/g,' ').toUpperCase());
+          if(price>0){
+            components+=price*qty;
+            parts.push((qty>1?qty+' ':'')+display+' '+(qty>1?'Batteries':'Battery'));
+          }
+        }
+
+        if(charger){
+          const id=charger[1].replace(/\s+/g,'').toUpperCase();
+          const row=chargerById.get(id);
+          const price=row?currentPrice(row):0;
+          const display=clean(row && row.ChargerID)||id;
+          if(price>0){
+            components+=price;
+            parts.push(display+' Charger');
+          }
+        }
+
+        if(parts.length) v.packageIncludes=parts.join(' and ')+' included';
+        if(components>0){
+          v.packageValue=tool.price+components;
+          v.packageSavings=Math.max(0,v.packageValue-v.price);
+        }
+      });
+    });
+    return families;
+  }
+
   function engineValue(f){
     for(const [k,v] of Object.entries(f.specs)){
       if(/engine\s*(brand|make|manufacturer)?$/i.test(k) || /^engine$/i.test(k)) return v;
@@ -366,6 +416,9 @@
     const regular=v.msrp>0 ? v.msrp : v.price;
     const onSale=v.sale>0 && regular>v.sale;
     const include=isPackage ? packageSummary(v) : '';
+    const savings=isPackage && Number(v.packageSavings||0)>0 && Number(v.packageValue||0)>0
+      ? 'Package Value '+money(v.packageValue)+' · Save '+money(v.packageSavings)
+      : '';
     return '<div class="market-price-choice'+(isPackage?' market-package-choice':'')+'">'+
       '<div class="market-price-heading"><span>'+esc(label)+'</span><span class="market-price-pair">'+
         (onSale?'<del>'+money(regular)+'</del>':'')+
@@ -373,6 +426,7 @@
       '</span></div>'+
       (!isPackage && /battery/i.test(f.power)?'<small class="market-sold-separate">Battery and charger sold separately</small>':'')+
       (include?'<small class="market-package-includes">'+esc(include)+'</small>':'')+
+      (savings?'<small class="market-package-savings">'+esc(savings)+'</small>':'')+
     '</div>';
   }
 
@@ -401,12 +455,11 @@
           '<a class="market-image" href="'+esc(first.productUrl||f.productUrl||'#')+'" target="_blank" rel="noopener">'+
             (f.image?'<img src="'+esc(f.image)+'" alt="'+esc(f.brand+' '+f.model)+'" loading="lazy">':'<span>Image Coming Soon</span>')+
           '</a>'+
-          ((first.productUrl||f.productUrl)?'<a class="market-product-details" href="'+esc(first.productUrl||f.productUrl)+'" target="_blank" rel="noopener">View DealerSpike Product Page ↗</a>':'')+
+          ((first.productUrl||f.productUrl)?'<a class="market-product-details" href="'+esc(first.productUrl||f.productUrl)+'" target="_blank" rel="noopener">West End Product Page ↗</a>':'')+
         '</section>'+
         '<section class="market-buy">'+
           familyPriceMarkup(f)+
-          ((f.system||f.series)?'<div class="market-series">'+esc(f.system||f.series)+'</div>':'')+
-          '<div class="market-actions"><a href="'+optionsUrl+'">View Options</a>'+
+          '<div class="market-actions"><a href="'+optionsUrl+'">'+(/battery/i.test(f.power)?'View Accessories':'View Options')+'</a>'+
             (/battery/i.test(f.power)?'<a href="'+runtimeUrl+'">Run/Charge Times</a>':'')+
           '</div>'+
           cartMarkup(f)+
@@ -571,7 +624,7 @@
         batteries.filter(x=>truthy(x.Active)).map(x=>clean(x.BatteryID).match(/^[A-Za-z]+/)?.[0]||'').filter(Boolean).map(x=>x.toUpperCase())
       );
       DATA.settings=settingsRows[0]||{};
-      DATA.families=enrichRecommendedPackages(groupFamilies(products));
+      DATA.families=enrichFactoryPackageSavings(enrichRecommendedPackages(groupFamilies(products)));
       DATA.filtered=DATA.families.slice();
       applyDealer(DATA.settings);
       renderTopFilters(); renderSidebar(); filterFamilies(); wire(); updateCartFloat();
