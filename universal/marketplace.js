@@ -405,7 +405,7 @@
     return {
       program:p,
       label:aprLabel+' for '+clean(p.TermMonths),
-      sublabel:'Months Financing'
+      sublabel:'Month Financing'
     };
   }
 
