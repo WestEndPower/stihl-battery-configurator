@@ -648,9 +648,13 @@
     const end=p.end ? shortDate(p.end) : '';
     const headline=p.type==='rebate'
       ? money(p.savings).replace(/\.00$/,'')+' Rebate'
-      : 'Save '+money(p.savings).replace(/\.00$/,'');
-    return '<div class="market-promo-box"><strong>'+esc(headline)+'</strong>'+
-      (end?'<span>thru '+esc(end)+'</span>':'')+'</div>';
+      : money(p.savings).replace(/\.00$/,'')+' Savings';
+    return '<div class="market-promo-ribbon">'+
+      '<span class="market-ribbon-tail market-ribbon-left"></span>'+
+      '<span class="market-ribbon-center"><strong>'+esc(headline)+'</strong>'+
+      (end?'<small>thru '+esc(end)+'</small>':'')+'</span>'+
+      '<span class="market-ribbon-tail market-ribbon-right"></span>'+
+      '</div>';
   }
 
     function card(f){
@@ -659,7 +663,7 @@
     const description=[f.power,f.subcategory].filter(Boolean).join(' - ');
     const equipmentMode=state.shopMode==='equipment';
     const optionsUrl='product-options.html?sku='+encodeURIComponent(first.sku||'')+'&category='+encodeURIComponent(f.category);
-    const runtimeUrl='index.html?category='+encodeURIComponent(f.category)+'&sku='+encodeURIComponent(first.sku||'');
+    const runtimeUrl='index.html?category='+encodeURIComponent(f.category)+'&sku='+encodeURIComponent(first.sku||'')+'&view=runtime';
     return '<article class="market-card" data-key="'+esc(f.key)+'">'+
       '<header class="market-card-head"><h3><strong>'+esc(f.model)+'</strong>'+(description?'<span>'+esc(description)+'</span>':'')+'</h3>'+
         '<label class="market-compare-pick"><input type="checkbox" data-compare="'+esc(f.key)+'" '+(state.compare.has(f.key)?'checked':'')+'> <span>Compare</span></label>'+
@@ -679,7 +683,7 @@
           familyPriceMarkup(f)+
           (equipmentMode
             ? '<div class="market-actions"><a href="'+optionsUrl+'">'+(/battery/i.test(f.power)?'View Accessories':'View Options')+'</a>'+
-                (/battery/i.test(f.power)?'<a href="'+runtimeUrl+'">Run/Charge Times</a>':'')+
+                (/battery/i.test(f.power)?'<a href="'+runtimeUrl+'" target="_blank">Run/Charge Times</a>':'')+
               '</div>'
             : '')+
           cartMarkup(f)+
