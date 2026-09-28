@@ -396,13 +396,16 @@
     })[0]||null;
   }
 
-  function financeMarkup(f){
+  function financeOfferData(f){
     const p=bestFinanceProgram(f);
-    if(!p) return '';
+    if(!p) return null;
     const raw=num(p.APR);
     const apr=raw>0 && raw<1 ? raw*100 : raw;
     const aprLabel=apr===0 ? '0%' : apr.toFixed(2).replace(/\.00$/,'')+'%';
-    return '<div class="market-finance-badge"><strong>'+esc(aprLabel+' for '+clean(p.TermMonths)+' Months')+'</strong><span>Financing Available</span></div>';
+    return {
+      program:p,
+      label:aprLabel+' for '+clean(p.TermMonths)+' Months'
+    };
   }
 
     function engineValue(f){
@@ -665,20 +668,36 @@
     return '<div class="market-price-lines">'+rows.join('')+'</div>';
   }
 
-  function promoRibbon(f){
-    const active=(f.variants||[]).map(v=>({v,p:promoInfo(v)})).find(x=>x.p);
-    if(!active) return '';
-    const p=active.p;
-    const end=p.end ? shortDate(p.end) : '';
-    const headline=p.type==='rebate'
-      ? money(p.savings).replace(/\.00$/,'')+' Rebate'
-      : money(p.savings).replace(/\.00$/,'')+' Savings';
-    return '<div class="market-promo-ribbon">'+
-      '<span class="market-ribbon-tail market-ribbon-left"></span>'+
-      '<span class="market-ribbon-center"><strong>'+esc(headline)+'</strong>'+
-      (end?'<small>thru '+esc(end)+'</small>':'')+'</span>'+
-      '<span class="market-ribbon-tail market-ribbon-right"></span>'+
-      '</div>';
+  function offerOverlay(f){
+    const promoHit=(f.variants||[]).map(v=>({v,p:promoInfo(v)})).find(x=>x.p);
+    const finance=financeOfferData(f);
+    if(!promoHit && !finance) return '';
+
+    let promoHtml='';
+    if(promoHit){
+      const p=promoHit.p;
+      const end=p.end ? shortDate(p.end) : '';
+      const headline=p.type==='rebate'
+        ? money(p.savings).replace(/\.00$/,'')+' Rebate'
+        : money(p.savings).replace(/\.00$/,'')+' Savings';
+      promoHtml='<div class="market-offer-promo"><strong>'+esc(headline)+'</strong>'+
+        (end?'<small>thru '+esc(end)+'</small>':'')+'</div>';
+    }
+
+    let financeHtml='';
+    if(finance){
+      financeHtml='<div class="market-offer-finance"><strong>'+esc(finance.label)+'</strong><small>Financing Available</small></div>';
+    }
+
+    let joiner='';
+    if(promoHit && finance){
+      const raw=clean(finance.program.RebateCompatible);
+      const compatible=raw==='' || truthy(raw);
+      joiner='<div class="market-offer-joiner">'+(compatible?'AND':'OR')+'</div>';
+    }
+
+    return '<div class="market-offer-row'+((promoHit&&finance)?' market-offer-row-both':'')+'">'+
+      promoHtml+joiner+financeHtml+'</div>';
   }
 
     function card(f){
@@ -695,11 +714,10 @@
       '<div class="market-card-body">'+
         '<section class="market-card-left">'+
           '<div class="market-image-wrap">'+
-            promoRibbon(f)+
+            offerOverlay(f)+
             '<a class="market-image" href="'+esc(first.productUrl||f.productUrl||'#')+'" target="_blank" rel="noopener">'+
             (f.image?'<img src="'+esc(f.image)+'" alt="'+esc(f.brand+' '+f.model)+'" loading="lazy">':'<span>Image Coming Soon</span>')+
             '</a>'+
-            financeMarkup(f)+
           '</div>'+
           ((first.productUrl||f.productUrl)?'<a class="market-product-details" href="'+esc(first.productUrl||f.productUrl)+'" target="_blank" rel="noopener">View Details ↗</a>':'')+
         '</section>'+
