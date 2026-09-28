@@ -26,6 +26,7 @@
     brand: new Set(),
     availability: new Set(),
     buyOnline: false,
+    promoOnly: false,
     search: '',
     specFilters: new Map(),
     compare: new Set()
@@ -441,6 +442,7 @@
         if(!labels.some(x=>state.availability.has(x))) return false;
       }
       if(state.buyOnline && !f.buyOnline) return false;
+      if(state.promoOnly && !(f.variants||[]).some(v=>promoInfo(v))) return false;
       for(const [label, values] of state.specFilters){
         if(values.size && !values.has(clean(f.specs[label]))) return false;
       }
@@ -465,7 +467,8 @@
     tabs.innerHTML=['equipment','batteries','chargers'].map(mode=>
       '<button type="button" class="market-shop-tab'+(state.shopMode===mode?' active':'')+'" data-shop-mode="'+mode+'">'+
       (mode==='equipment'?'Equipment':mode==='batteries'?'Batteries':'Chargers')+'</button>'
-    ).join('');
+    ).join('')+
+    '<button type="button" class="market-shop-tab market-promo-tab'+(state.promoOnly?' active':'')+'" data-promo-only="1">Promos & Rebates</button>';
 
     const powerWrap=$('#market-power-wrap');
     const categoryPanel=$('#market-category-panel');
@@ -784,6 +787,8 @@
         state.category='';state.subcategory='';state.power='';state.seriesOrEngine='';state.width='';state.specFilters.clear();state.compare.clear();
         renderTopFilters();renderSidebar();filterFamilies();return;
       }
+      const promo=e.target.closest('[data-promo-only]');
+      if(promo){ state.promoOnly=!state.promoOnly; renderTopFilters(); filterFamilies(); track('marketplace_promos',{active:state.promoOnly}); return; }
       const c=e.target.closest('[data-category]');
       if(c){ state.category=c.dataset.category||''; state.subcategory=''; state.power=''; resetContext(); renderTopFilters(); renderSidebar(); filterFamilies(); track('marketplace_category',{category:state.category||'all'}); return; }
       const s=e.target.closest('[data-subcategory]');
@@ -818,7 +823,7 @@
 
     $('#market-search').addEventListener('input',e=>{ state.search=e.target.value; filterFamilies(); });
     $('#market-clear').addEventListener('click',()=>{
-      state.shopMode='equipment';state.category='';state.subcategory='';state.power='';state.seriesOrEngine='';state.width='';state.brand.clear();state.availability.clear();state.buyOnline=false;state.search='';state.specFilters.clear();
+      state.shopMode='equipment';state.category='';state.subcategory='';state.power='';state.seriesOrEngine='';state.width='';state.brand.clear();state.availability.clear();state.buyOnline=false;state.promoOnly=false;state.search='';state.specFilters.clear();
       $('#market-search').value=''; $('#filter-buy-online').checked=false;
       renderTopFilters();renderSidebar();filterFamilies();
       track('marketplace_clear_filters');
