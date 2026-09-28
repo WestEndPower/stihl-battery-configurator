@@ -441,7 +441,7 @@
       if(state.brand.size && !state.brand.has(f.brand)) return false;
       if(state.availability.size){
         const labels=[];
-        if(f.stock>0) labels.push('In Stock');
+        if(f.stock>0) labels.push('Stocked');
         else labels.push('Available to Order');
         if(!labels.some(x=>state.availability.has(x))) return false;
       }
@@ -549,7 +549,7 @@
     DATA.families=activeFamilies();
     const brands=distinct(DATA.families.map(f=>f.brand));
     $('#filter-brand').innerHTML=brands.map(b=>'<label><input type="checkbox" data-brand="'+esc(b)+'"> <span>'+esc(b)+'</span></label>').join('');
-    $('#filter-availability').innerHTML=['In Stock','Available to Order'].map(x=>'<label><input type="checkbox" data-availability="'+esc(x)+'"> <span>'+esc(x)+'</span></label>').join('');
+    $('#filter-availability').innerHTML=['Stocked','Available to Order'].map(x=>'<label><input type="checkbox" data-availability="'+esc(x)+'"> <span>'+esc(x)+'</span></label>').join('');
 
     const scoped=DATA.families.filter(f=>(!state.category||f.category===state.category)&&(!state.subcategory||f.subcategory===state.subcategory)&&(!state.power||f.power===state.power));
     const labels=new Map();
@@ -570,7 +570,7 @@
   }
 
   function availabilityText(f){
-    if(f.stock>0) return 'In Stock';
+    if(f.stock>0) return 'Stocked';
     return 'Available to Order';
   }
 
