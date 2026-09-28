@@ -404,7 +404,8 @@
     const aprLabel=apr===0 ? '0%' : apr.toFixed(2).replace(/\.00$/,'')+'%';
     return {
       program:p,
-      label:aprLabel+' for '+clean(p.TermMonths)+' Months'
+      label:aprLabel+' for '+clean(p.TermMonths),
+      sublabel:'Months Financing'
     };
   }
 
@@ -686,7 +687,7 @@
 
     let financeHtml='';
     if(finance){
-      financeHtml='<div class="market-offer-finance"><strong>'+esc(finance.label)+'</strong><small>Financing Available</small></div>';
+      financeHtml='<div class="market-offer-finance"><strong>'+esc(finance.label)+'</strong><small>'+esc(finance.sublabel)+'</small></div>';
     }
 
     let joiner='';
