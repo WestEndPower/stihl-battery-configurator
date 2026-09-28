@@ -6871,6 +6871,9 @@ const publicLinkCategory =
 const publicLinkSKU =
   clean(publicLinkParameters.get('sku'));
 
+const publicLinkView =
+  clean(publicLinkParameters.get('view')).toLowerCase();
+
 if(publicLinkCategory && $('stihl-category')){
   const categoryOption =
     Array.from($('stihl-category').options)
@@ -6977,11 +6980,16 @@ if(publicLinkSKU && $('stihl-tool-select')){
     selectTool();
 
     setTimeout(() => {
-      $('stihl-tool-details')?.scrollIntoView({
+      const runtimeTarget =
+        publicLinkView === 'runtime'
+          ? document.querySelector('#stihl-tool-details .stihl-weight-wrap')
+          : null;
+
+      (runtimeTarget || $('stihl-tool-details'))?.scrollIntoView({
         behavior:'smooth',
         block:'start'
       });
-    }, 150);
+    }, 250);
   }
 }
 
