@@ -19,6 +19,7 @@
   const state = {
     shopMode: 'equipment',
     category: '',
+    subcategory: '',
     power: '',
     seriesOrEngine: '',
     width: '',
@@ -423,6 +424,7 @@
     DATA.families=activeFamilies();
     const out=DATA.families.filter(f=>{
       if(state.category && f.category!==state.category) return false;
+      if(state.subcategory && f.subcategory!==state.subcategory) return false;
       if(state.power && f.power!==state.power) return false;
       if(state.seriesOrEngine){
         const target=/battery/i.test(state.power) ? f.system : engineValue(f);
@@ -490,9 +492,28 @@
     powerHost.innerHTML=button('All','', 'power', !state.power)+powers.map(x=>button(x,x,'power',state.power===x)).join('');
 
     const categories=distinct(DATA.equipmentFamilies.map(f=>f.category)).filter(x=>!/^batteries|chargers$/i.test(x));
-    categoryHost.innerHTML=categories.map(x=>button(x,x,'category',state.category===x)).join('');
 
-    const scoped=DATA.equipmentFamilies.filter(f=>(!state.category || f.category===state.category) && (!state.power || f.power===state.power));
+    if(state.category){
+      const subcategories=distinct(
+        DATA.equipmentFamilies
+          .filter(f=>f.category===state.category)
+          .map(f=>f.subcategory)
+      );
+      categoryHost.innerHTML=
+        '<button type="button" class="market-chip market-all-categories" data-category="">All Categories</button>'+
+        button(state.category,state.category,'category',true)+
+        subcategories.map(x=>button(x,x,'subcategory',state.subcategory===x)).join('');
+    }else{
+      categoryHost.innerHTML=
+        '<button type="button" class="market-chip market-all-categories active" data-category="">All Categories</button>'+
+        categories.map(x=>button(x,x,'category',false)).join('');
+    }
+
+    const scoped=DATA.equipmentFamilies.filter(f=>
+      (!state.category || f.category===state.category) &&
+      (!state.subcategory || f.subcategory===state.subcategory) &&
+      (!state.power || f.power===state.power)
+    );
 
     if(state.category && state.power){
       const battery=/battery/i.test(state.power);
@@ -523,7 +544,7 @@
     $('#filter-brand').innerHTML=brands.map(b=>'<label><input type="checkbox" data-brand="'+esc(b)+'"> <span>'+esc(b)+'</span></label>').join('');
     $('#filter-availability').innerHTML=['In Stock','Available to Order'].map(x=>'<label><input type="checkbox" data-availability="'+esc(x)+'"> <span>'+esc(x)+'</span></label>').join('');
 
-    const scoped=DATA.families.filter(f=>(!state.category||f.category===state.category)&&(!state.power||f.power===state.power));
+    const scoped=DATA.families.filter(f=>(!state.category||f.category===state.category)&&(!state.subcategory||f.subcategory===state.subcategory)&&(!state.power||f.power===state.power));
     const labels=new Map();
     scoped.forEach(f=>Object.entries(f.specs).slice(0,5).forEach(([l,v])=>{
       if(!l||!v||/width/i.test(l)) return;
@@ -701,6 +722,7 @@
     $('#market-result-count').textContent=DATA.filtered.length;
     const bits=[];
     if(state.category) bits.push(state.category);
+    if(state.subcategory) bits.push(state.subcategory);
     if(state.power) bits.push(state.power);
     if(state.seriesOrEngine) bits.push(state.seriesOrEngine);
     if(state.width) bits.push(state.width);
@@ -759,11 +781,13 @@
       const shop=e.target.closest('[data-shop-mode]');
       if(shop){
         state.shopMode=shop.dataset.shopMode||'equipment';
-        state.category='';state.power='';state.seriesOrEngine='';state.width='';state.specFilters.clear();state.compare.clear();
+        state.category='';state.subcategory='';state.power='';state.seriesOrEngine='';state.width='';state.specFilters.clear();state.compare.clear();
         renderTopFilters();renderSidebar();filterFamilies();return;
       }
       const c=e.target.closest('[data-category]');
-      if(c){ state.category=c.dataset.category||''; state.power=''; resetContext(); renderTopFilters(); renderSidebar(); filterFamilies(); track('marketplace_category',{category:state.category||'all'}); return; }
+      if(c){ state.category=c.dataset.category||''; state.subcategory=''; state.power=''; resetContext(); renderTopFilters(); renderSidebar(); filterFamilies(); track('marketplace_category',{category:state.category||'all'}); return; }
+      const s=e.target.closest('[data-subcategory]');
+      if(s){ const v=s.dataset.subcategory||''; state.subcategory=state.subcategory===v?'':v; state.seriesOrEngine='';state.width='';state.specFilters.clear(); renderTopFilters(); renderSidebar(); filterFamilies(); track('marketplace_subcategory',{subcategory:state.subcategory||'all'}); return; }
       const p=e.target.closest('[data-power]');
       if(p){ const v=p.dataset.power||''; state.power=state.power===v?'':v; resetContext(); renderTopFilters(); renderSidebar(); filterFamilies(); track('marketplace_power',{power:state.power||'all'}); return; }
       const x=e.target.closest('[data-context]');
@@ -794,7 +818,7 @@
 
     $('#market-search').addEventListener('input',e=>{ state.search=e.target.value; filterFamilies(); });
     $('#market-clear').addEventListener('click',()=>{
-      state.shopMode='equipment';state.category='';state.power='';state.seriesOrEngine='';state.width='';state.brand.clear();state.availability.clear();state.buyOnline=false;state.search='';state.specFilters.clear();
+      state.shopMode='equipment';state.category='';state.subcategory='';state.power='';state.seriesOrEngine='';state.width='';state.brand.clear();state.availability.clear();state.buyOnline=false;state.search='';state.specFilters.clear();
       $('#market-search').value=''; $('#filter-buy-online').checked=false;
       renderTopFilters();renderSidebar();filterFamilies();
       track('marketplace_clear_filters');
