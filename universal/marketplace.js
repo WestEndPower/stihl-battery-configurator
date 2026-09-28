@@ -773,7 +773,7 @@
   function updateCompareButton(){
     const b=$('#market-compare-float');
     const n=state.compare.size;
-    b.textContent=n ? 'Compare Selected ('+n+')' : 'Compare Visible ('+DATA.filtered.length+')';
+    b.textContent=n ? 'Compare '+n+' Selected' : 'Compare '+DATA.filtered.length+' Products';
     b.disabled=n ? n<2 : DATA.filtered.length<2;
   }
 
