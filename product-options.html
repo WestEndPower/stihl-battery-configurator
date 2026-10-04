@@ -114,10 +114,10 @@ async function init(){
   const prts=compatibleRows(parts,sku);
   const name=clean(product.Model)||clean(product.Description)||sku;
   const base=currentPrice(product);
-  const kit=clean(product.ProductType).toLowerCase()==='kit';
+  const kit=['kit','package'].includes(clean(product.ProductType).toLowerCase());
   const included=kit?clean(product.Description):'';
   $('app').innerHTML=
-   '<section class="hero"><div class="media">'+img(product,name)+'</div><div><div class="eyebrow">'+esc([product.PowerType,product.SubCategory].filter(Boolean).join(' · '))+'</div><h1>'+esc(name)+'</h1><p>'+esc(product.Description)+'</p><p class="price">'+fmt(base)+'</p><p><strong>SKU:</strong> '+esc(sku)+'</p>'+(included?'<div class="included"><strong>Selected factory kit:</strong> '+esc(included)+'</div>':'')+'</div></section>'+
+   '<section class="hero"><div class="media">'+img(product,name)+'</div><div><div class="eyebrow">'+esc([product.PowerType,product.SubCategory].filter(Boolean).join(' · '))+'</div><h1>'+esc(name)+'</h1><p>'+esc(product.Description)+'</p><p class="price">'+fmt(base)+'</p><p><strong>SKU:</strong> '+esc(sku)+'</p>'+(included?'<div class="included"><strong>Selected package:</strong> '+esc(included)+'</div>':'')+'</div></section>'+
    optionSection('Additional Battery(s)',bats,'battery')+
    optionSection('Additional Charger(s)',chgs,'charger')+
    optionSection('Compatible Attachments',atts,'attachment')+

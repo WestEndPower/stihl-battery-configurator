@@ -577,7 +577,7 @@
   function cartMarkup(f){
     const eligible=f.variants.filter(v=>v.buyOnline && v.price>0);
     if(!eligible.length) return '';
-    const options=eligible.map((v,i)=>'<option value="'+esc(v.sku+'|'+f.variants.indexOf(v))+'">'+esc((/kit|package/i.test(v.type)?'Package':'Tool Only')+' — '+money(v.price))+'</option>').join('');
+    const options=eligible.map((v,i)=>'<option value="'+esc(v.sku+'|'+f.variants.indexOf(v))+'">'+esc((/kit|package/i.test(v.type)?'Package':'Unit')+' — '+money(v.price))+'</option>').join('');
     return '<div class="market-cart-controls">'+
       '<select data-cart-variant="'+esc(f.key)+'" aria-label="Choose Purchase Option"><option value="" selected disabled>Choose Purchase Option</option>'+options+'</select>'+
       '<input data-cart-qty="'+esc(f.key)+'" type="number" min="1" max="99" value="1" aria-label="Quantity">'+
@@ -606,7 +606,7 @@
 
     if(v.recommendedPackage && Array.isArray(v.packageItems)){
       const componentTotal=v.packageItems.reduce((sum,x)=>sum+(Number(x.price)||0)*(Number(x.quantity)||1),0);
-      addLine(v.sku,f.model+' — Tool Only',qty,Math.max(0,v.price-componentTotal));
+      addLine(v.sku,f.model+' — Unit',qty,Math.max(0,v.price-componentTotal));
       v.packageItems.forEach(x=>addLine(x.sku,x.name,qty*(Number(x.quantity)||1),Number(x.price)||0));
     }else{
       addLine(v.sku,v.description||f.brand+' '+f.model,qty,v.price);
@@ -663,7 +663,7 @@
     const tool=f.variants.find(v=>!/kit|package/i.test(v.type));
     const kit=f.variants.find(v=>/kit|package/i.test(v.type));
     const rows=[];
-    if(tool) rows.push(pricePanel('Tool Only',tool,false,f));
+    if(tool) rows.push(pricePanel('Unit',tool,false,f));
     if(kit) rows.push(pricePanel('Package',kit,true,f));
     if(!rows.length && f.variants[0]) rows.push(pricePanel('Price',f.variants[0],false,f));
     return '<div class="market-price-lines">'+rows.join('')+'</div>';
