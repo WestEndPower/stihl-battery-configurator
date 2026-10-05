@@ -1,6 +1,7 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$Repository = "C:\NMWEPE\GitHub\stihl configurator\stihl-battery-configurator",
+    [string]$MarketplaceRepository = "C:\NMWEPE\GitHub\westendpower-marketplace-public",
     [switch]$Apply,
     [switch]$Interactive,
     [switch]$Notify,
@@ -8,6 +9,10 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$appliedPath = Join-Path $Repository "STIHL-Crawl-Applied.tsv"
+Remove-Item -LiteralPath $appliedPath -Force -ErrorAction SilentlyContinue
+
+. (Join-Path $PSScriptRoot "STIHL-Publish-Common.ps1")
 
 $productsPath = Join-Path $Repository "data\products.csv"
 $reportPath = Join-Path $Repository "WestEnd-STIHL-Catalog-Report.csv"
@@ -68,15 +73,12 @@ const models = JSON.parse(fs.readFileSync(modelPath, 'utf8'));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function norm(s) {
-  return String(s || '')
-    .toLowerCase()
-    .replace(/ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â®|ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢/g, '')
-    .replace(/[^a-z0-9]+/g, '');
+  return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
-const modelRows = models
-  .map(m => ({model:m, key:norm(m)}))
-  .filter(x => x.key)
-  .sort((a,b) => b.key.length - a.key.length);
+const modelRows = models.map(model => {
+  const tokens = String(model).toLowerCase().match(/[a-z]+|[0-9]+/g) || [];
+  return {model, key:tokens.join(''), test:new RegExp('(?:^|\\s)' + tokens.join('\\s*') + '(?=\\s|$)')};
+}).filter(x => x.key).sort((a,b) => b.key.length - a.key.length);
 
 async function getJson(url, attempts = 60) {
   for (let i = 0; i < attempts; i++) {
@@ -130,7 +132,7 @@ async function load(cdp, url) {
 
 function chooseMatches(url, text) {
   const source = norm(decodeURIComponent(new URL(url).pathname) + ' ' + (text || ''));
-  const matches = modelRows.filter(x => source.includes(x.key));
+  const matches = modelRows.filter(x => x.test.test(source));
   if (!matches.length) return [];
   const longest = matches[0].key.length;
   return matches.filter(x => x.key.length === longest).map(x => x.model);
@@ -179,7 +181,7 @@ function chooseMatches(url, text) {
 
 try {
     [IO.File]::WriteAllText($nodePath, $nodeSource, [Text.UTF8Encoding]::new($false))
-    [IO.File]::WriteAllText($modelPath, ($models | ConvertTo-Json), [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText($modelPath, (ConvertTo-Json -InputObject @($models)), [Text.UTF8Encoding]::new($false))
 
     $edge = Get-EdgePath
     Write-Host "WEST END STIHL CATALOG COLLECTOR" -ForegroundColor Cyan
@@ -212,21 +214,15 @@ try {
         $status = if ($active) { "Missing" } else { "Inactive" }
 
         if ($active -and $urls.Count -ge 1) {
-            $rankedUrls = @(
-                $urls | Sort-Object -Property @{
-                    Expression = {
-                        if ($_ -match '(\d+)b/?$') { [long]$matches[1] } else { 0 }
-                    }
-                } -Descending
-            )
-            $resolved = $rankedUrls[0]
-            if ($resolved -eq $current) { $status = "Unchanged" }
-            elseif (-not $current) { $status = "New" }
-            else { $status = "Changed" }
+            if ($current -and $urls -contains $current) { $status = "Unchanged" }
+            elseif ($urls.Count -eq 1) {
+                $resolved = [string]$urls[0]
+                $status = if ($current) { "Changed" } else { "New" }
+            } else { $status = "Ambiguous" }
         }
         elseif ($active) {
-            $resolved = ""
-            $status = if ($current) { "Removed" } else { "Missing" }
+            # An unmatched scan does not establish that an existing URL is invalid.
+            $status = if ($current) { "KeptExisting" } else { "Missing" }
         }
 
         if ($resolved -ne $current) { $changes++ }
@@ -255,7 +251,8 @@ Dealer Spike STIHL catalog scan complete
 
 New links: $($counts['New'])
 Changed links: $($counts['Changed'])
-Removed links: $($counts['Removed'])
+Existing links preserved: $($counts['KeptExisting'])
+Ambiguous matches preserved: $($counts['Ambiguous'])
 Unchanged links: $($counts['Unchanged'])
 Still missing: $($counts['Missing'])
 Inactive: $($counts['Inactive'])
@@ -276,6 +273,7 @@ Proposed changes: $changes
     }
 
     if ($applyNow -and $changes -gt 0) {
+        Assert-MarketplaceReady -MarketplaceRepository $MarketplaceRepository
         $backup = "$productsPath.before-dealerspike-catalog-links"
         Copy-Item -LiteralPath $productsPath -Destination $backup -Force
         foreach ($product in $products) {
@@ -283,6 +281,15 @@ Proposed changes: $changes
             if ($sku -and $proposedBySku.ContainsKey($sku)) { $product.ProductURL = $proposedBySku[$sku] }
         }
         Write-CsvNoBom $products $productsPath
+        $appliedRows = @($report | Where-Object { $_.Status -in @("New", "Changed") })
+        foreach ($row in $appliedRows) {
+            if ($row.SKU -match "[\t\r\n]" -or $row.NewProductURL -match "[\t\r\n]") {
+                throw "Unexpected tab or newline in applied link data."
+            }
+        }
+        $lines = @($appliedRows | ForEach-Object { $_.SKU + "`t" + $_.NewProductURL })
+        [IO.File]::WriteAllText($appliedPath, (($lines -join "`r`n") + "`r`n"), [Text.UTF8Encoding]::new($false))
+        Sync-STIHLMarketplace -Repository $Repository -MarketplaceRepository $MarketplaceRepository
         Write-Host "Backup: $backup"
     } else {
         Write-Host "`nREPORT ONLY: products.csv was not changed." -ForegroundColor Yellow
@@ -311,3 +318,6 @@ Proposed changes: $changes
 finally {
     Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
 }
+
+# Explicit success for the waiting workbook macro.
+exit 0
