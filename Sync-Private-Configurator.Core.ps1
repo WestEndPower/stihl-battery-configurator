@@ -1,4 +1,6 @@
-﻿$ErrorActionPreference = "Stop"
+# STIHL-SYNC-ERROR-VISIBILITY
+try {
+$ErrorActionPreference = "Stop"
 
 $api =
     "https://westendpower-configurator-api.westendpower-nm.workers.dev"
@@ -97,3 +99,12 @@ Write-Host ""
 Write-Host `
     "PRIVATE CONFIGURATOR D1 SYNC COMPLETE" `
     -ForegroundColor Green
+
+}
+catch {
+    Write-Host ""
+    Write-Host "STIHL PRIVATE SYNC FAILED" -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
+    Read-Host "Press Enter after noting the error"
+    exit 1
+}
