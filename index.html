@@ -6998,6 +6998,49 @@ if(publicLinkSKU && $('stihl-tool-select')){
   It renders the selected product directly in this browser tab so
   Microsoft Edge can save the finished page as a PDF.
 */
+// WEST-END-FAST-PRICE-TAG-PUBLISHER-V1
+// Opt-in, loopback-only automation. Normal printing is unchanged.
+if (
+  new URLSearchParams(window.location.search).get('priceTagPublisher') === '1' &&
+  ['127.0.0.1', 'localhost', '[::1]'].includes(window.location.hostname) &&
+  configuratorBrandId().toUpperCase() === 'STIHL'
+) {
+  let publisherBusy = false;
+  window.WestEndPriceTagPublisher = Object.freeze({
+    version: 1,
+    async render(sku) {
+      if (publisherBusy) throw new Error('A price tag is already being generated.');
+      const tool = state.tools.find(item =>
+        clean(skuOf(item)).toUpperCase() === clean(sku).toUpperCase()
+      );
+      if (!tool) throw new Error(`Price-tag product not found: ${sku}`);
+      publisherBusy = true;
+      const previousTool = state.selectedTool;
+      let html = '';
+      const outputWindow = {
+        document: {
+          open() { html = ''; },
+          write(value) { html += value; },
+          close() {}
+        },
+        focus() {}
+      };
+      try {
+        state.selectedTool = tool;
+        await printPriceTag(outputWindow);
+        if (!html.includes('class="tag-sheet"')) {
+          throw new Error('The price-tag function returned no finished tag.');
+        }
+        return { sku: clean(skuOf(tool)), html };
+      } finally {
+        state.selectedTool = previousTool;
+        publisherBusy = false;
+      }
+    }
+  });
+}
+
+
 const batchParameters =
   new URLSearchParams(window.location.search);
 
@@ -13062,7 +13105,7 @@ const runtimeFootnote =
             Current Factory Offers
             ${
               data.validThrough
-                ? ` â€¢ Valid Through ${escapeHtml(data.validThrough)}`
+                ? ` &bull; Valid Through ${escapeHtml(data.validThrough)}`
                 : ''
             }
           </div>
