@@ -1921,6 +1921,7 @@ body.dealer-mode .dealer-only{
   </select>
 </div>
 
+</div> <!-- closes dealer pricing panel; customer actions follow -->
           <div class="stihl-btn-row">
   <button class="stihl-btn secondary" id="stihl-view-quote" type="button">
     Review Quote
@@ -15025,11 +15026,11 @@ function assemblyOptionIsValid(item){
 }
 
 function assemblyIsMandatory(item){
-  return assemblyOptionCode(item) === 'T';
+  return assemblyOptionCode(item) === 'F';
 }
 
 function assemblyIsOptional(item){
-  return assemblyOptionCode(item) === 'F';
+  return assemblyOptionCode(item) === 'T';
 }
 
 function setupChargeApplies(line){
@@ -20982,7 +20983,7 @@ ${packageFreightNotice ? `
         white-space:nowrap;
         text-align:right;
       ">
-        ${fmtMoney(packageMSRP)}
+        ${Number(line.qty)>1 ? "Unit: "+fmtMoney(packageFinalPrice / (Number(line.qty)||1)) : packageDisplayedSavings>0 ? "MSRP: "+fmtMoney(packageMSRP) : ""}
       </span>
 
       ${packageDisplayedSavings > 0
@@ -20993,7 +20994,7 @@ ${packageFreightNotice ? `
             white-space:nowrap;
             text-align:right;
           ">
-            -${fmtMoney(packageDisplayedSavings)}
+            Savings: -${fmtMoney(packageDisplayedSavings)}
           </span>
         `
         : `<span></span>`
@@ -21005,7 +21006,7 @@ ${packageFreightNotice ? `
         white-space:nowrap;
         text-align:right;
       ">
-        ${fmtMoney(packageFinalPrice)}
+        ${Number(line.qty)>1 ? "Total: " : ""}${fmtMoney(packageFinalPrice)}
       </strong>
     `
   }
@@ -25508,6 +25509,55 @@ function bindDealerMode(){
   $("stihl-webpage-modal")?.addEventListener("click",event=>{if(event.target===$("stihl-webpage-modal")) $("stihl-webpage-modal").style.display='none';});
 
 }
+async function importSTIHLMarketplacePackage(){
+  const query=new URLSearchParams(window.location.search);
+  if(query.get('from')!=='marketplace'||!query.has('package'))return;
+  const notice=(message,error=false)=>{
+    let box=$('wep-stihl-package-status');
+    if(!box){box=document.createElement('p');box.id='wep-stihl-package-status';box.setAttribute('role','status');$('stihl-view-quote').parentElement.before(box);}
+    box.className=error?'stihl-error':'stihl-note';box.textContent=message;
+  };
+  try{
+    const spec=JSON.parse(query.get('package'));
+    if(!spec||clean(spec.brandId).toUpperCase()!=='STIHL'||!Array.isArray(spec.items)||!spec.items.length||spec.items.length>50)throw new Error('Invalid STIHL package.');
+    if(state.cart.length)throw new Error('Start with an empty configuration to import this package.');
+    const key=value=>clean(value).toUpperCase();
+    const quantity=value=>{const n=Number(value);if(!Number.isInteger(n)||n<1||n>20)throw new Error('Choose whole quantities from 1 to 20.');return n;};
+    const setupChoice=row=>{if(row.setupSelected===undefined)return undefined;if(typeof row.setupSelected!=='boolean')throw new Error('Invalid installation selection.');return row.setupSelected;};
+    const active=item=>item&&(!clean(item.Active)||isTrue(item.Active));
+    const mains=spec.items.filter(row=>row&&row.type==='tool');
+    if(mains.length!==1||key(mains[0].sku)!==key(spec.sku))throw new Error('Select exactly one equipment SKU.');
+    const main=state.tools.find(item=>key(skuOf(item))===key(spec.sku));
+    if(!active(main)||priceOf(main)<=0)throw new Error('Equipment is unavailable or requires store pricing.');
+    const mainQty=quantity(mains[0].qty),mainSetup=setupChoice(mains[0]);
+    const catalogs={battery:state.batteries,charger:state.chargers,attachment:state.attachments,accessory:state.accessories,part:state.parts};
+    const seen=new Set();
+    const extras=spec.items.filter(row=>row!==mains[0]).map(row=>{
+      if(!row||!Object.prototype.hasOwnProperty.call(catalogs,row.type))throw new Error('Unsupported option type.');
+      const item=catalogs[row.type].find(item=>[skuOf(item),item.StihlID,item.SKU,item.BatteryID,item.ChargerID].some(id=>key(id)&&key(id)===key(row.sku)));
+      if(!item)throw new Error('Option SKU not found in configurator: '+clean(row.sku));
+      const id=row.type+'|'+key(skuOf(item));if(seen.has(id))throw new Error('Duplicate option SKU.');seen.add(id);
+      if(!active(item)||priceOf(item)<=0)throw new Error('Option unavailable or requires store pricing: '+clean(row.sku));
+      if(row.type==='battery'&&!compatibleBatteryCodes(main).some(code=>key(code)===key(item.BatteryID)||key(code)===key(skuOf(item))))throw new Error('Battery is no longer compatible.');
+      if(row.type==='charger'&&!compatibleChargers(main).some(charger=>key(skuOf(charger))===key(skuOf(item))))throw new Error('Charger is no longer compatible.');
+      if(['attachment','accessory','part'].includes(row.type)&&!isTrue(item[skuOf(main)]))throw new Error('Option is no longer compatible.');
+      return {type:row.type,item,qty:quantity(row.qty),setupSelected:setupChoice(row)};
+    });
+    const applySetup=(type,item,choice)=>state.cart.filter(line=>line.type===type&&key(skuOf(line.item))===key(skuOf(item))&&!line.included).forEach(line=>{
+      if(assemblyIsMandatory(line.item))line.setupSelected=true;
+      else if(assemblyIsOptional(line.item)&&choice!==undefined)line.setupSelected=choice;
+    });
+    if($('stihl-category'))$('stihl-category').value=clean(main.Category);
+    renderTools();$('stihl-tool-select').value=skuOf(main);selectTool();$('stihl-tool-qty').value=mainQty;
+    await addToolToQuote();
+    if(!state.cart.some(line=>line.type==='tool'&&key(skuOf(line.item))===key(skuOf(main))))throw new Error('Equipment was not added. Review your selections and try again.');
+    applySetup('tool',main,mainSetup);
+    extras.forEach(row=>{addItem(row.type,row.item,row.qty,'Marketplace selection');applySetup(row.type,row.item,row.setupSelected);});
+    renderDeliveryOptions();renderAllOptions();renderCart();
+    notice('Your Marketplace package is ready. Review quantities, installation, pickup or delivery, and payment, then select Review Quote.');
+  }catch(error){notice('Marketplace package needs review: '+error.message,true);}
+}
+
     async function startConfigurator(){
 
     const searchInput = $('stihl-search');
@@ -25602,6 +25652,7 @@ function bindDealerMode(){
     await init();
 
     bindDealerMode();
+    await importSTIHLMarketplacePackage();
 
   }catch(error){
 
@@ -25657,3 +25708,7 @@ if(
   <script src="universal/webpage-commerce-extension.js"></script>
 </body>
 </html>
+
+<!-- WEP_STIHL_MARKETPLACE_PACKAGE_V1 -->
+
+<!-- WEP_UNIT_AND_TOTAL_PRICE_V1 -->
