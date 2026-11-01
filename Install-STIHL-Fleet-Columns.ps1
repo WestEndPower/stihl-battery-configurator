@@ -5,12 +5,14 @@ $ErrorActionPreference = 'Stop'
 $fields = @('FleetEligible', 'FleetRebateProgram', 'FleetTier1Discount', 'FleetTier1Rebate', 'FleetTier2Discount', 'FleetTier2Rebate', 'FleetPoints')
 $targets = [ordered]@{ products = 'tblProducts'; attachments = 'tblAttachments'; accessories = 'tblAccessories'; parts = 'tblParts' }
 
-function Get-Headers($Sheet) {
+function Get-Headers($Sheet, [string[]]$WantedHeaders) {
     $result = @{}
     $last = [int]$Sheet.Cells.Item(1, $Sheet.Columns.Count).End(-4159).Column
     for ($col = 1; $col -le $last; $col++) {
         $name = ([string]$Sheet.Cells.Item(1, $col).Value2).Trim()
-        if ($name) {
+        # Master has repeated report headings (for example, Actual). Only the
+        # seven source columns being linked must have unambiguous headers.
+        if ($name -and $name -in $WantedHeaders) {
             if ($result.ContainsKey($name)) { throw "Duplicate header '$name' in $($Sheet.Name)." }
             $result[$name] = $col
         }
@@ -52,7 +54,7 @@ try {
     $book = $excel.Workbooks.Open($Workbook, 0, $false)
     if ($book.ReadOnly) { throw 'Workbook is open or read-only. Close it in Excel and run this installer again.' }
     $master = $book.Worksheets.Item('STIHL Master')
-    $headers = Get-Headers $master
+    $headers = Get-Headers $master $fields
     foreach ($name in $fields) {
         if (-not $headers.ContainsKey($name)) { throw "STIHL Master is missing '$name'. Nothing changed." }
     }
