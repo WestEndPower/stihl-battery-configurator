@@ -1,6 +1,6 @@
 {
-  "collectedAt": "2026-09-20T13:45:58.591Z",
-  "pagesScanned": 77,
+  "collectedAt": "2026-11-01T18:39:28.893Z",
+  "pagesScanned": 76,
   "products": {
     "AZA 748": [
       "https://www.westendpower.com/new-models/stihl-aza-748-stand-on-zero-turn-mower-29380920b"
@@ -407,10 +407,7 @@
     "MS 151 C-E": [
       "https://www.westendpower.com/new-models/stihl-ms-151-c-e-gasoline-chainsaw-29381779b"
     ],
-    "MS 151 TC-E": [
-      "https://www.westendpower.com/new-models/stihl-ms-151-t-c-e-10-71-pm3-56-29381769b",
-      "https://www.westendpower.com/new-models/stihl-ms-151-t-c-e-12-71-pm3-64-29381776b"
-    ],
+    "MS 151 TC-E": [],
     "MS 162": [
       "https://www.westendpower.com/new-models/stihl-ms-162-gasoline-chainsaw-29381522b"
     ],
@@ -523,7 +520,13 @@
       "https://www.westendpower.com/new-models/stihl-ms-362-r-20-33-rs3-72-gasoline-chainsaw-29383022b",
       "https://www.westendpower.com/new-models/stihl-ms-362-r-25-33-rs3-84-gasoline-chainsaw-29383023b",
       "https://www.westendpower.com/new-models/stihl-ms-362-r-25-33-rs3-84-gasoline-chainsaw-29383045b",
-      "https://www.westendpower.com/new-models/stihl-ms-362-r-25-33-rs3-84-gasoline-chainsaw-29383049b"
+      "https://www.westendpower.com/new-models/stihl-ms-362-r-25-33-rs3-84-gasoline-chainsaw-29383049b",
+      "https://www.westendpower.com/new-models/stihl-ms-362-r-c-m-18-bar-rapid-super-38-33-rs3-66-29383009b",
+      "https://www.westendpower.com/new-models/stihl-ms-362-r-c-m-20-bar-r-rapid-super-38-33-rs3-29383013b",
+      "https://www.westendpower.com/new-models/stihl-ms-362-r-c-m-20-bar-s-rapid-super-38-33-rs3-29383019b",
+      "https://www.westendpower.com/new-models/stihl-ms-362-r-c-m-25-bar-rapid-micro-38-33-rm3-84-29383018b",
+      "https://www.westendpower.com/new-models/stihl-ms-362-r-c-m-25-bar-rapid-super-38-33-rs-84-29383015b",
+      "https://www.westendpower.com/new-models/stihl-ms-362-r-c-m-25-bar-rapid-super-38-33-rs3-84-29383020b"
     ],
     "MS 362 C-M": [
       "https://www.westendpower.com/new-models/stihl-ms-362-c-m-18-33-rs3-66-gasoline-chainsaw-29382941b",
@@ -534,14 +537,7 @@
       "https://www.westendpower.com/new-models/stihl-ms-362-c-m-chainsaw-20-29388084b",
       "https://www.westendpower.com/new-models/stihl-ms-362-c-m-r-wrap-chain-saw-20-29388093b"
     ],
-    "MS 362 RC-M": [
-      "https://www.westendpower.com/new-models/stihl-ms-362-r-c-m-18-bar-rapid-super-38-33-rs3-66-29383009b",
-      "https://www.westendpower.com/new-models/stihl-ms-362-r-c-m-20-bar-r-rapid-super-38-33-rs3-29383013b",
-      "https://www.westendpower.com/new-models/stihl-ms-362-r-c-m-20-bar-s-rapid-super-38-33-rs3-29383019b",
-      "https://www.westendpower.com/new-models/stihl-ms-362-r-c-m-25-bar-rapid-micro-38-33-rm3-84-29383018b",
-      "https://www.westendpower.com/new-models/stihl-ms-362-r-c-m-25-bar-rapid-super-38-33-rs-84-29383015b",
-      "https://www.westendpower.com/new-models/stihl-ms-362-r-c-m-25-bar-rapid-super-38-33-rs3-84-29383020b"
-    ],
+    "MS 362 RC-M": [],
     "MS 391": [
       "https://www.westendpower.com/new-models/stihl-ms-391-18-bar-rapid-super-38-33-rs3-60-29383050b",
       "https://www.westendpower.com/new-models/stihl-ms-391-20-bar-rapid-micro-38-33-rm-72-29383072b",
@@ -551,18 +547,7 @@
       "https://www.westendpower.com/new-models/stihl-ms-391-25-bar-rapid-super-38-33-rs3-84-29383063b"
     ],
     "MS 400 C-M": [
-      "https://www.westendpower.com/new-models/stihl-ms-400-c-m-29383126b",
-      "https://www.westendpower.com/new-models/stihl-ms-400-c-m18-bar-rapid-super38-33-rs3-66-29383083b",
-      "https://www.westendpower.com/new-models/stihl-ms-400-c-m20-bar-rapid-micro38-33-rm3-72-29383122b",
-      "https://www.westendpower.com/new-models/stihl-ms-400-c-m20-barr-rapid-super38-33-rs3-72-29383076b",
-      "https://www.westendpower.com/new-models/stihl-ms-400-c-m20-bars-rapid-super38-33-rs3-72-29383085b",
-      "https://www.westendpower.com/new-models/stihl-ms-400-c-m20-lw-bar-rapid-super38-33-rs3-72-29383119b",
-      "https://www.westendpower.com/new-models/stihl-ms-400-c-m25-bar-rapid-hexa38-33-rh-84-29383144b",
-      "https://www.westendpower.com/new-models/stihl-ms-400-c-m25-bar-rapid-hexa38-33-rh3-84-29383161b",
-      "https://www.westendpower.com/new-models/stihl-ms-400-c-m25-bar-rapid-super38-33-rs-84-29383127b",
-      "https://www.westendpower.com/new-models/stihl-ms-400-c-m25-bar-rapid-super38-33-rs3-84-29383080b",
-      "https://www.westendpower.com/new-models/stihl-ms-400-c-m25-lw-bar-rapid-hexa38-33-rh-84-29383147b",
-      "https://www.westendpower.com/new-models/stihl-ms-400-c-m25-lw-bar-rapid-super38-33-rs3-84-29383134b"
+      "https://www.westendpower.com/new-models/stihl-ms-400-c-m-29383126b"
     ],
     "MS 462": [
       "https://www.westendpower.com/new-models/stihl-ms-462-18-bar-rapid-super-38-33-rs-66-29384008b",
@@ -664,9 +649,7 @@
       "https://www.westendpower.com/new-models/stihl-ms-500i-28-bar-rapid-super-38-33-rs-91-29384302b",
       "https://www.westendpower.com/new-models/stihl-ms-500i-28-lw-bar-rapid-super-38-33-rs-91-29384303b",
       "https://www.westendpower.com/new-models/stihl-ms-500i-32-lw-bar-rapid-super-38-33-rs-105-29384305b",
-      "https://www.westendpower.com/new-models/stihl-ms-500i-36-lw-bar-rapid-super-38-33-rs-114-29384308b"
-    ],
-    "MS 500 iR": [
+      "https://www.westendpower.com/new-models/stihl-ms-500i-36-lw-bar-rapid-super-38-33-rs-114-29384308b",
       "https://www.westendpower.com/new-models/stihl-ms-500i-r-18-rapid-super-38-33-rs-66-29384314b",
       "https://www.westendpower.com/new-models/stihl-ms-500i-r-20-rapid-super-38-33-rs-72-29384315b",
       "https://www.westendpower.com/new-models/stihl-ms-500i-r-25-lw-rapid-super-38-33-rs-84-29384847b",
@@ -681,6 +664,7 @@
       "https://www.westendpower.com/new-models/stihl-ms-500i-r-36-lw-rapid-super-38-33-rsf-114-29384845b",
       "https://www.westendpower.com/new-models/stihl-ms-500i-r-36-lw-rapid-super-38-36-rslf-114-29384831b"
     ],
+    "MS 500 iR": [],
     "MS 661": [
       "https://www.westendpower.com/new-models/stihl-ms-661-magnum-18-rapid-super-38-33-rs-66-29384851b",
       "https://www.westendpower.com/new-models/stihl-ms-661-magnum-20-rapid-super-38-33-rs-72-29384893b",
@@ -708,19 +692,6 @@
       "https://www.westendpower.com/new-models/stihl-ms661c-m-magnum-36lw-rapid-super38-33-rs-114-29384969b"
     ],
     "MS 661 R": [
-      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-18-rapid-super-38-33-rs-66-29385060b",
-      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-20-rapid-super-38-33-rs-72-29385067b",
-      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-25-rapid-33-rs-84-29385648b",
-      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-25-rapid-super-38-33-rs-84-29385068b",
-      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-25-rapid-super-38-33-rs3-84-29385069b",
-      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-28-lw-rapid-super-3833-rs-91-29385070b",
-      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-28-rapid-33-rs-91-29385073b",
-      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-32-lw-rapid-33-rs-105-29385071b",
-      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-32-rapid-33-rs-105-29385640b",
-      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-36-lw-rapid-33-rs-114-29385072b",
-      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-36-rapid-33-rs-114-29385645b"
-    ],
-    "MS 661 RC-M": [
       "https://www.westendpower.com/new-models/stihl-ms-661-r-c-m-magnum-18-rapid-33-rs-66-29385031b",
       "https://www.westendpower.com/new-models/stihl-ms-661-r-c-m-magnum-20-rapid-33-rs-72-29385033b",
       "https://www.westendpower.com/new-models/stihl-ms-661-r-c-m-magnum-25-lw-rapid-33-rs-84-29385058b",
@@ -735,8 +706,20 @@
       "https://www.westendpower.com/new-models/stihl-ms-661-r-c-m-magnum-36-lw-rapid-33-rs-114-29385050b",
       "https://www.westendpower.com/new-models/stihl-ms-661-r-c-m-magnum-36-rapid-33-rs-114-29384987b",
       "https://www.westendpower.com/new-models/stihl-ms-661-r-c-m-magnum-36-rapid-33-rslf-114-29385057b",
-      "https://www.westendpower.com/new-models/stihl-ms-661-r-c-m-magnum-36-rapid-36-rslf-114-29385027b"
+      "https://www.westendpower.com/new-models/stihl-ms-661-r-c-m-magnum-36-rapid-36-rslf-114-29385027b",
+      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-18-rapid-super-38-33-rs-66-29385060b",
+      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-20-rapid-super-38-33-rs-72-29385067b",
+      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-25-rapid-33-rs-84-29385648b",
+      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-25-rapid-super-38-33-rs-84-29385068b",
+      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-25-rapid-super-38-33-rs3-84-29385069b",
+      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-28-lw-rapid-super-3833-rs-91-29385070b",
+      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-28-rapid-33-rs-91-29385073b",
+      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-32-lw-rapid-33-rs-105-29385071b",
+      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-32-rapid-33-rs-105-29385640b",
+      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-36-lw-rapid-33-rs-114-29385072b",
+      "https://www.westendpower.com/new-models/stihl-ms-661-r-magnum-36-rapid-33-rs-114-29385645b"
     ],
+    "MS 661 RC-M": [],
     "MS 881": [
       "https://www.westendpower.com/new-models/stihl-ms-881-magnum-25-rapid-super-040446-rs-80-29385655b",
       "https://www.westendpower.com/new-models/stihl-ms-881-magnum-36-rapid-super-040446-rs-108-29385650b",
@@ -779,8 +762,7 @@
       "https://www.westendpower.com/new-models/stihl-msa-300-c-o-20-battery-powered-chainsaw-29382461b"
     ],
     "MSA 60 C-B": [
-      "https://www.westendpower.com/new-models/stihl-msa-60-c-b-set-wbattery-charger-chainsaw-29381600b",
-      "https://www.westendpower.com/new-models/stihl-msa-60-c-bq-set-29387754b"
+      "https://www.westendpower.com/new-models/stihl-msa-60-c-b-set-wbattery-charger-chainsaw-29381600b"
     ],
     "MSA 70 C-B": [
       "https://www.westendpower.com/new-models/stihl-msa-70-c-b-set-wak-30-battery-powered-chainsaw-29381562b",
@@ -793,7 +775,6 @@
     "MSE 170 C-BQ": [],
     "MSE 250 C-Q": [],
     "PS 1": [
-      "https://www.westendpower.com/new-models/stihl-ps-10-folding-hand-saw-29386389b",
       "https://www.westendpower.com/new-models/stihl-ps-10-power-29398080b"
     ],
     "PS 2000": [],
