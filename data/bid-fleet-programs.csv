@@ -1,6 +1,6 @@
-﻿Active,AppliesToCategory,AppliesToFleetGroup,AppliesToSKU,ApplyToLineItemPrices,BrandID,CustomerDiscountBasis,CustomerDiscountAmount,CustomerDiscountPercent,EligibilityBasis,ExcludeFinancing,ExcludePromotions,MinimumSpend,MinimumUnits,ProgramID,ProgramName,ProgramType,QualifyingCategory,QualifyingFleetGroup,RuleID,RuleName,SalePriceOrMSRP,StartDate,EndDate,SortOrder,Tier,Notes,RZ560,RZ700,RZ900,AZA700
-T,,,,T,STIHL,Fixed,,,MinimumSpend,F,T,2500,,STIHL-FLEET,STIHL Fleet Program,Fleet,,HANDHELD,FLEET-HH-T1,Handheld Spend Tier 1,,,,1,1,,1600,1800,2200,2800
-T,,,,T,STIHL,Fixed,,,MinimumSpend,F,T,5000,,STIHL-FLEET,STIHL Fleet Program,Fleet,,HANDHELD,FLEET-HH-T2,Handheld Spend Tier 2,,,,2,2,,1800,2000,2400,3000
-T,,,,T,STIHL,Fixed,,,MinimumUnits,F,T,,2,STIHL-FLEET,STIHL Fleet Program,Fleet,,ZERO-TURN,FLEET-ZT-T1,Zero-Turn Quantity Tier 1,,,,3,1,,1600,1800,2200,2800
-T,,,,T,STIHL,Fixed,,,MinimumUnits,F,T,,4,STIHL-FLEET,STIHL Fleet Program,Fleet,,ZERO-TURN,FLEET-ZT-T2,Zero-Turn Quantity Tier 2,,,,4,2,,1800,2000,2400,3000
-T,,,,T,STIHL,Fixed,,,MinimumUnits,T,T,,1,STIHL-BID,STIHL Bid Program,Bid,,ZERO-TURN,BID-RZ560,RZ560 Bid Program,,,,5,1,,1600,,,
+﻿Active,AppliesToCategory,AppliesToFleetGroup,AppliesToSKU,ApplyToLineItemPrices,BrandID,CustomerDiscountBasis,CustomerDiscountAmount,CustomerDiscountPercent,EligibilityBasis,ExcludeFinancing,ExcludePromotions,MinimumSpend,MinimumUnits,ProgramID,ProgramName,ProgramType,QualifyingCategory,QualifyingFleetGroup,RuleID,RuleName,SalePriceOrMSRP,StartDate,EndDate,SortOrder,Tier,Notes
+T,,,,T,STIHL,Fixed,,,MinimumSpend,F,T,2500,,STIHL-FLEET,STIHL Fleet Program,Fleet,,HANDHELD,FLEET-HH-T1,Handheld Spend Tier 1,,,,1,1,
+T,,,,T,STIHL,Fixed,,,MinimumSpend,F,T,5000,,STIHL-FLEET,STIHL Fleet Program,Fleet,,HANDHELD,FLEET-HH-T2,Handheld Spend Tier 2,,,,2,2,
+T,,,,T,STIHL,Fixed,,,MinimumUnits,F,T,,2,STIHL-FLEET,STIHL Fleet Program,Fleet,,ZERO-TURN,FLEET-ZT-T1,Zero-Turn Quantity Tier 1,,,,3,1,
+T,,,,T,STIHL,Fixed,,,MinimumUnits,F,T,,4,STIHL-FLEET,STIHL Fleet Program,Fleet,,ZERO-TURN,FLEET-ZT-T2,Zero-Turn Quantity Tier 2,,,,4,2,
+T,,,,T,STIHL,Fixed,,,MinimumUnits,T,T,,1,STIHL-BID,STIHL Bid Program,Bid,,ZERO-TURN,BID-RZ560,RZ560 Bid Program,,,,5,1,
