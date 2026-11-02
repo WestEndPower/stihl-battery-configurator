@@ -6,7 +6,7 @@ $syncFile = Join-Path $PSScriptRoot 'Sync-STIHL-Workbook-Private.ps1'
 foreach ($file in @($moduleFile, $syncFile)) { if (-not (Test-Path -LiteralPath $file)) { throw "Required workflow file not found: $file. Run the installer from the updated STIHL repository." } }
 
 $ErrorActionPreference = 'Stop'
-$fields = @('FleetEligible', 'FleetRebateProgram', 'FleetTier1Discount', 'FleetTier1Rebate', 'FleetTier2Discount', 'FleetTier2Rebate', 'FleetPoints')
+$fields = @('BrandID', 'FleetEligible', 'FleetRebateProgram', 'FleetTier1Discount', 'FleetTier1Rebate', 'FleetTier2Discount', 'FleetTier2Rebate', 'FleetPoints')
 $targets = [ordered]@{ products = 'tblProducts'; attachments = 'tblAttachments'; accessories = 'tblAccessories'; parts = 'tblParts' }
 
 function Get-Headers($Sheet, [string[]]$WantedHeaders) {
@@ -101,6 +101,7 @@ try {
             }
             if (-not $skuRows.ContainsKey($sku)) { throw "SKU '$sku' in '$name' was not found in STIHL Master. Nothing changed." }
             if ($duplicateSkus.ContainsKey($sku)) { throw "SKU '$sku' occurs more than once in STIHL Master. Resolve it before installing." }
+            if (([string]$master.Cells.Item($skuRows[$sku], $headers['BrandID']).Value2).Trim() -ine 'STIHL') { throw "Master SKU '$sku' is not identified as STIHL. Nothing changed." }
             $rows += [pscustomobject]@{ Index = $i; MasterRow = $skuRows[$sku] }
         }
         $plans += [pscustomobject]@{ Name = $name; Table = $table; Rows = $rows }
@@ -156,7 +157,7 @@ try {
             $blankTest = '[@SKU]=""'
             if ($plan.Name -eq 'attachments') { $blankTest = 'OR([@SKU]="",[@SKU]="0000 000 0000")' }
             $column.DataBodyRange.Formula = '=IF(' + $blankTest + ',"",IF(' + $lookup + '="","",' + $lookup + '))'
-            if ($field -in @('FleetEligible', 'FleetRebateProgram')) { $column.DataBodyRange.NumberFormat = 'General' }
+            if ($field -in @('BrandID', 'FleetEligible', 'FleetRebateProgram')) { $column.DataBodyRange.NumberFormat = 'General' }
             elseif ($field -eq 'FleetPoints') { $column.DataBodyRange.NumberFormat = '0.##' }
             else { $column.DataBodyRange.NumberFormat = '0.00' }
             $column.Range.ColumnWidth = [Math]::Max(18, $field.Length + 2)
@@ -179,7 +180,7 @@ try {
                 }
             }
         }
-        Write-Host ("PASS  {0}: 7 master-linked columns, {1} populated SKUs verified" -f $plan.Name, $plan.Rows.Count) -ForegroundColor Green
+        Write-Host ("PASS  {0}: BrandID and 7 fleet columns linked to master, {1} populated SKUs verified" -f $plan.Name, $plan.Rows.Count) -ForegroundColor Green
     }
     $book.Save()
     Write-Host "PASS: fleet columns installed and saved."

@@ -33,7 +33,7 @@ foreach ($name in @('products','attachments','accessories','parts')) {
 Write-Output 'TEST validated uploads and all four mirrors'
 '@ | Set-Content -LiteralPath $harness -Encoding UTF8
 try {
-    foreach ($mode in @('valid','blank','missing-header','foreign-brand','negative','duplicate','missing-file')) {
+    foreach ($mode in @('valid','blank','blank-brand','missing-header','foreign-brand','negative','duplicate','missing-file')) {
         $folder = Join-Path $temporary $mode
         $brand = Join-Path $folder 'STIHL'
         New-Item -ItemType Directory -Path $brand -Force | Out-Null
@@ -45,6 +45,7 @@ try {
             if ($name -eq 'parts') {
                 switch ($mode) {
                     'blank' { $record.FleetEligible='' }
+                    'blank-brand' { $record.BrandID='' }
                     'missing-header' { $record.Remove('FleetTier2Rebate') }
                     'foreign-brand' { $record.BrandID='TORO' }
                     'negative' { $record.FleetTier1Discount='-1' }
@@ -65,7 +66,7 @@ try {
             if ($code -ne 0 -or $result -notmatch 'TEST validated uploads and all four mirrors') { throw "Valid export test failed: $result" }
         } else {
             if ($code -eq 0 -or $result -match 'TEST credential reached') { throw "$mode did not stop before sign-in/upload: $result" }
-            $expected=switch ($mode) { 'blank' {'blank fleet data'} 'missing-header' {'missing FleetTier2Rebate'} 'foreign-brand' {'contains another brand'} 'negative' {'invalid FleetTier1Discount'} 'duplicate' {'duplicate SKU'} 'missing-file' {'export is missing: parts'} }
+            $expected=switch ($mode) { 'blank' {'blank fleet data'} 'blank-brand' {'blank BrandID'} 'missing-header' {'missing FleetTier2Rebate'} 'foreign-brand' {'contains another brand'} 'negative' {'invalid FleetTier1Discount'} 'duplicate' {'duplicate SKU'} 'missing-file' {'export is missing: parts'} }
             if ($result -notmatch [regex]::Escape($expected)) { throw "$mode failed for an unexpected reason: $result" }
         }
         Write-Host "PASS private sync: $mode"

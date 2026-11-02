@@ -20,7 +20,7 @@ Public Sub RestoreSTIHLFleetFields(ByVal target As Worksheet)
         Case "products", "attachments", "accessories", "parts"
         Case Else: Exit Sub
     End Select
-    fields = Array("FleetEligible", "FleetRebateProgram", "FleetTier1Discount", "FleetTier1Rebate", "FleetTier2Discount", "FleetTier2Rebate", "FleetPoints")
+    fields = Array("BrandID", "FleetEligible", "FleetRebateProgram", "FleetTier1Discount", "FleetTier1Rebate", "FleetTier2Discount", "FleetTier2Rebate", "FleetPoints")
     Set master = ThisWorkbook.Worksheets("STIHL Master")
     Set columns = CreateObject("Scripting.Dictionary")
     Set rows = CreateObject("Scripting.Dictionary")
@@ -58,6 +58,7 @@ Public Sub RestoreSTIHLFleetFields(ByVal target As Worksheet)
         If Len(Trim$(sku)) > 0 And Not (target.Name = "attachments" And sku = "0000 000 0000") Then
             If Not rows.Exists(sku) Then Err.Raise vbObjectError + 2402, , target.Name & ": SKU missing from master: " & sku
             If duplicates.Exists(sku) Then Err.Raise vbObjectError + 2403, , "Duplicate master SKU: " & sku
+            If UCase$(Trim$(CStr(master.Cells(CLng(rows(sku)), CLng(columns("BrandID"))).Value2))) <> "STIHL" Then Err.Raise vbObjectError + 2407, , "Master SKU is not identified as STIHL: " & sku
         End If
     Next r
     ids = "'STIHL Master'!$A$2:$A$" & lastRow

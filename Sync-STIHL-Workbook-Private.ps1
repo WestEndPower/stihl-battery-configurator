@@ -36,7 +36,7 @@ try {
                 if (-not $sku -or $sku -in @('REFERENCE_ONLY','0000 000 0000')) { throw "$dataset has a blank or template SKU. Re-export before sync." }
                 if ($seen.ContainsKey($sku)) { throw "$dataset has duplicate SKU $sku." }
                 $seen[$sku] = $true
-                if (([string]$row.BrandID).Trim() -ine 'STIHL') { throw "$dataset contains a row not identified as STIHL." }
+                if (([string]$row.BrandID).Trim() -ine 'STIHL') { throw "$dataset / $sku has blank BrandID. Run Update Data and Export from the repaired workbook." }
                 $eligible = ([string]$row.FleetEligible).Trim()
                 if ($eligible) {
                     if ($eligible -notmatch '^(?i:T|F|TRUE|FALSE|Y|N|YES|NO|1|0|X)$') { throw "$dataset has invalid FleetEligible for $sku." }
