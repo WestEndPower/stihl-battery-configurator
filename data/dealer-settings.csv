@@ -1,0 +1,2 @@
+﻿BrandID,DealerName,Currency,SalesTaxRate,QuoteValidDays,DefaultLocationID,ExportFolder,SchemaVersion,ApplicationID,BrandName,DealerID,DealerPhone,DealerCell,DealerEmail,DealerWebsite,LastExportDate,DealerLogoURL,GA4MeasurementID,GoogleTagManagerID,DefaultSEOName,DefaultShareImage
+STIHL,"West End Power Equip. Co., Inc",USD,0.0635,14,NM,Configurator CSVs,1,Universal Equipment Configurator,,WEST-END-POWER,860 355-8722,860 355-8722,sales@westendpower.com,https://www.westendpower.com,,images/West-End-Logo.png,,,West End Power Equipment,images/West-End-Logo.png
